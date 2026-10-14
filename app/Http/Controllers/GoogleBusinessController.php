@@ -763,6 +763,32 @@ class GoogleBusinessController extends Controller
                 ];
             }
 
+            // If 404 entity not found, attempt retry with canonical v4Location if available
+            if ($response->status() === 404 && $locationParam) {
+                $v4Location = $this->resolveLocationV4Name($locationParam);
+                $actualReviewId = $reviewId ?: basename($cleanReviewName);
+                if ($v4Location && $actualReviewId) {
+                    $altReviewName = "{$v4Location}/reviews/{$actualReviewId}";
+                    if ($altReviewName !== $cleanReviewName) {
+                        Log::info('Retrying reply with resolved alternate v4Location', ['altReviewName' => $altReviewName]);
+                        $altResponse = Http::timeout(15)->connectTimeout(5)->withToken($token)
+                            ->put("https://mybusiness.googleapis.com/v4/{$altReviewName}/reply", [
+                                'comment' => $comment,
+                            ]);
+
+                        if ($altResponse->successful()) {
+                            $reviewReply = $altResponse->json();
+                            $this->updateCachedReviewReply($locationParam, $actualReviewId, $reviewReply);
+
+                            return [
+                                'success' => true,
+                                'reviewReply' => $reviewReply,
+                            ];
+                        }
+                    }
+                }
+            }
+
             Log::warning('Reply to review failed', [
                 'reviewName' => $cleanReviewName,
                 'status' => $response->status(),
@@ -4014,26 +4040,9 @@ class GoogleBusinessController extends Controller
 
                 return response()->json($savedReport);
             }
-
-            // If no report has ever been generated, do NOT hit Google API automatically!
-            return response()->json([
-                'success' => true,
-                'hasReport' => false,
-                'userEmail' => $userEmail,
-                'generatedAt' => null,
-                'locations' => [],
-                'overall' => [
-                    'totalProfiles' => 0,
-                    'totalReviews' => 0,
-                    'totalTodayNew' => 0,
-                    'totalPending' => 0,
-                    'averageRating' => 0.0,
-                ],
-                'message' => 'No report generated yet. Click "Generate Report" button to create live report.',
-            ]);
         }
 
-        // 2. Fetch fresh report from Google on explicit user request
+        // 2. Fetch fresh report from Google on explicit user request or initial load
         $locationsRes = $this->getLocations($request);
         $locationsData = $locationsRes->getData(true);
         $locations = $locationsData['locations'] ?? [];

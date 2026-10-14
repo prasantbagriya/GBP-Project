@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Bot, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { Clock, Bot, CheckCircle, AlertCircle, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface ResponseHealthGaugeProps {
   replyRate?: number | string;
@@ -7,6 +7,7 @@ interface ResponseHealthGaugeProps {
   repliedCount?: number | string;
   pendingCount?: number | string;
   onViewUnreplied?: () => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
@@ -15,6 +16,7 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
   repliedCount = 0,
   pendingCount = 0,
   onViewUnreplied,
+  onNavigateTab,
 }) => {
   const numReplyRate = Math.min(100, Math.max(0, Number(replyRate) || 0));
   const numTotal = Number(totalReviews) || 0;
@@ -33,13 +35,13 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
     <div className="card p-5 space-y-4">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Customer Response SLA & Speedometer</h3>
+          <h3 className="text-sm font-bold text-slate-800">Customer Response SLA & Health Speedometer</h3>
           <p className="text-xs text-slate-500 mt-0.5">Turnaround speed, answered ratio, and review backlog</p>
         </div>
-        <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${
+        <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold shadow-2xs ${
           isHealthy ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
         }`}>
-          {isHealthy ? 'Target Met (>=85%)' : 'Below Target'}
+          {isHealthy ? 'Target Met (>=85%)' : 'Backlog Detected'}
         </span>
       </div>
 
@@ -70,27 +72,27 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
 
           {/* Value Display */}
           <div className="text-center -mt-8">
-            <span className="text-3xl font-bold text-slate-800">{numReplyRate}%</span>
-            <span className="text-[10px] text-slate-400 block font-medium">SLA Resolution</span>
+            <span className="text-3xl font-bold text-slate-800 leading-none">{numReplyRate}%</span>
+            <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider mt-1">SLA Resolution</span>
           </div>
         </div>
 
         {/* Right: Backlog Breakdown */}
         <div className="sm:col-span-7 space-y-2.5">
-          <div className="p-2.5 bg-slate-50 rounded-lg flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-slate-700">
+          <div className="p-2.5 bg-slate-50 rounded-xl flex items-center justify-between text-xs border border-slate-100">
+            <div className="flex items-center gap-2 text-slate-700 font-medium">
               <CheckCircle className="w-4 h-4 text-emerald-500" />
-              <span>Reviews Replied</span>
+              <span>Reviews Answered</span>
             </div>
-            <strong className="font-semibold text-slate-900">{numReplied.toLocaleString()}</strong>
+            <strong className="font-bold text-slate-900">{numReplied.toLocaleString()}</strong>
           </div>
 
-          <div className="p-2.5 bg-slate-50 rounded-lg flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-slate-700">
+          <div className="p-2.5 bg-slate-50 rounded-xl flex items-center justify-between text-xs border border-slate-100">
+            <div className="flex items-center gap-2 text-slate-700 font-medium">
               <AlertCircle className={`w-4 h-4 ${numPending > 0 ? 'text-amber-500' : 'text-slate-400'}`} />
               <span>Pending Attention</span>
             </div>
-            <strong className={`font-semibold ${numPending > 0 ? 'text-amber-600' : 'text-slate-500'}`}>
+            <strong className={`font-bold ${numPending > 0 ? 'text-amber-600' : 'text-slate-500'}`}>
               {numPending.toLocaleString()}
             </strong>
           </div>
@@ -98,10 +100,20 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
           {numPending > 0 && onViewUnreplied && (
             <button
               onClick={onViewUnreplied}
-              className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-blue-200/60 shadow-2xs"
             >
               <span>Address {numPending} Pending Reviews</span>
               <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onNavigateTab && (
+            <button
+              onClick={() => onNavigateTab('autoreply')}
+              className="w-full py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-purple-200/60 shadow-2xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <span>Configure AI Auto-Reply</span>
             </button>
           )}
         </div>

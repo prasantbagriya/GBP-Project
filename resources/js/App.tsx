@@ -2816,7 +2816,7 @@ export default function App() {
                 weeklyDayBreakdown={weeklyDayBreakdown || []}
                 onDownloadCsv={handleDownloadCsv}
                 onSyncToSheets={() => handleSyncToSheets(true)}
-                onSelectLocation={(loc) => handleLocationChange(loc.name)}
+                onSelectLocation={(loc) => handleLocationChange(loc.v4Name || loc.name)}
                 onNavigateTab={(tab) => setActiveTab(tab as TabType)}
                 isSyncing={syncStatus === 'syncing'}
               />
