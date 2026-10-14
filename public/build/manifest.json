@@ -1,0 +1,35 @@
+{
+  "_rolldown-runtime-CbXtAM7H.js": {
+    "file": "assets/rolldown-runtime-CbXtAM7H.js",
+    "name": "rolldown-runtime"
+  },
+  "_vendor-motion-BSBC45Le.js": {
+    "file": "assets/vendor-motion-BSBC45Le.js",
+    "name": "vendor-motion",
+    "imports": [
+      "_rolldown-runtime-CbXtAM7H.js"
+    ]
+  },
+  "_vendor-react-BtVKyQWG.js": {
+    "file": "assets/vendor-react-BtVKyQWG.js",
+    "name": "vendor-react",
+    "imports": [
+      "_rolldown-runtime-CbXtAM7H.js",
+      "_vendor-motion-BSBC45Le.js"
+    ]
+  },
+  "resources/js/main.tsx": {
+    "file": "assets/main-BSrwftug.js",
+    "name": "main",
+    "src": "resources/js/main.tsx",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime-CbXtAM7H.js",
+      "_vendor-motion-BSBC45Le.js",
+      "_vendor-react-BtVKyQWG.js"
+    ],
+    "css": [
+      "assets/main-buqSsKZ4.css"
+    ]
+  }
+}
