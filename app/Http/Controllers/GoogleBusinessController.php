@@ -978,7 +978,20 @@ class GoogleBusinessController extends Controller
         bool $enforceRules = true
     ): array {
         $comment = trim((string) ($reviewData['comment'] ?? ''));
-        $reviewerName = trim((string) ($reviewData['reviewerName'] ?? 'Valued Customer'));
+        $rawReviewerName = trim((string) ($reviewData['reviewerName'] ?? 'Valued Customer'));
+        
+        // Deduplicate repeated names like "vijaysingh vijaysingh" or "John John"
+        $nameParts = preg_split('/\s+/', $rawReviewerName);
+        if (count($nameParts) === 2 && strcasecmp($nameParts[0], $nameParts[1]) === 0) {
+            $reviewerName = $nameParts[0];
+        } else {
+            $reviewerName = $rawReviewerName;
+        }
+        // Capitalize properly if all lowercase or raw
+        if ($reviewerName && ctype_lower(str_replace(' ', '', $reviewerName))) {
+            $reviewerName = ucwords($reviewerName);
+        }
+
         $starRating = $reviewData['starRating'] ?? 'FIVE';
         $tone = $reviewData['tone'] ?? ($rules['tone'] ?? 'Warm & Courteous');
         $customInstructions = $reviewData['customInstructions'] ?? ($rules['customInstructions'] ?? '');
@@ -1004,13 +1017,59 @@ class GoogleBusinessController extends Controller
             ];
         }
 
-        // Safe fallback text if AI is disabled or fails
+        // Build dynamic, non-repetitive fallback pool
         $isPositive = $starNumber >= 4;
-        $fallback = $isPositive
-            ? "Thank you so much {$reviewerName}! We truly appreciate your positive feedback and 5-star rating for {$businessName}. Your support inspires our entire team."
-            : "Dear {$reviewerName}, thank you for bringing this to our attention. At {$businessName}, we are fully committed to continuous improvement. ".(
-                ! empty($rules['contactPhone']) ? "Please connect with us directly at {$rules['contactPhone']} so we can address your concerns." : 'Please reach out to our management team directly so we can resolve this.'
-            );
+        $cleanReviewer = (! empty($rules['includeReviewerName']) && ! empty($reviewerName) && strtolower($reviewerName) !== 'a google user' && strtolower($reviewerName) !== 'valued customer') ? $reviewerName : '';
+        $hashIndex = abs(crc32($reviewerName . $comment . $starNumber . date('YmdH')));
+
+        // Check if Hindi/Hinglish
+        $isHindi = preg_match('/[\x{0900}-\x{097F}]/u', $comment) || preg_match('/\b(bahut|achha|badiya|dhanyawad|accha|shandar|shukriya|namaste|sir)\b/i', $comment);
+
+        if ($isHindi && ! empty($rules['languageMatching'])) {
+            if ($isPositive) {
+                $pool = [
+                    ($cleanReviewer ? "Namaste {$cleanReviewer}! " : "Namaste! ")."{$businessName} ko 5-star rating aur shandar feedback dene ke liye hardik dhanyawad. Hamari poori team aapke ujjwal bhavishya ki kamna karti hai.",
+                    ($cleanReviewer ? "Shukriya {$cleanReviewer} ji! " : "Shukriya! ")."Aapka yeh positive review padhkar poori team ko bahut khushi hui. {$businessName} hamesha best guidance aur support dene ke liye committed hai.",
+                    ($cleanReviewer ? "Hello {$cleanReviewer}! " : "Hello! ")."Aapke is shandar response ke liye tahe dil se aabhar. {$businessName} par bharosa jatane ke liye dhanyawad, hum aage bhi aapko aisi hi behtareen seva dete rahenge.",
+                    ($cleanReviewer ? "Dhanyawad {$cleanReviewer} ji! " : "Dhanyawad! ")."{$businessName} ke prati aapka vishwas aur 5-star support hamare liye anmol hai. Aapka din shubh ho!",
+                ];
+            } elseif ($starNumber === 3) {
+                $contactInfo = ! empty($rules['contactPhone']) ? " kripya humse {$rules['contactPhone']} par direct contact karein" : "";
+                $pool = [
+                    ($cleanReviewer ? "Namaste {$cleanReviewer}! " : "Namaste! ")."Aapke feedback ke liye dhanyawad. {$businessName} me hum lagatar apni services ko aur behtar banane me lage hain.{$contactInfo} taaki hum aapki poori madad kar sakein.",
+                    ($cleanReviewer ? "Hello {$cleanReviewer}, " : "Hello! ")."Aapke anubhav ko aur badiya karne ke liye hum hamesha committed hain. Koi bhi sujhav ho toh {$contactInfo}.",
+                ];
+            } else {
+                $contactInfo = ! empty($rules['contactPhone']) ? "turant {$rules['contactPhone']} par sampark karein" : "management team se direct baat karein";
+                $pool = [
+                    ($cleanReviewer ? "Namaste {$cleanReviewer}, " : "Namaste! ")."Hume khed hai ki aapko santushtijanak anubhav nahi mila. {$businessName} har student aur customer ke anubhav ko gambhirta se leti hai. Kripya {$contactInfo} taaki hum is samasya ko turant hal kar sakein.",
+                    ($cleanReviewer ? "Hello {$cleanReviewer}, " : "Hello! ")."Aapki asuvidha ke liye hum kshama-prarthi hain. Kripya management team se {$contactInfo} taaki hum aapki shikayat ka turant samadhan kar sakein.",
+                ];
+            }
+        } else {
+            if ($isPositive) {
+                $pool = [
+                    ($cleanReviewer ? "Hello {$cleanReviewer}, " : "Hello! ")."Thank you so much for the 5-star rating! The entire team at {$businessName} is thrilled to have your support and trust.",
+                    ($cleanReviewer ? "Hi {$cleanReviewer}, " : "Hi there! ")."We truly appreciate your wonderful feedback for {$businessName}. Knowing that you had a great experience inspires us to keep delivering excellence every day.",
+                    ($cleanReviewer ? "Dear {$cleanReviewer}, " : "Dear Valued Customer, ")."Your positive review means a lot to everyone at {$businessName}. Thank you for choosing us and being an essential part of our journey.",
+                    ($cleanReviewer ? "Greetings {$cleanReviewer}! " : "Greetings! ")."Big thanks for sharing your experience with {$businessName}. We are committed to providing the highest standards and look forward to continuing to assist you.",
+                    ($cleanReviewer ? "Thank you {$cleanReviewer}! " : "Thank you! ")."We're delighted by your stellar rating for {$businessName}. Your encouraging words motivate us to achieve even higher benchmarks.",
+                ];
+            } elseif ($starNumber === 3) {
+                $contactInfo = ! empty($rules['contactPhone']) ? " at {$rules['contactPhone']}" : "";
+                $pool = [
+                    ($cleanReviewer ? "Hello {$cleanReviewer}, " : "Hello, ")."Thank you for sharing your feedback with us. At {$businessName}, we constantly strive to improve our services. Please feel free to reach out{$contactInfo} if there is anything we can do better for you.",
+                    ($cleanReviewer ? "Dear {$cleanReviewer}, " : "Dear Guest, ")."We appreciate your honest rating for {$businessName}. We take all feedback constructively to elevate our service quality. Connect with us{$contactInfo} anytime.",
+                ];
+            } else {
+                $contactInfo = ! empty($rules['contactPhone']) ? "directly at {$rules['contactPhone']} " : "";
+                $pool = [
+                    ($cleanReviewer ? "Dear {$cleanReviewer}, " : "Dear Valued Customer, ")."We sincerely apologize that your experience at {$businessName} fell short of your expectations. We take this very seriously and would welcome the chance to make it right. Please connect with our management team {$contactInfo}so we can resolve this promptly.",
+                    ($cleanReviewer ? "Hello {$cleanReviewer}, " : "Hello, ")."We are truly sorry to hear about your experience. At {$businessName}, high quality and customer satisfaction are our top priorities. Kindly reach out to our team {$contactInfo}so we can understand the issue and assist you immediately.",
+                ];
+            }
+        }
+        $fallback = $pool[$hashIndex % count($pool)];
 
         // If Gemini AI is disabled globally AND rules are enforced
         if ($enforceRules && ! $this->isGeminiAiEnabled()) {
@@ -1026,35 +1085,33 @@ class GoogleBusinessController extends Controller
 
         // Construct high-converting, non-toxic, personalized prompt
         $instructions = [
-            "You are the official representative and owner of \"{$businessName}\".",
-            'Write an authentic, polite, and hyper-personalized reply to this Google Business Profile review.',
+            "You are the official representative and manager of \"{$businessName}\".",
+            'Write an authentic, unique, human-like, and highly personalized reply to this Google Business Profile review.',
+            'CRITICAL DIRECTIVE: DO NOT use repetitive, robotic, or template phrases (such as "Thank you so much for your generous review and high recommendation"). Every single response MUST have unique vocabulary, phrasing, and personality tailored to this exact customer.',
             '',
             '--- REVIEW DETAILS ---',
-            'Reviewer Name: '.($reviewerName ?: 'Valued Customer'),
-            "Rating: {$starRating} ({$starNumber} out of 5 stars)",
-            'Customer Comment: '.(! empty($comment) ? "\"{$comment}\"" : '(Rating only, no written text)'),
+            'Customer Name: '.($reviewerName ?: 'Valued Customer'),
+            "Rating: {$starNumber} out of 5 stars ({$starRating})",
+            'Customer Review Text: '.(! empty($comment) ? "\"{$comment}\"" : '(Rating only, customer did not write any comments)'),
             '',
-            '--- CORE RULES & VOICE ---',
-            "1. TONE OF VOICE: {$tone}.",
-            '2. ZERO TOXICITY GUARANTEE: Never be defensive, sarcastic, argumentative, or dismissive, even if the review is hostile, angry, or unfair. Strictly de-escalate with dignity and sincere respect.',
+            '--- CORE INSTRUCTIONS ---',
+            "1. TONE: {$tone}.",
+            '2. ZERO TOXICITY GUARANTEE: Never be defensive, sarcastic, or dismissive. If the rating is 1 to 3 stars, acknowledge their experience with sincere humility and invite them to connect for a swift resolution.',
+            '3. DIVERSITY IN OPENINGS: Vary your greeting naturally (e.g. "Hello ' . ($reviewerName ?: 'there') . '!", "Hi ' . ($reviewerName ?: 'there') . '", "Thank you so much, ' . ($reviewerName ?: 'there') . '!", "Greetings ' . ($reviewerName ?: '') . ',").',
         ];
 
         if (! empty($rules['languageMatching'])) {
-            $instructions[] = '3. LANGUAGE MATCHING: If the customer review contains Hindi or Hinglish, reply warmly in polite Hindi/Hinglish. If in English, reply in natural, polished English.';
+            $instructions[] = '4. LANGUAGE MATCHING: If the review contains Hindi or Hinglish, reply warmly in polite conversational Hindi/Hinglish. If in English, reply in natural, polished English.';
         }
 
         if (! empty($rules['referenceSpecificExperience']) && ! empty($comment)) {
-            $instructions[] = '4. HYPER-PERSONALIZATION: Explicitly mention and appreciate the specific topics, faculty, facilities, or experiences mentioned in the review. Avoid robotic or cookie-cutter templates.';
-        }
-
-        if (! empty($rules['includeReviewerName']) && ! empty($reviewerName) && strtolower($reviewerName) !== 'a google user') {
-            $instructions[] = "5. GREETING: Begin with a warm, natural personal greeting like \"Dear {$reviewerName},\" or \"Hello {$reviewerName},\".";
+            $instructions[] = '5. CONTEXTUAL RELEVANCE: Directly reference the specific details mentioned in their comment (such as faculty, coaching, physical training, hostel, discipline, environment, or results).';
         }
 
         if ($starNumber <= 3) {
-            $contactSnippet = trim((! empty($rules['contactPhone']) ? "phone: {$rules['contactPhone']} " : '').(! empty($rules['contactEmail']) ? "email: {$rules['contactEmail']}" : ''));
+            $contactSnippet = trim((! empty($rules['contactPhone']) ? "phone {$rules['contactPhone']} " : '').(! empty($rules['contactEmail']) ? "email {$rules['contactEmail']}" : ''));
             if ($contactSnippet) {
-                $instructions[] = "6. OFFLINE RESOLUTION: Kindly invite the reviewer to contact our management team directly at {$contactSnippet} for swift resolution.";
+                $instructions[] = "6. OFFLINE RESOLUTION: Kindly invite the reviewer to contact our management team directly via {$contactSnippet} so we can address and resolve their concerns immediately.";
             }
         }
 
@@ -1062,55 +1119,28 @@ class GoogleBusinessController extends Controller
             $instructions[] = "7. BUSINESS GUIDELINES: {$customInstructions}";
         }
 
-        $instructions[] = '8. LENGTH: Keep reply concise, warm, and impactful (2 to 3 sentences maximum). Return ONLY the final reply text without quotes or meta commentary.';
+        $instructions[] = '8. FORMAT: 2 to 3 sentences maximum. Natural, warm, and professional. Return ONLY the final reply text without quotation marks, markdown headings, or meta commentary.';
 
         $prompt = implode("\n", $instructions);
 
-        // Smart Contextual Reply Generator (Ultra-fast, high conversion, 0ms fallback)
-        $greeting = (! empty($rules['includeReviewerName']) && ! empty($reviewerName) && strtolower($reviewerName) !== 'a google user')
-            ? "Dear {$reviewerName}, "
-            : "Hello! ";
-
-        // Check if Hindi/Hinglish
-        $isHindi = preg_match('/[\x{0900}-\x{097F}]/u', $comment) || preg_match('/\b(bahut|achha|badiya|dhanyawad|accha|shandar|shukriya|namaste|sir)\b/i', $comment);
-
-        if ($isHindi && ! empty($rules['languageMatching'])) {
-            if ($starNumber >= 4) {
-                $fallback = "{$greeting}Aapke is shandar review aur 5-star rating ke liye {$businessName} ki poori team ki taraf se hardik aabhar! Aapka vishwas hamari prerna hai.";
-            } elseif ($starNumber === 3) {
-                $contactInfo = ! empty($rules['contactPhone']) ? " kripya humse {$rules['contactPhone']} par direct contact karein" : "";
-                $fallback = "{$greeting}Aapke feedback ke liye dhanyawad. {$businessName} me hum hamesha behtar seva dene ke liye committed hain.{$contactInfo} taaki hum aapki puri madad kar sakein.";
-            } else {
-                $contactInfo = ! empty($rules['contactPhone']) ? "turant {$rules['contactPhone']} par sampark karein" : "management team se direct baat karein";
-                $fallback = "{$greeting}Hume khed hai ki aapko behtar anubhav nahi mila. {$businessName} aapke feedback ko gambhirta se leti hai. Kripya {$contactInfo} taaki hum is samasya ko turant solve kar sakein.";
-            }
-        } else {
-            if ($starNumber >= 4) {
-                $fallback = "{$greeting}Thank you so much for your generous review and high recommendation for {$businessName}! We truly appreciate your trust and look forward to serving you again.";
-            } elseif ($starNumber === 3) {
-                $contactInfo = ! empty($rules['contactPhone']) ? " Please feel free to reach out to us at {$rules['contactPhone']}." : "";
-                $fallback = "{$greeting}Thank you for your valuable feedback. At {$businessName}, we are always dedicated to improving our services and ensuring complete customer satisfaction.{$contactInfo}";
-            } else {
-                $contactInfo = ! empty($rules['contactPhone']) ? "at {$rules['contactPhone']} " : "";
-                $fallback = "{$greeting}We sincerely apologize that your experience did not meet expectations. At {$businessName}, we take customer concerns very seriously. Please connect with our management team {$contactInfo}so we can promptly resolve this for you.";
-            }
-        }
-
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-1.5-flash';
+        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-3.5-flash-lite';
         $modelsToTry = array_values(array_filter(array_unique([
             $configuredModel,
-            'gemini-2.0-flash',
-            'gemini-1.5-flash',
-            'gemini-flash-lite-latest',
-        ]), fn ($m) => ! in_array($m, ['gemini-2.5-flash', 'gemini-3.5-flash-lite'])));
+            'gemini-3.5-flash-lite',
+            'gemini-2.5-flash',
+        ])));
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
                 try {
-                    $response = Http::timeout(5)->connectTimeout(2)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
+                    $response = Http::timeout(6)->connectTimeout(3)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
                         'contents' => [
                             ['parts' => [['text' => $prompt]]],
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.85,
+                            'maxOutputTokens' => 250,
                         ],
                     ]);
 
@@ -1138,7 +1168,7 @@ class GoogleBusinessController extends Controller
                     }
                 } catch (\Exception $e) {
                     Log::warning("Gemini AI reply model {$model} timeout/error: ".$e->getMessage());
-                    break;
+                    continue;
                 }
             }
         }
@@ -2918,13 +2948,12 @@ class GoogleBusinessController extends Controller
             $prompt = "Write an engaging, high-converting Google Business Profile post for \"{$businessName}\". Type: {$topicType}. Topic: {$promptTopic}. {$langInstruction} Keep it 2-3 sentences with attractive emojis, 2 key bullet points, and a clear call to action. Return ONLY the ready post text without hashtags.";
         }
 
-        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-1.5-flash';
+        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-3.5-flash-lite';
         $modelsToTry = array_values(array_filter(array_unique([
             $configuredModel,
-            'gemini-2.0-flash',
-            'gemini-1.5-flash',
-            'gemini-flash-lite-latest',
-        ]), fn ($m) => ! in_array($m, ['gemini-2.5-flash', 'gemini-3.5-flash-lite'])));
+            'gemini-3.5-flash-lite',
+            'gemini-2.5-flash',
+        ])));
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
@@ -3751,13 +3780,12 @@ class GoogleBusinessController extends Controller
         })->implode("\n");
 
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $primaryModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-1.5-flash';
+        $primaryModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-3.5-flash-lite';
         $modelsToTry = array_values(array_filter(array_unique([
             $primaryModel,
-            'gemini-2.0-flash',
-            'gemini-1.5-flash',
-            'gemini-flash-lite-latest',
-        ]), fn ($m) => ! in_array($m, ['gemini-2.5-flash', 'gemini-3.5-flash-lite'])));
+            'gemini-3.5-flash-lite',
+            'gemini-2.5-flash',
+        ])));
 
         if (! empty($apiKey) && $this->isGeminiAiEnabled()) {
             $prompt = "Analyze these actual Google Business Profile reviews for a local business:\n{$reviewTexts}\n\n".
@@ -3894,9 +3922,9 @@ class GoogleBusinessController extends Controller
     {
         $enabled = $this->isGeminiAiEnabled();
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $model = config('services.gemini.model', 'gemini-flash-lite-latest');
-        if ($model === 'gemini-2.5-flash' || $model === 'gemini-2.5-flash-lite') {
-            $model = 'gemini-flash-lite-latest';
+        $model = config('services.gemini.model', 'gemini-3.5-flash-lite');
+        if (in_array($model, ['gemini-flash-lite-latest', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'])) {
+            $model = 'gemini-3.5-flash-lite';
         }
 
         return response()->json([
@@ -3966,7 +3994,7 @@ class GoogleBusinessController extends Controller
             'contactPhone' => '',
             'contactEmail' => '',
             'customInstructions' => 'Always maintain maximum respect and highlight our dedication to excellence and student success.',
-            'model' => 'gemini-flash-lite-latest',
+            'model' => 'gemini-3.5-flash-lite',
         ];
     }
 
@@ -4027,8 +4055,8 @@ class GoogleBusinessController extends Controller
             }
         }
 
-        if (isset($saved['model']) && in_array($saved['model'], ['gemini-2.5-flash', 'gemini-2.5-flash-lite'])) {
-            $saved['model'] = 'gemini-flash-lite-latest';
+        if (isset($saved['model']) && in_array($saved['model'], ['gemini-flash-lite-latest', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'])) {
+            $saved['model'] = 'gemini-3.5-flash-lite';
         }
 
         try {

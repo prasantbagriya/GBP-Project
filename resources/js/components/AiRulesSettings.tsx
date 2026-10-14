@@ -43,7 +43,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
     contactPhone: '',
     contactEmail: '',
     customInstructions: 'Always maintain maximum respect and highlight our dedication to student success and discipline.',
-    model: 'gemini-flash-lite-latest'
+    model: 'gemini-3.5-flash-lite'
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -124,7 +124,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       contactPhone: '',
       contactEmail: '',
       customInstructions: 'Always maintain maximum respect and highlight our dedication to student success and discipline.',
-      model: 'gemini-flash-lite-latest'
+      model: 'gemini-3.5-flash-lite'
     });
   };
 
