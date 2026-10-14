@@ -73,7 +73,7 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
           {/* Value Display */}
           <div className="text-center -mt-8">
             <span className="text-3xl font-bold text-slate-800 leading-none">{numReplyRate}%</span>
-            <span className="text-[10px] text-slate-400 block font-medium uppercase tracking-wider mt-1">SLA Resolution</span>
+            <span className="text-xs text-slate-500 block font-normal mt-1">SLA Resolution</span>
           </div>
         </div>
 

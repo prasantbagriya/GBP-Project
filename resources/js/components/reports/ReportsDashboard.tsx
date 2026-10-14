@@ -566,16 +566,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       {/* ================= 1. REPORT HEADER & ACTIONS TOOLBAR ================= */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-slate-200 shadow-xs">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
-              <BarChart3 className="w-5 h-5" />
-            </span>
-            <h2 className="text-lg font-semibold text-slate-800">
-              Executive Review Analytics & Multi-Profile Reports
-            </h2>
-          </div>
-          <p className="text-slate-500 text-xs">
-            Comprehensive graphical analysis, cross-location leaderboards, rating quality donuts, and SLA benchmarks.
+          <h2 className="text-xl font-bold text-slate-800">
+            Reviews Analytics & Performance Reports
+          </h2>
+          <p className="text-slate-500 text-xs mt-1">
+            Detailed graphical analysis, branch rankings, rating distribution, and response SLA benchmarks.
           </p>
         </div>
 
@@ -658,10 +653,10 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           {/* Print / PDF Dossier */}
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
+            className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
           >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print Dossier</span>
+            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <span>Print Report</span>
           </button>
         </div>
       </div>
@@ -670,7 +665,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
         {/* Scope Selector: Consolidated vs Single Location */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px] whitespace-nowrap shrink-0">Report Scope:</span>
+          <span className="text-xs font-medium text-slate-700 whitespace-nowrap shrink-0">Report Scope:</span>
           
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
             <button
@@ -719,7 +714,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
         {/* Timeframe Filter */}
         <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px] whitespace-nowrap">Timeframe:</span>
+          <span className="text-xs font-medium text-slate-700 whitespace-nowrap shrink-0">Timeframe:</span>
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
             {(['7d', '30d', '90d', 'all'] as const).map((tf) => (
               <button
@@ -727,7 +722,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                 onClick={() => setTimeframe(tf)}
                 className={`px-3 py-1 rounded-md transition-all text-xs font-medium whitespace-nowrap shrink-0 ${
                   timeframe === tf
-                    ? 'bg-slate-800 text-white shadow-xs'
+                    ? 'bg-white text-slate-900 shadow-sm font-semibold'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -744,8 +739,8 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
             <div>
-              <span className="text-slate-500">Currently Analyzing Branch:</span>
-              <strong className="font-semibold text-blue-950 ml-1.5 text-sm">{activeLocation.title || activeLocation.name}</strong>
+              <span className="text-slate-600">Currently analyzing branch:</span>
+              <strong className="font-semibold text-slate-900 ml-1.5 text-sm">{activeLocation.title || activeLocation.name}</strong>
               {activeLocation.address && (
                 <span className="text-slate-500 ml-2 hidden sm:inline">({activeLocation.address})</span>
               )}
@@ -773,12 +768,12 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       />
 
       {/* ================= 4. DIMENSION SUB-TABS NAVIGATION ================= */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg overflow-x-auto text-xs font-medium border border-slate-200/60">
+      <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-lg text-xs font-medium overflow-x-auto w-full">
         <button
           onClick={() => setActiveDimension('overview')}
           className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'overview'
-              ? 'bg-white text-blue-600 font-semibold shadow-xs'
+              ? 'bg-white text-slate-900 shadow-sm font-semibold'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -790,7 +785,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           onClick={() => setActiveDimension('leaderboard')}
           className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'leaderboard'
-              ? 'bg-white text-blue-600 font-semibold shadow-xs'
+              ? 'bg-white text-slate-900 shadow-sm font-semibold'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -802,7 +797,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           onClick={() => setActiveDimension('ratings')}
           className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'ratings'
-              ? 'bg-white text-blue-600 font-semibold shadow-xs'
+              ? 'bg-white text-slate-900 shadow-sm font-semibold'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -814,7 +809,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           onClick={() => setActiveDimension('response')}
           className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'response'
-              ? 'bg-white text-blue-600 font-semibold shadow-xs'
+              ? 'bg-white text-slate-900 shadow-sm font-semibold'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -826,7 +821,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           onClick={() => setActiveDimension('intelligence')}
           className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'intelligence'
-              ? 'bg-white text-blue-600 font-semibold shadow-xs'
+              ? 'bg-white text-slate-900 shadow-sm font-semibold'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -838,7 +833,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           onClick={() => setActiveDimension('milestones')}
           className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'milestones'
-              ? 'bg-white text-blue-600 font-semibold shadow-xs'
+              ? 'bg-white text-slate-900 shadow-sm font-semibold'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >

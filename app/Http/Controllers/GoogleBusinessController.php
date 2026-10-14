@@ -699,6 +699,29 @@ class GoogleBusinessController extends Controller
                 $this->saveServerData('gbp_reviews_'.md5($v4Name), $cachePayload);
             }
 
+            // Auto-reply to new incoming unreplied reviews if enabled for this specific profile
+            try {
+                $rules = $this->getAiRulesArray($locationParam);
+                if (! empty($rules['enabled'])) {
+                    $hasUnreplied = false;
+                    foreach ($reviews as $rev) {
+                        if (empty($rev['reviewReply'])) {
+                            $hasUnreplied = true;
+                            break;
+                        }
+                    }
+                    if ($hasUnreplied) {
+                        $this->autoReplyForProfile($locationParam, false, 5);
+                        $refreshed = $this->getServerData($locKey);
+                        if (is_array($refreshed) && ! empty($refreshed['reviews'])) {
+                            $reviews = $refreshed['reviews'];
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Auto-reply trigger on getReviews failed for {$locationParam}: ".$e->getMessage());
+            }
+
             return response()->json([
                 'reviews' => $reviews,
                 'averageRating' => $cachePayload['averageRating'],
@@ -1074,7 +1097,13 @@ class GoogleBusinessController extends Controller
         }
 
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-1.5-flash';
+        $modelsToTry = array_values(array_filter(array_unique([
+            $configuredModel,
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-flash-lite-latest',
+        ]), fn ($m) => ! in_array($m, ['gemini-2.5-flash', 'gemini-3.5-flash-lite'])));
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
@@ -2889,9 +2918,13 @@ class GoogleBusinessController extends Controller
             $prompt = "Write an engaging, high-converting Google Business Profile post for \"{$businessName}\". Type: {$topicType}. Topic: {$promptTopic}. {$langInstruction} Keep it 2-3 sentences with attractive emojis, 2 key bullet points, and a clear call to action. Return ONLY the ready post text without hashtags.";
         }
 
-        $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        // Prioritize fast, high-quota models
-        $modelsToTry = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'];
+        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-1.5-flash';
+        $modelsToTry = array_values(array_filter(array_unique([
+            $configuredModel,
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-flash-lite-latest',
+        ]), fn ($m) => ! in_array($m, ['gemini-2.5-flash', 'gemini-3.5-flash-lite'])));
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
@@ -3718,14 +3751,13 @@ class GoogleBusinessController extends Controller
         })->implode("\n");
 
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $primaryModel = config('services.gemini.model', 'gemini-flash-lite-latest');
-        if ($primaryModel === 'gemini-2.5-flash' || $primaryModel === 'gemini-2.5-flash-lite') {
-            $primaryModel = 'gemini-flash-lite-latest';
-        }
-        $modelsToTry = array_values(array_filter(
-            array_unique([$primaryModel, 'gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest']),
-            fn ($m) => ! empty($m) && $m !== 'gemini-2.5-flash' && $m !== 'gemini-2.5-flash-lite'
-        ));
+        $primaryModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-1.5-flash';
+        $modelsToTry = array_values(array_filter(array_unique([
+            $primaryModel,
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-flash-lite-latest',
+        ]), fn ($m) => ! in_array($m, ['gemini-2.5-flash', 'gemini-3.5-flash-lite'])));
 
         if (! empty($apiKey) && $this->isGeminiAiEnabled()) {
             $prompt = "Analyze these actual Google Business Profile reviews for a local business:\n{$reviewTexts}\n\n".

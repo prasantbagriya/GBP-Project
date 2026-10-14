@@ -138,7 +138,7 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Metric 1: Current vs Target */}
         <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-between">
-          <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Target Progress</div>
+          <div className="text-xs font-medium text-slate-600">Target Progress</div>
           <div className="mt-1">
             <span className="text-2xl font-bold text-slate-800">{numCurrent.toLocaleString()}</span>
             <span className="text-xs text-slate-400 ml-1.5 font-medium">/ {targetCount.toLocaleString()}</span>
@@ -156,7 +156,7 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
 
         {/* Metric 2: Estimated Arrival Date (ETA) */}
         <div className="p-3.5 bg-indigo-50/60 rounded-xl border border-indigo-100 flex flex-col justify-between">
-          <div className="text-[11px] uppercase tracking-wider text-indigo-600 font-semibold flex items-center gap-1">
+          <div className="text-xs font-medium text-indigo-700 flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             <span>Estimated Date (ETA)</span>
           </div>
@@ -171,7 +171,7 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
         {/* Metric 3: Daily Velocity & Simulator */}
         <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-100 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold flex items-center gap-1">
+            <div className="text-xs font-medium text-emerald-800 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
               <span>Current Pace</span>
             </div>

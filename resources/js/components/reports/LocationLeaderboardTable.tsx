@@ -153,7 +153,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-slate-400 text-[11px] font-normal uppercase tracking-wider whitespace-nowrap shrink-0">Sort by:</span>
+          <span className="text-xs font-medium text-slate-700 whitespace-nowrap shrink-0">Sort by:</span>
           
           <button
             onClick={() => toggleSort('reviews')}

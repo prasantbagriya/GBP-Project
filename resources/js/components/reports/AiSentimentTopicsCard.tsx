@@ -94,9 +94,9 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
 
       {/* Key Topic Badges Cloud */}
       <div>
-        <div className="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-2 flex items-center justify-between">
+        <div className="text-xs text-slate-600 font-medium mb-2 flex items-center justify-between">
           <span>Frequently Mentioned Themes & Keywords</span>
-          <span className="text-[10px] text-purple-600 font-normal">Click topic to inspect reviews</span>
+          <span className="text-xs text-purple-600 font-normal">Click topic to inspect reviews</span>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {keywords.map((kw, idx) => (
@@ -171,7 +171,7 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
             <div className="p-3 bg-slate-50 border-t border-slate-100 flex justify-end">
               <button
                 onClick={() => setActiveKeywordModal(null)}
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold cursor-pointer"
+                className="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
               >
                 Close
               </button>
