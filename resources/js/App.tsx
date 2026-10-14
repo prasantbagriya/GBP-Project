@@ -63,6 +63,7 @@ import { LoginPage } from './components/LoginPage';
 import { TeamManagement } from './components/TeamManagement';
 import { ReportsDashboard } from './components/reports/ReportsDashboard';
 import { ReportErrorBoundary } from './components/reports/ReportErrorBoundary';
+import { InfoTooltip } from './components/InfoTooltip';
 
 export default function App() {
   const [panelUser, setPanelUser] = useState<PanelUser | null>(null);
@@ -3335,10 +3336,13 @@ export default function App() {
             <div className="space-y-6 max-w-4xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800">{t.sheetsSync}</h2>
-                  <p className="text-slate-500 text-xs mt-0.5">
-                    {'Export all reviews, merchant replies, and weekly analytics directly to your Google Sheet.'}
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-xl font-bold text-slate-800">{t.sheetsSync}</h2>
+                    <InfoTooltip 
+                      title="Sheets Sync"
+                      content="Export all reviews, merchant replies, and weekly analytics directly to your Google Sheet."
+                    />
+                  </div>
                 </div>
 
                 {linkedSheet && (
@@ -3359,50 +3363,50 @@ export default function App() {
                 <div className="space-y-6">
                   <div className="card p-6 bg-gradient-to-r from-emerald-50/70 via-white to-white border-emerald-200 rounded-xl space-y-4 shadow-2xs">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-md shadow-emerald-600/20">
                           <FileSpreadsheet className="w-5 h-5" />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-slate-800 text-base">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-bold text-slate-800 text-base truncate">
                               {linkedSheet.title || 'GBP Live Sync Spreadsheet'}
                             </h3>
-                            <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
+                            <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded shrink-0">
                               Connected
                             </span>
                           </div>
-                          <p className="text-xs text-slate-500 mt-0.5 font-mono">
+                          <p className="text-xs text-slate-500 mt-0.5 font-mono truncate">
                             ID: {linkedSheet.spreadsheetId}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                      <div className="flex items-center gap-2 self-stretch sm:self-auto flex-wrap">
                         <a
                           href={linkedSheet.spreadsheetUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
+                          className="flex-1 sm:flex-none px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
-                          <span>Open in Google Sheets ↗</span>
+                          <span>Open in Sheets ↗</span>
                         </a>
 
                         <button
                           type="button"
                           onClick={handleDisconnectSheet}
-                          className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 hover:text-red-600 border border-slate-200 rounded-md text-xs font-semibold transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
+                          className="flex-1 sm:flex-none px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 hover:text-red-600 border border-slate-200 rounded-md text-xs font-semibold transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
                           title="Disconnect this sheet to connect another"
                         >
-                          Change / Disconnect
+                          Disconnect
                         </button>
                       </div>
                     </div>
 
                     <div className="p-3 bg-white/80 border border-emerald-100 rounded-md text-xs text-slate-600 flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-slate-600">
-                        ⚡ <strong>Note:</strong> This Google Sheet is permanently linked to your profile. No need to recreate it each time. Whenever you click export below, all updated reviews and analytics will automatically sync into this sheet.
+                      <span className="text-[11px] text-slate-600 leading-relaxed">
+                        ⚡ <strong>Permanently Linked:</strong> All updated reviews and analytics automatically sync into this sheet whenever you click export below.
                       </span>
                     </div>
                   </div>
@@ -3412,34 +3416,34 @@ export default function App() {
                     <button 
                       onClick={() => handleSyncToSheets(false)}
                       disabled={syncStatus === 'syncing'}
-                      className="p-5 bg-white border border-slate-200 hover:border-blue-500 rounded-xl text-left space-y-3 transition-all group shadow-2xs cursor-pointer"
+                      className="p-5 bg-white border border-slate-200 hover:border-blue-500 rounded-xl text-left space-y-3 transition-all group shadow-2xs cursor-pointer w-full"
                     >
                       <div className="w-9 h-9 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                         <FileSpreadsheet className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-blue-600 flex items-center justify-between">
+                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-blue-600 flex items-center justify-between gap-1">
                           <span>Export Reviews Log</span>
-                          <span className="text-[11px] font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">Sync Now →</span>
+                          <span className="text-[11px] font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Sync Now →</span>
                         </h4>
-                        <p className="text-xs text-slate-500 mt-1">Pushes customer name, review ID, star rating, comment, date, and owner reply into the <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">Reviews_Log</code> tab.</p>
+                        <p className="text-xs text-slate-500 mt-1">Pushes customer name, review ID, star rating, comment, date, and owner reply into <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">Reviews_Log</code>.</p>
                       </div>
                     </button>
 
                     <button 
                       onClick={() => handleSyncToSheets(true)}
                       disabled={syncStatus === 'syncing'}
-                      className="p-5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl text-left space-y-3 transition-all group shadow-2xs cursor-pointer"
+                      className="p-5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl text-left space-y-3 transition-all group shadow-2xs cursor-pointer w-full"
                     >
                       <div className="w-9 h-9 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
                         <TrendingUp className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-emerald-600 flex items-center justify-between">
+                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-emerald-600 flex items-center justify-between gap-1">
                           <span>Export Full Analytics Report</span>
-                          <span className="text-[11px] font-semibold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">Sync Now →</span>
+                          <span className="text-[11px] font-semibold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Sync Now →</span>
                         </h4>
-                        <p className="text-xs text-slate-500 mt-1">Pushes summary metrics, today's review counts, and 7-day performance breakdown into the <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">GBP_Analytics_Report</code> tab.</p>
+                        <p className="text-xs text-slate-500 mt-1">Pushes summary metrics, today's review counts, and 7-day breakdown into <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">GBP_Analytics_Report</code>.</p>
                       </div>
                     </button>
                   </div>
@@ -3453,30 +3457,31 @@ export default function App() {
                 </div>
               ) : (
                 /* Not Connected State: Offer 1-Click Auto Create or Manual Link */
-                <div className="card p-6 space-y-6">
+                <div className="card p-4 sm:p-6 space-y-5 sm:space-y-6">
                   {/* Option 1: 1-Click Auto Generate */}
-                  <div className="p-5 bg-gradient-to-br from-blue-50/80 via-indigo-50/30 to-white border border-blue-200 rounded-xl space-y-3 shadow-2xs">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                  <div className="p-4 sm:p-5 bg-gradient-to-br from-blue-50/80 via-indigo-50/30 to-white border border-blue-200 rounded-xl space-y-3 shadow-2xs">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-100/80 px-2 py-0.5 rounded-md inline-block">
                           Recommended (One-Time Setup)
                         </span>
-                        <h3 className="font-bold text-slate-800 text-sm sm:text-base mt-1.5 flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-blue-600" />
-                          1-Click Auto-Create & Link Google Sheet
-                        </h3>
-                        <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
-                          A permanent Google Sheet named <strong>{activeLoc?.title || 'Your Business'}</strong> will be automatically created in your Google Drive with ready-to-use <strong>Reviews_Log</strong> and <strong>GBP_Analytics_Report</strong> tabs. This is a one-time setup.
-                        </p>
+                        <InfoTooltip 
+                          title="Auto-Create & Link Google Sheet"
+                          content={`A permanent Google Sheet named '${activeLoc?.title || 'Your Business'}' will be automatically created in your Google Drive with ready-to-use Reviews_Log and GBP_Analytics_Report tabs.`}
+                        />
                       </div>
+                      <h3 className="font-bold text-slate-800 text-sm sm:text-base mt-1.5 flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span>1-Click Auto-Create & Link Google Sheet</span>
+                      </h3>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="pt-1">
                       <button
                         type="button"
                         onClick={handleAutoCreateSheet}
                         disabled={autoCreatingSheet}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer whitespace-nowrap"
+                        className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer whitespace-nowrap"
                       >
                         {autoCreatingSheet ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                         <span>{autoCreatingSheet ? 'Creating Google Sheet in Drive...' : 'Create & Link Google Sheet Now'}</span>
@@ -3490,14 +3495,20 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setShowManualSheetInput(true)}
-                        className="text-xs text-slate-500 hover:text-slate-800 font-semibold underline underline-offset-2 cursor-pointer"
+                        className="text-xs text-slate-500 hover:text-slate-800 font-semibold underline underline-offset-2 cursor-pointer text-left block"
                       >
                         Already have an existing Google Sheet? Connect with Spreadsheet ID / URL →
                       </button>
                     ) : (
-                      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-bold text-slate-700">Connect Existing Spreadsheet ID or URL</label>
+                      <div className="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-1.5">
+                            <label className="text-xs font-bold text-slate-700">Connect Existing Spreadsheet</label>
+                            <InfoTooltip 
+                              title="Connect Existing Spreadsheet"
+                              content="Paste either the Sheet ID (found between /d/ and /edit in the URL) or paste the full Google Sheets link from your browser address bar."
+                            />
+                          </div>
                           <button
                             type="button"
                             onClick={() => setShowManualSheetInput(false)}
@@ -3507,7 +3518,7 @@ export default function App() {
                           </button>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                           <input 
                             type="text" 
                             placeholder="Paste Spreadsheet ID or full Google Sheet URL..." 
@@ -3519,14 +3530,11 @@ export default function App() {
                             type="button"
                             onClick={() => handleLinkExistingSheet(manualSheetInput)}
                             disabled={!manualSheetInput.trim()}
-                            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-black disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex-shrink-0 cursor-pointer whitespace-nowrap shadow-2xs"
+                            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-black disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex-shrink-0 cursor-pointer whitespace-nowrap shadow-2xs text-center"
                           >
                             Link Sheet
                           </button>
                         </div>
-                        <p className="text-[11px] text-slate-400">
-                          Paste either the ID (between <code className="bg-white px-1 py-0.5 rounded border border-slate-200">/d/</code> and <code className="bg-white px-1 py-0.5 rounded border border-slate-200">/edit</code>) or paste the full Google Sheets link.
-                        </p>
                       </div>
                     )}
                   </div>

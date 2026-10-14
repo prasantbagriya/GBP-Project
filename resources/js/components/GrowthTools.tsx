@@ -20,9 +20,11 @@ import {
   Link as LinkIcon,
   RotateCcw,
   Code,
-  Globe
+  Globe,
+  BarChart3
 } from 'lucide-react';
 import { Location, Review, StoreHour, SentimentAnalysis } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface GrowthToolsProps {
   location: Location;
@@ -174,16 +176,21 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
     }
   };
 
+  const fallbackMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.title)}`;
+  const effectivePlaceUrl = reviewLinkData?.placeUrl || (location as any).mapsUri || fallbackMapsSearchUrl;
+  const effectiveWriteUrl = reviewLinkData?.writeReviewUrl || reviewLinkData?.reviewUrl || currentUrl || fallbackMapsSearchUrl;
+  const effectiveSearchUrl = reviewLinkData?.mapsSearchUrl || fallbackMapsSearchUrl;
+
   const handleSelectLinkFormat = (type: 'place' | 'write' | 'search') => {
-    if (!reviewLinkData) return;
     let selected = '';
     if (type === 'place') {
-      selected = reviewLinkData.placeUrl || currentUrl;
+      selected = effectivePlaceUrl;
     } else if (type === 'write') {
-      selected = reviewLinkData.writeReviewUrl || currentUrl;
+      selected = effectiveWriteUrl;
     } else if (type === 'search') {
-      selected = reviewLinkData.mapsSearchUrl || currentUrl;
+      selected = effectiveSearchUrl;
     }
+    if (!selected) return;
     setEditableUrl(selected);
     saveReviewUrl(selected);
   };
@@ -334,15 +341,18 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
         <div className="card p-5 sm:p-6 flex flex-col space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-md inline-block">
-                In-Store Review Stand
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-md inline-block">
+                  In-Store Review Stand
+                </span>
+                <InfoTooltip 
+                  title="Google Review QR Code Stand"
+                  content="Real, scannable QR code. Place on billing desks, reception, or receipts so in-person customers can quickly scan and leave a 5-star review."
+                />
+              </div>
               <h3 className="font-bold text-slate-800 text-sm sm:text-base mt-1">
                 Google Review QR Code Stand
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Real, scannable QR code. Place on billing desks, reception, or receipts.
-              </p>
             </div>
             <div className="p-2 bg-blue-50 text-blue-600 rounded-md border border-blue-100 shadow-2xs flex-shrink-0">
               <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -352,27 +362,30 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           {/* Realistic Printable Acrylic Stand Preview (100% Scannable QR Code) */}
           <div 
             id="printable-review-stand"
-            className="p-5 sm:p-6 bg-gradient-to-b from-slate-900 to-slate-950 text-white rounded-xl shadow-xl flex flex-col items-center text-center space-y-4 border border-slate-800 relative overflow-hidden max-w-[340px] mx-auto w-full"
+            className="p-5 sm:p-6 bg-white text-slate-800 rounded-2xl shadow-xl flex flex-col items-center text-center space-y-3.5 border-2 border-slate-200/90 relative overflow-hidden max-w-[340px] mx-auto w-full"
           >
+            {/* Top Google 4-Color Accent Line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-red-500 via-amber-400 to-emerald-500 absolute top-0 left-0 right-0" />
+
             {/* Top decorative badge */}
-            <div className="flex items-center gap-1.5 bg-amber-400/20 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide">
+            <div className="mt-1 flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200/80 px-3.5 py-1 rounded-full text-[11px] font-bold tracking-wide shadow-2xs">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>★ Leave Us a 5-Star Review ★</span>
+              <span>Review Us On Google</span>
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             </div>
 
             {/* Business Title */}
-            <div className="space-y-1 max-w-[280px]">
-              <h4 className="font-extrabold text-base sm:text-lg text-white leading-tight drop-shadow-sm">
+            <div className="space-y-0.5 max-w-[280px]">
+              <h4 className="font-extrabold text-base sm:text-lg text-slate-900 leading-tight">
                 {location.title}
               </h4>
-              <p className="text-[11px] text-slate-300">
-                Google Business Profile
+              <p className="text-[11px] font-medium text-slate-500">
+                Official Google Business Profile
               </p>
             </div>
 
             {/* Real Camera-Scannable QR Code Image */}
-            <div className="p-3 bg-white rounded-lg shadow-2xl border-4 border-amber-400/80 flex flex-col items-center justify-center relative group">
+            <div className="p-3 bg-white rounded-xl shadow-md border-2 border-slate-100 flex flex-col items-center justify-center relative group">
               {qrImageUrl ? (
                 <img 
                   src={qrImageUrl} 
@@ -387,26 +400,32 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
               )}
               
               {/* Center Google 'G' & Star Badge */}
-              <div className="mt-2 flex items-center gap-1 text-[11px] font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded shadow-2xs">
-                <span className="text-blue-600 font-extrabold">G</span>
+              <div className="mt-2.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-800 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md shadow-2xs">
+                <span className="text-blue-600 font-extrabold text-xs">G</span>
                 <span>Google Reviews</span>
-                <span className="text-amber-500 font-extrabold">★★★★★</span>
+                <div className="flex items-center text-amber-400">
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                </div>
               </div>
             </div>
 
             {/* Scan Instructions */}
-            <div className="space-y-1 max-w-[300px]">
-              <p className="text-xs font-semibold text-amber-300">
-                📱 Scan with phone camera to open review page
+            <div className="space-y-0.5 max-w-[300px]">
+              <p className="text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
+                <span>📱 Scan with Phone Camera</span>
               </p>
-              <p className="text-[10px] text-slate-300">
-                Leave your 5-star rating on Google in under a minute
+              <p className="text-[11px] text-slate-500 font-medium">
+                Point your phone camera here to rate us in seconds
               </p>
             </div>
 
             {/* Stand Footer */}
-            <div className="pt-2 border-t border-slate-800/80 w-full text-[10px] text-slate-400 flex items-center justify-center gap-1">
-              <span>🙏 Thank you for your valuable support! 🙏</span>
+            <div className="pt-2 border-t border-slate-100 w-full text-[11px] text-slate-500 font-medium flex items-center justify-center gap-1 bg-slate-50/80 -mx-5 sm:-mx-6 -mb-5 sm:-mb-6 py-2.5 rounded-b-2xl">
+              <span>Thank you for your valuable feedback! 🙏</span>
             </div>
           </div>
 
@@ -440,15 +459,18 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           <div className="card p-5 flex flex-col space-y-3.5 border border-emerald-200/80 bg-gradient-to-br from-emerald-50/20 via-white to-white shadow-xs">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md inline-block">
-                  WhatsApp Automation
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md inline-block">
+                    WhatsApp Automation
+                  </span>
+                  <InfoTooltip 
+                    title="WhatsApp Review Requester"
+                    content="Send pre-composed polite review requests to recent guests in 1 click."
+                  />
+                </div>
                 <h3 className="font-bold text-slate-800 text-sm sm:text-base mt-1">
                   WhatsApp Review Requester
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5 leading-snug">
-                  Send pre-composed polite review requests to recent guests in 1 click.
-                </p>
               </div>
               <div className="p-2 bg-emerald-50 text-emerald-600 rounded-md flex-shrink-0 border border-emerald-100 shadow-2xs">
                 <MessageCircle className="w-5 h-5" />
@@ -515,9 +537,10 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 <button
                   type="button"
                   onClick={onOpenWhatsAppReport}
-                  className="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                  className="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                 >
-                  <span>📊 Open Multi-Profile WhatsApp Report →</span>
+                  <BarChart3 className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span>Open Multi-Profile WhatsApp Report →</span>
                 </button>
               )}
             </div>
@@ -528,7 +551,11 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                 <LinkIcon className="w-3.5 h-3.5 text-blue-600" />
-                Review URL Settings
+                <span>Review URL Settings</span>
+                <InfoTooltip 
+                  title="Review URL Settings"
+                  content="Select which Google link format to use for your QR code and WhatsApp messages, or save your custom short link."
+                />
               </label>
 
               {reviewLinkData?.isCustom && (
@@ -547,13 +574,12 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 <button
                   type="button"
                   onClick={() => handleSelectLinkFormat('place')}
-                  disabled={!reviewLinkData?.placeUrl}
                   className={`px-2 py-1.5 rounded-md text-[11px] font-semibold border text-left transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                    currentUrl === reviewLinkData?.placeUrl
+                    currentUrl === effectivePlaceUrl
                       ? 'bg-blue-50 border-blue-400 text-blue-700'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
-                  title={reviewLinkData?.placeUrl || ''}
+                  title={effectivePlaceUrl}
                 >
                   <MapPin className="w-3 h-3 text-red-500 flex-shrink-0" />
                   <span className="truncate">Maps Profile</span>
@@ -562,13 +588,12 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 <button
                   type="button"
                   onClick={() => handleSelectLinkFormat('write')}
-                  disabled={!reviewLinkData?.writeReviewUrl}
                   className={`px-2 py-1.5 rounded-md text-[11px] font-semibold border text-left transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                    currentUrl === reviewLinkData?.writeReviewUrl
+                    currentUrl === effectiveWriteUrl
                       ? 'bg-blue-50 border-blue-400 text-blue-700'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
-                  title={reviewLinkData?.writeReviewUrl || ''}
+                  title={effectiveWriteUrl}
                 >
                   <Star className="w-3 h-3 text-amber-500 flex-shrink-0" />
                   <span className="truncate">Direct Review</span>
@@ -577,13 +602,12 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 <button
                   type="button"
                   onClick={() => handleSelectLinkFormat('search')}
-                  disabled={!reviewLinkData?.mapsSearchUrl}
                   className={`px-2 py-1.5 rounded-md text-[11px] font-semibold border text-left transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                    currentUrl === reviewLinkData?.mapsSearchUrl
+                    currentUrl === effectiveSearchUrl
                       ? 'bg-blue-50 border-blue-400 text-blue-700'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
-                  title={reviewLinkData?.mapsSearchUrl || ''}
+                  title={effectiveSearchUrl}
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
                   <span className="truncate">Search Link</span>

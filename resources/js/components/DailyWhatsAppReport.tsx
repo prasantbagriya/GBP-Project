@@ -25,6 +25,7 @@ import {
   Minus
 } from 'lucide-react';
 import { ProfileReportItem, MultiProfileReportData } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface DailyWhatsAppReportProps {
   userEmail?: string | null;
@@ -308,22 +309,48 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
     }
   };
 
+  // Helper to render WhatsApp bold formatting (*text*) as bold text in the preview
+  const renderFormattedWhatsApp = (content: string) => {
+    if (!content) return null;
+    const lines = content.split('\n');
+    return lines.map((line, lIdx) => {
+      // Split by *bold text* pattern
+      const parts = line.split(/(\*[^*\n]+\*)/g);
+      return (
+        <React.Fragment key={lIdx}>
+          {parts.map((part, pIdx) => {
+            if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+              return (
+                <strong key={pIdx} className="font-bold text-slate-900">
+                  {part.slice(1, -1)}
+                </strong>
+              );
+            }
+            return part;
+          })}
+          {lIdx < lines.length - 1 && '\n'}
+        </React.Fragment>
+      );
+    });
+  };
+
   return (
     <div className="space-y-6 w-full max-w-full overflow-x-hidden">
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-xl font-bold text-slate-800">
               Daily WhatsApp Growth Report
             </h2>
             <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
               <Share2 className="w-3 h-3 text-emerald-600" /> WhatsApp Ready
             </span>
+            <InfoTooltip
+              title="Daily WhatsApp Growth Report"
+              content="Generate automated daily WhatsApp reports comparing before vs today reviews, ratings, and growth for all connected Google profiles."
+            />
           </div>
-          <p className="text-slate-500 text-xs mt-1">
-            Generate automated daily WhatsApp reports comparing before vs today reviews, ratings, and growth for all connected Google profiles.
-          </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
@@ -342,14 +369,6 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600' : ''}`} />
             <span>Live Refresh</span>
-          </button>
-
-          <button
-            onClick={handleCopy}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-            <span>{copied ? 'Copied! ✓' : 'Copy Message'}</span>
           </button>
         </div>
       </div>
@@ -878,7 +897,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             {/* Chat Body Bubble */}
             <div className="p-2.5 sm:p-4 overflow-y-auto overflow-x-hidden flex-1 space-y-2 w-full max-w-full">
               <div className="w-full max-w-full bg-white rounded-xl rounded-tl-none p-3 sm:p-3.5 shadow-xs text-xs text-slate-800 font-sans leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] select-all">
-                {generatedMessage}
+                {renderFormattedWhatsApp(generatedMessage)}
                 <div className="flex justify-end items-center gap-1 mt-1 text-[9px] text-slate-400">
                   <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   <span className="text-blue-500 font-bold">✓✓</span>
