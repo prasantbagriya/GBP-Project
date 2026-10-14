@@ -1083,6 +1083,13 @@ class GoogleBusinessController extends Controller
             ];
         }
 
+        $toneDirective = match ($tone) {
+            'Professional & Authoritative', 'Professional & Direct' => 'Formal, structured, authoritative, and institutional. Uphold corporate excellence without informal filler.',
+            'Empathetic & Solution-Oriented', 'Empathetic & Caring' => 'Deeply compassionate, listening, and constructive. Genuinely acknowledge customer feelings and provide proactive help.',
+            'Joyful & Enthusiastic', 'Joyful & Inspiring' => 'Inspiring, energetic, motivational, and cheerful. Celebrate their achievements with positive energy.',
+            default => 'Warm, courteous, welcoming, gracious, and deeply appreciative.',
+        };
+
         // Construct high-converting, non-toxic, personalized prompt
         $instructions = [
             "You are the official representative and manager of \"{$businessName}\".",
@@ -1095,10 +1102,18 @@ class GoogleBusinessController extends Controller
             'Customer Review Text: '.(! empty($comment) ? "\"{$comment}\"" : '(Rating only, customer did not write any comments)'),
             '',
             '--- CORE INSTRUCTIONS ---',
-            "1. TONE: {$tone}.",
-            '2. ZERO TOXICITY GUARANTEE: Never be defensive, sarcastic, or dismissive. If the rating is 1 to 3 stars, acknowledge their experience with sincere humility and invite them to connect for a swift resolution.',
-            '3. DIVERSITY IN OPENINGS: Vary your greeting naturally (e.g. "Hello ' . ($reviewerName ?: 'there') . '!", "Hi ' . ($reviewerName ?: 'there') . '", "Thank you so much, ' . ($reviewerName ?: 'there') . '!", "Greetings ' . ($reviewerName ?: '') . ',").',
+            "1. TONE OF VOICE: {$tone} ({$toneDirective}).",
         ];
+
+        if (! empty($rules['antiToxicityGuard'])) {
+            $instructions[] = '2. ZERO TOXICITY GUARANTEE: Never be defensive, sarcastic, or dismissive. If the rating is 1 to 3 stars, acknowledge their experience with sincere humility and invite them to connect for a swift resolution.';
+        }
+
+        if (empty($rules['includeReviewerName'])) {
+            $instructions[] = '3. GREETING: Do NOT include reviewer personal name. Greet politely and warmly without personal names (e.g. "Hello there!", "Greetings!", "Thank you for your feedback!").';
+        } else {
+            $instructions[] = '3. DIVERSITY IN OPENINGS: Vary your greeting naturally using their name (e.g. "Hello ' . ($reviewerName ?: 'there') . '!", "Hi ' . ($reviewerName ?: 'there') . '", "Thank you so much, ' . ($reviewerName ?: 'there') . '!", "Greetings ' . ($reviewerName ?: '') . ',").';
+        }
 
         if (! empty($rules['languageMatching'])) {
             $instructions[] = '4. LANGUAGE MATCHING: If the review contains Hindi or Hinglish, reply warmly in polite conversational Hindi/Hinglish. If in English, reply in natural, polished English.';

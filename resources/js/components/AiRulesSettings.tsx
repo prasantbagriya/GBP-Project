@@ -17,8 +17,10 @@ import {
   Zap,
   HeartHandshake,
   Bot,
-  Cpu
+  Cpu,
+  FileText
 } from 'lucide-react';
+import { InfoTooltip } from './InfoTooltip';
 import { AiAutomationRules } from '../types';
 
 interface AiRulesSettingsProps {
@@ -139,25 +141,25 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
     {
       id: 'Warm & Courteous',
       title: 'Warm & Courteous',
-      desc: 'Welcoming, grateful, and polite',
+      desc: 'Welcoming, grateful, polite, and deeply appreciative.',
       icon: <HeartHandshake className="w-4 h-4 text-pink-500" />
     },
     {
       id: 'Professional & Authoritative',
       title: 'Professional & Direct',
-      desc: 'Crisp, structured, and institutional',
+      desc: 'Formal, structured, authoritative, and institutional.',
       icon: <ShieldCheck className="w-4 h-4 text-blue-500" />
     },
     {
       id: 'Empathetic & Solution-Oriented',
       title: 'Empathetic & Caring',
-      desc: 'Deeply caring and constructive',
+      desc: 'Deeply compassionate, listening, and constructive.',
       icon: <MessageSquare className="w-4 h-4 text-emerald-500" />
     },
     {
       id: 'Joyful & Enthusiastic',
       title: 'Joyful & Inspiring',
-      desc: 'High-energy and motivational',
+      desc: 'Inspiring, energetic, motivational, and cheerful.',
       icon: <Sparkles className="w-4 h-4 text-amber-500" />
     }
   ];
@@ -165,52 +167,48 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
   if (loading) {
     return (
       <div className="card p-6 text-center text-xs text-slate-400">
-        Loading AI automation settings...
+        Loading AI rules for {locationTitle || 'profile'}...
       </div>
     );
   }
 
   return (
-    <div className="card p-6 space-y-6">
-      {/* Title & Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+    <div className="card p-4 sm:p-6 space-y-6 max-w-full overflow-hidden">
+      {/* Header with Title and Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold text-slate-800 text-base">
-              AI Automation Rules & Safety Engine
+            <h3 className="text-base font-bold text-slate-800 flex items-center gap-1.5">
+              <span>{locationTitle ? `AI Rules for "${locationTitle}"` : 'AI Automation Rules'}</span>
+              <InfoTooltip
+                title="Profile AI Automation Rules"
+                content="Manage per-profile auto-reply behavior, safety guardrails, response pacing, star triggers, and language settings."
+              />
             </h3>
-            <span className="text-[10px] bg-blue-100 text-blue-800 font-medium px-2 py-0.5 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
-              <Zap className="w-3 h-3 text-blue-600 shrink-0" />
-              <span>Gemini AI (High Speed)</span>
-            </span>
-            {locationTitle && (
-              <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium px-2 py-0.5 rounded-md whitespace-nowrap shrink-0">
-                {locationTitle}
+            {locationName && (
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md">
+                Profile-Specific
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {locationTitle
-              ? `Configure AI rules for "${locationTitle}" only. These override global settings for this profile.`
-              : 'Configure pacing (replies/min), star conditions, anti-toxicity guardrails, and hyper-personalized responses.'}
-          </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto flex-nowrap shrink-0">
+        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
           <button
             type="button"
             onClick={handleReset}
-            className="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 rounded-md hover:bg-slate-100 transition-colors cursor-pointer whitespace-nowrap shrink-0 font-medium"
+            className="px-3 py-1.5 border border-slate-200 hover:bg-slate-100 rounded-md text-xs font-medium text-slate-600 flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0"
+            title="Reset to recommended defaults"
           >
-            <RotateCcw className="w-3 h-3" />
-            <span>Defaults</span>
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset</span>
           </button>
 
           <button
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0"
+            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? '...' : 'Save Rules'}</span>
@@ -232,15 +230,19 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           : 'bg-slate-50 border-slate-200'
       }`}>
         <div className="flex items-center gap-3">
-          <div className={`p-2.5 rounded-lg flex items-center justify-center ${
+          <div className={`p-2.5 rounded-lg flex items-center justify-center shrink-0 ${
             rules.enabled ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-200 text-slate-500'
           }`}>
             <Bot className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-extrabold text-sm text-slate-800">
-                {locationTitle ? `Auto-Reply for "${locationTitle}"` : 'Profile AI Auto-Reply'}
+              <h4 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5">
+                <span>{locationTitle ? `Auto-Reply for "${locationTitle}"` : 'Profile AI Auto-Reply'}</span>
+                <InfoTooltip
+                  title="Profile Auto-Reply Status"
+                  content="When enabled, AI automatically generates and publishes personalized responses to new reviews for this business profile. When disabled, reviews require manual approval."
+                />
               </h4>
               <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
                 rules.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
@@ -248,15 +250,10 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                 {rules.enabled ? 'ACTIVE FOR THIS PROFILE' : 'DISABLED FOR THIS PROFILE'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {rules.enabled
-                ? 'AI Auto-reply is enabled specifically for this business profile. New incoming reviews will be answered automatically.'
-                : 'Auto-reply is turned OFF for this profile only. Reviews for this profile will require manual approval.'}
-            </p>
           </div>
         </div>
 
-        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 self-end sm:self-auto">
+        <label className="relative inline-flex items-center cursor-pointer shrink-0 self-end sm:self-auto">
           <input
             type="checkbox"
             checked={!!rules.enabled}
@@ -273,7 +270,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       {/* Grid: 2 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* Left Column: Pacing & Star Conditions */}
+        {/* Left Column: Pacing & Star Conditions & Tone */}
         <div className="space-y-6">
           
           {/* 1. Rate Limiting / Pacing Section */}
@@ -281,13 +278,21 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Clock className="w-4 h-4 text-blue-600" />
               <span>1. Pacing & Rate Limits</span>
+              <InfoTooltip
+                title="Pacing & Rate Limits"
+                content="Regulates the frequency of published replies to maintain safe Google Business Profile API quotas and mimic natural human response pacing."
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               {/* Max replies per minute */}
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Max replies per minute:
+                <label className="text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                  <span>Max replies per minute:</span>
+                  <InfoTooltip
+                    title="Max Replies per Minute"
+                    content="Maximum number of automated replies sent per minute. Recommended safe ceiling is 10/min to avoid Google API throttling."
+                  />
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -303,15 +308,16 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                     {rules.maxRepliesPerMinute}/min
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  Recommended safe limit: 10
-                </span>
               </div>
 
               {/* Delay between replies in Minutes */}
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Delay between replies:
+                <label className="text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                  <span>Delay between replies:</span>
+                  <InfoTooltip
+                    title="Reply Interval Pacing"
+                    content="The delay paused between consecutive review replies. Natural pacing (3–5 min) simulates real human manager behavior."
+                  />
                 </label>
                 <div className="flex items-center gap-2">
                   <select
@@ -328,9 +334,6 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                     <option value={1800}>30 Min</option>
                   </select>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  Pacing delay in minutes between each reply
-                </span>
               </div>
             </div>
           </div>
@@ -340,12 +343,20 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Star className="w-4 h-4 text-amber-500" />
               <span>2. Star Rating Conditions</span>
+              <InfoTooltip
+                title="Star Rating Conditions"
+                content="Defines which reviews qualify for immediate automatic replies and which lower ratings are held for manual manager review."
+              />
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-                  Which ratings trigger auto-reply?
+                <label className="text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                  <span>Which ratings trigger auto-reply?</span>
+                  <InfoTooltip
+                    title="Minimum Star Threshold"
+                    content="Select minimum rating needed to trigger AI auto-replies. For instance, choosing '4★ & 5★' holds 1–3 star complaints for private review."
+                  />
                 </label>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[
@@ -372,13 +383,14 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
               {/* Toggle: Reply to reviews without comment text */}
               <label className="flex items-center justify-between p-2.5 bg-white rounded-md border border-slate-200 cursor-pointer">
-                <div className="pr-2">
-                  <span className="text-xs font-semibold text-slate-800 block">
+                <div className="pr-2 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-800">
                     Reply to rating-only reviews
                   </span>
-                  <span className="text-[10px] text-slate-400 block">
-                    Respond politely when customer leaves rating without text
-                  </span>
+                  <InfoTooltip
+                    title="Rating-Only Reviews"
+                    content="Send a courteous acknowledgment when a customer leaves stars without typing comments."
+                  />
                 </div>
                 <input
                   type="checkbox"
@@ -390,7 +402,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
               {rules.minStarRating > 1 && (
                 <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <span>
                     Reviews below {rules.minStarRating}★ will not be auto-replied and will be held for manual review.
                   </span>
@@ -404,6 +416,10 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Sliders className="w-4 h-4 text-purple-600" />
               <span>3. Tone of Voice</span>
+              <InfoTooltip
+                title="AI Personality & Tone"
+                content="Shapes the tone, vocabulary, and communication style that Google Gemini uses in every customer interaction."
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -412,21 +428,19 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   key={t.id}
                   type="button"
                   onClick={() => setRules({ ...rules, tone: t.id })}
-                  className={`p-3 rounded-md border text-left transition-all flex items-start gap-2.5 cursor-pointer ${
+                  className={`p-3 rounded-md border text-left transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
                     rules.tone === t.id
                       ? 'bg-blue-50 border-blue-500 shadow-2xs'
                       : 'bg-white border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  <div className="mt-0.5 flex-shrink-0">{t.icon}</div>
-                  <div>
-                    <h5 className={`text-xs font-bold ${rules.tone === t.id ? 'text-blue-900' : 'text-slate-800'}`}>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="shrink-0">{t.icon}</div>
+                    <h5 className={`text-xs font-bold truncate ${rules.tone === t.id ? 'text-blue-900' : 'text-slate-800'}`}>
                       {t.title}
                     </h5>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">
-                      {t.desc}
-                    </p>
                   </div>
+                  <InfoTooltip title={t.title} content={t.desc} />
                 </button>
               ))}
             </div>
@@ -441,19 +455,24 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>4. Anti-Toxicity & Quality Guardrails</span>
+              <InfoTooltip
+                title="Reputation Guardrails"
+                content="Safeguards brand reputation by preventing defensive remarks, personalizing greetings, and matching the customer's language."
+              />
             </div>
 
             <div className="space-y-2.5">
               {/* Zero Toxicity Guarantee */}
               <label className="flex items-center justify-between p-3 bg-white rounded-md border border-emerald-200 cursor-pointer shadow-2xs">
-                <div className="pr-3">
-                  <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <div className="pr-3 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="text-xs font-bold text-emerald-950">
                     Zero Toxicity Guarantee
                   </span>
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
-                    Never argue, never be sarcastic or defensive. Always maintain institutional dignity.
-                  </span>
+                  <InfoTooltip
+                    title="Zero Toxicity"
+                    content="Never argues, never defensive or sarcastic. Always maintains institutional grace and dignity."
+                  />
                 </div>
                 <input
                   type="checkbox"
@@ -465,14 +484,15 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
               {/* Reference Specific Experience */}
               <label className="flex items-center justify-between p-3 bg-white rounded-md border border-slate-200 cursor-pointer">
-                <div className="pr-3">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                <div className="pr-3 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-800">
                     Hyper-Personalized Context
                   </span>
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
-                    Explicitly acknowledge specific topics/faculty/services mentioned in review text.
-                  </span>
+                  <InfoTooltip
+                    title="Contextual References"
+                    content="Explicitly acknowledges specific details mentioned by customer (faculty, hostel, coaching, results, etc.)."
+                  />
                 </div>
                 <input
                   type="checkbox"
@@ -484,14 +504,15 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
               {/* Language Matching */}
               <label className="flex items-center justify-between p-3 bg-white rounded-md border border-slate-200 cursor-pointer">
-                <div className="pr-3">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Languages className="w-3.5 h-3.5 text-indigo-600" />
+                <div className="pr-3 flex items-center gap-1.5">
+                  <Languages className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-800">
                     Multi-Language Matching
                   </span>
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
-                    Replies in polite Hindi if review is in Hindi, and polished English if in English.
-                  </span>
+                  <InfoTooltip
+                    title="Language Matching"
+                    content="Detects Hindi, Hinglish, or English and responds in the exact corresponding language naturally."
+                  />
                 </div>
                 <input
                   type="checkbox"
@@ -503,14 +524,15 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
               {/* Personal Name Greeting */}
               <label className="flex items-center justify-between p-3 bg-white rounded-md border border-slate-200 cursor-pointer">
-                <div className="pr-3">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+                <div className="pr-3 flex items-center gap-1.5">
+                  <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-800">
                     Name Greeting
                   </span>
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
-                    Begin with "Dear [Name]," for personal connection
-                  </span>
+                  <InfoTooltip
+                    title="Name Greeting"
+                    content="Addresses the reviewer by their first name (e.g. 'Dear Rahul,') for authentic personal connection."
+                  />
                 </div>
                 <input
                   type="checkbox"
@@ -527,16 +549,20 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Phone className="w-4 h-4 text-amber-600" />
               <span>5. Offline Escalation Contact</span>
+              <InfoTooltip
+                title="Offline Resolution Contact"
+                content="When a customer leaves 1 to 3 stars, AI automatically invites them to reach out directly via these channels to resolve the issue privately."
+              />
             </div>
-
-            <p className="text-[11px] text-slate-500">
-              When a review is 1-3 stars, AI invites the customer to reach out directly to resolve the issue:
-            </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Manager Phone Number:
+                <label className="text-[11px] font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                  <span>Manager Phone Number:</span>
+                  <InfoTooltip
+                    title="Support Phone"
+                    content="Direct escalation phone number included in replies to 1–3 star negative reviews."
+                  />
                 </label>
                 <div className="relative">
                   <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
@@ -551,8 +577,12 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Support Email:
+                <label className="text-[11px] font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                  <span>Support Email:</span>
+                  <InfoTooltip
+                    title="Support Email"
+                    content="Official escalation email included in replies to 1–3 star negative reviews."
+                  />
                 </label>
                 <div className="relative">
                   <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
@@ -570,8 +600,12 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
           {/* 6. Special Business Guidelines */}
           <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-2">
-            <label className="text-xs font-bold text-slate-800 block">
-              6. Special Business Guidelines for AI
+            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span>6. Special Business Guidelines for AI</span>
+              <InfoTooltip
+                title="Business Guidelines"
+                content="Custom instructions injected into every AI generation. E.g. 'Highlight our student discipline, campus environment, and selections track record.'"
+              />
             </label>
             <textarea
               rows={2}
@@ -580,9 +614,6 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               placeholder="e.g. Always emphasize our discipline and selection track record."
               className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-blue-500"
             />
-            <span className="text-[10px] text-slate-400 block">
-              These instructions guide every AI reply generated.
-            </span>
           </div>
         </div>
       </div>
@@ -593,22 +624,26 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           <div className="flex items-center gap-2 text-indigo-950 font-bold text-xs uppercase tracking-wider">
             <Cpu className="w-4 h-4 text-indigo-600" />
             <span>7. AI Engine, Speed & Reply Length Controls</span>
+            <InfoTooltip
+              title="AI Engine Controller"
+              content="Directly controls Google Gemini parameters: active model, response speed (thinking budget), output verbosity, and creative temperature."
+            />
           </div>
           <span className="text-[10px] bg-indigo-100 text-indigo-800 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
             Active Controller
           </span>
         </div>
 
-        <p className="text-xs text-slate-500">
-          Control how Google Gemini generates responses for this profile: choose the model, response speed, depth, and creative tone.
-        </p>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* AI Model Selection */}
           <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Bot className="w-3.5 h-3.5 text-indigo-600" />
-              AI Model:
+              <span>AI Model Engine:</span>
+              <InfoTooltip
+                title="Google Gemini Model"
+                content="Active Gemini model with 100% Google AI Studio uptime. Gemini 2.5 Flash is recommended for its speed and intelligent reasoning."
+              />
             </label>
             <select
               value={rules.model || 'gemini-2.5-flash'}
@@ -618,59 +653,67 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended - Smart, Fluent & Active)</option>
               <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Lightweight)</option>
             </select>
-            <span className="text-[10px] text-slate-400 block">
-              Default active model with 100% Google AI Studio uptime
-            </span>
           </div>
 
           {/* Speed & Thinking Mode */}
           <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-amber-500" />
-              Response Speed / Thinking Mode:
+              <span>Response Speed / Thinking Mode:</span>
+              <InfoTooltip
+                title="Thinking Budget & Speed"
+                content="Turbo Instant mode sets 0 thinking tokens to deliver replies in 1-2s. Deep Analysis allows reasoning tokens for complex, sensitive reviews."
+              />
             </label>
             <select
               value={rules.thinkingBudget ?? 0}
               onChange={(e) => setRules({ ...rules, thinkingBudget: Number(e.target.value) })}
               className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs font-bold text-slate-800 outline-none focus:border-indigo-500 cursor-pointer"
             >
-              <option value={0}>⚡ Turbo Instant (1–2s, 0s Thinking Delay - Recommended)</option>
-              <option value={512}>🧠 Balanced Reasoning (512 Thinking Tokens)</option>
-              <option value={1024}>🔬 Deep Analysis (1024 Thinking Tokens)</option>
+              <option value={0}>Turbo Instant (1–2s, 0s Thinking Delay - Recommended)</option>
+              <option value={512}>Balanced Reasoning (512 Thinking Tokens)</option>
+              <option value={1024}>Deep Analysis (1024 Thinking Tokens)</option>
             </select>
-            <span className="text-[10px] text-slate-400 block">
-              Turbo skips internal chain-of-thought to deliver answers instantly in 1s
-            </span>
           </div>
         </div>
 
         {/* Reply Length & Detail Selector */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 block">
-            Reply Depth & Length:
+          <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Reply Depth & Length:</span>
+            <InfoTooltip
+              title="Reply Output Length"
+              content="Controls reply verbosity: Concise (1-2 sentences, ~350 tokens), Standard (2-3 sentences, ~600 tokens), or Detailed (3-4 sentences, ~900 tokens)."
+            />
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {[
-              { id: 'concise', label: 'Concise (1–2 Sentences)', desc: 'Short, sweet & swift (~350 max tokens)' },
-              { id: 'standard', label: 'Standard (2–3 Sentences)', desc: 'Natural & balanced (~600 max tokens)' },
-              { id: 'detailed', label: 'Detailed & Warm (3–4 Sentences)', desc: 'Heartfelt & comprehensive (~900 max tokens)' },
+              { id: 'concise', label: 'Concise (1–2 Sentences)', tokens: '~350 tokens' },
+              { id: 'standard', label: 'Standard (2–3 Sentences)', tokens: '~600 tokens' },
+              { id: 'detailed', label: 'Detailed & Warm (3–4 Sentences)', tokens: '~900 tokens' },
             ].map((opt) => (
               <button
                 key={opt.id}
                 type="button"
                 onClick={() => setRules({ ...rules, replyLength: opt.id as any })}
-                className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
                   (rules.replyLength || 'detailed') === opt.id
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <div className="text-xs font-bold">{opt.label}</div>
-                <div className={`text-[10px] mt-1 ${
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText className={`w-3.5 h-3.5 shrink-0 ${
+                    (rules.replyLength || 'detailed') === opt.id ? 'text-indigo-200' : 'text-slate-400'
+                  }`} />
+                  <span className="text-xs font-bold truncate">{opt.label}</span>
+                </div>
+                <span className={`text-[10px] font-mono shrink-0 ${
                   (rules.replyLength || 'detailed') === opt.id ? 'text-indigo-100' : 'text-slate-400'
                 }`}>
-                  {opt.desc}
-                </div>
+                  {opt.tokens}
+                </span>
               </button>
             ))}
           </div>
@@ -681,7 +724,11 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           <div className="flex items-center justify-between flex-wrap gap-2">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Sliders className="w-3.5 h-3.5 text-purple-600" />
-              Creativity & Variety Level (Temperature):
+              <span>Creativity & Variety Level (Temperature):</span>
+              <InfoTooltip
+                title="Temperature & Creativity"
+                content="Adjust variety: 0.85 generates varied fresh phrasing, while 0.3 is strict and predictable."
+              />
             </label>
             <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
               {rules.temperature ?? 0.85}
@@ -696,11 +743,6 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             onChange={(e) => setRules({ ...rules, temperature: parseFloat(e.target.value) })}
             className="w-full accent-indigo-600 cursor-pointer"
           />
-          <div className="flex justify-between text-[10px] text-slate-400">
-            <span>0.2 (Predictable / Strict)</span>
-            <span className="font-semibold text-slate-600">0.85 (Natural & Varied - Recommended)</span>
-            <span>1.0 (Highly Expressive)</span>
-          </div>
         </div>
       </div>
     </div>
