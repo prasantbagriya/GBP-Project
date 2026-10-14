@@ -865,11 +865,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       {activeDimension === 'overview' && (
         <div className="space-y-6">
           {/* Top Charts: Velocity Trajectory Chart + Star Distribution Donut */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7">
               <ReviewTrajectoryChart data={trajectoryData} timeframe={timeframe} />
             </div>
-            <div>
+            <div className="lg:col-span-5">
               <StarDistributionDonut
                 ratingsCount={ratingsCount}
                 totalReviews={computedMetrics.totalReviews}
