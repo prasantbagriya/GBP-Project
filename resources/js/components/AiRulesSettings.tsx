@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   Zap,
   HeartHandshake,
-  Bot
+  Bot,
+  Cpu
 } from 'lucide-react';
 import { AiAutomationRules } from '../types';
 
@@ -43,7 +44,10 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
     contactPhone: '',
     contactEmail: '',
     customInstructions: 'Always maintain maximum respect and highlight our dedication to student success and discipline.',
-    model: 'gemini-3.5-flash-lite'
+    model: 'gemini-2.5-flash',
+    replyLength: 'detailed',
+    thinkingBudget: 0,
+    temperature: 0.85
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -124,7 +128,10 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       contactPhone: '',
       contactEmail: '',
       customInstructions: 'Always maintain maximum respect and highlight our dedication to student success and discipline.',
-      model: 'gemini-2.5-flash'
+      model: 'gemini-2.5-flash',
+      replyLength: 'detailed',
+      thinkingBudget: 0,
+      temperature: 0.85
     });
   };
 
@@ -576,6 +583,123 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             <span className="text-[10px] text-slate-400 block">
               These instructions guide every AI reply generated.
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 7. AI Model Engine, Speed & Response Control */}
+      <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-white border border-indigo-200 rounded-xl space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2 text-indigo-950 font-bold text-xs uppercase tracking-wider">
+            <Cpu className="w-4 h-4 text-indigo-600" />
+            <span>7. AI Engine, Speed & Reply Length Controls</span>
+          </div>
+          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            Active Controller
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-500">
+          Control how Google Gemini generates responses for this profile: choose the model, response speed, depth, and creative tone.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* AI Model Selection */}
+          <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Bot className="w-3.5 h-3.5 text-indigo-600" />
+              AI Model:
+            </label>
+            <select
+              value={rules.model || 'gemini-2.5-flash'}
+              onChange={(e) => setRules({ ...rules, model: e.target.value })}
+              className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs font-bold text-slate-800 outline-none focus:border-indigo-500 cursor-pointer"
+            >
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended - Smart, Fluent & Active)</option>
+              <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Lightweight)</option>
+            </select>
+            <span className="text-[10px] text-slate-400 block">
+              Default active model with 100% Google AI Studio uptime
+            </span>
+          </div>
+
+          {/* Speed & Thinking Mode */}
+          <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              Response Speed / Thinking Mode:
+            </label>
+            <select
+              value={rules.thinkingBudget ?? 0}
+              onChange={(e) => setRules({ ...rules, thinkingBudget: Number(e.target.value) })}
+              className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs font-bold text-slate-800 outline-none focus:border-indigo-500 cursor-pointer"
+            >
+              <option value={0}>⚡ Turbo Instant (1–2s, 0s Thinking Delay - Recommended)</option>
+              <option value={512}>🧠 Balanced Reasoning (512 Thinking Tokens)</option>
+              <option value={1024}>🔬 Deep Analysis (1024 Thinking Tokens)</option>
+            </select>
+            <span className="text-[10px] text-slate-400 block">
+              Turbo skips internal chain-of-thought to deliver answers instantly in 1s
+            </span>
+          </div>
+        </div>
+
+        {/* Reply Length & Detail Selector */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-800 block">
+            Reply Depth & Length:
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {[
+              { id: 'concise', label: 'Concise (1–2 Sentences)', desc: 'Short, sweet & swift (~350 max tokens)' },
+              { id: 'standard', label: 'Standard (2–3 Sentences)', desc: 'Natural & balanced (~600 max tokens)' },
+              { id: 'detailed', label: 'Detailed & Warm (3–4 Sentences)', desc: 'Heartfelt & comprehensive (~900 max tokens)' },
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setRules({ ...rules, replyLength: opt.id as any })}
+                className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                  (rules.replyLength || 'detailed') === opt.id
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <div className="text-xs font-bold">{opt.label}</div>
+                <div className={`text-[10px] mt-1 ${
+                  (rules.replyLength || 'detailed') === opt.id ? 'text-indigo-100' : 'text-slate-400'
+                }`}>
+                  {opt.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Temperature / Creativity Level */}
+        <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-2">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Sliders className="w-3.5 h-3.5 text-purple-600" />
+              Creativity & Variety Level (Temperature):
+            </label>
+            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+              {rules.temperature ?? 0.85}
+            </span>
+          </div>
+          <input
+            type="range"
+            min="0.2"
+            max="1.0"
+            step="0.05"
+            value={rules.temperature ?? 0.85}
+            onChange={(e) => setRules({ ...rules, temperature: parseFloat(e.target.value) })}
+            className="w-full accent-indigo-600 cursor-pointer"
+          />
+          <div className="flex justify-between text-[10px] text-slate-400">
+            <span>0.2 (Predictable / Strict)</span>
+            <span className="font-semibold text-slate-600">0.85 (Natural & Varied - Recommended)</span>
+            <span>1.0 (Highly Expressive)</span>
           </div>
         </div>
       </div>

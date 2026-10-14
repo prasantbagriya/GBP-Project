@@ -1119,17 +1119,34 @@ class GoogleBusinessController extends Controller
             $instructions[] = "7. BUSINESS GUIDELINES: {$customInstructions}";
         }
 
-        $instructions[] = '8. FORMAT: 2 to 3 sentences maximum. Natural, warm, and professional. Return ONLY the final reply text without quotation marks, markdown headings, or meta commentary.';
+        // Dynamically configure length and tokens based on rules
+        $replyLength = $rules['replyLength'] ?? 'detailed';
+        $maxOutputTokens = match ($replyLength) {
+            'concise' => 350,
+            'standard' => 600,
+            default => 900,
+        };
+        $sentenceGuideline = match ($replyLength) {
+            'concise' => '1 to 2 crisp, polite sentences maximum.',
+            'standard' => '2 to 3 natural, balanced sentences.',
+            default => '2 to 4 detailed, warm, and comprehensive sentences.',
+        };
+
+        $instructions[] = "8. FORMAT & LENGTH: {$sentenceGuideline} Return ONLY the final reply text without quotation marks, markdown headings, or meta commentary.";
 
         $prompt = implode("\n", $instructions);
 
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-2.5-flash';
+        $ruleModel = ! empty($rules['model']) ? $rules['model'] : null;
+        $configuredModel = $ruleModel ?: config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-2.5-flash';
         $modelsToTry = array_values(array_filter(array_unique([
             $configuredModel,
             'gemini-2.5-flash',
             'gemini-3.5-flash-lite',
         ])));
+
+        $thinkingBudget = isset($rules['thinkingBudget']) ? (int) $rules['thinkingBudget'] : 0;
+        $temperature = isset($rules['temperature']) ? (float) $rules['temperature'] : 0.85;
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
@@ -1139,10 +1156,10 @@ class GoogleBusinessController extends Controller
                             ['parts' => [['text' => $prompt]]],
                         ],
                         'generationConfig' => [
-                            'temperature' => 0.85,
-                            'maxOutputTokens' => 800,
+                            'temperature' => $temperature,
+                            'maxOutputTokens' => $maxOutputTokens,
                             'thinkingConfig' => [
-                                'thinkingBudget' => 0,
+                                'thinkingBudget' => $thinkingBudget,
                             ],
                         ],
                     ]);
@@ -4013,6 +4030,9 @@ class GoogleBusinessController extends Controller
             'contactEmail' => '',
             'customInstructions' => 'Always maintain maximum respect and highlight our dedication to excellence and student success.',
             'model' => 'gemini-2.5-flash',
+            'replyLength' => 'detailed',
+            'thinkingBudget' => 0,
+            'temperature' => 0.85,
         ];
     }
 
@@ -4133,6 +4153,7 @@ class GoogleBusinessController extends Controller
             'minStarRating',
             'maxRepliesPerMinute',
             'delayBetweenRepliesSeconds',
+            'thinkingBudget',
         ];
 
         $stringKeys = [
@@ -4140,6 +4161,8 @@ class GoogleBusinessController extends Controller
             'contactPhone',
             'contactEmail',
             'customInstructions',
+            'model',
+            'replyLength',
         ];
 
         foreach ($booleanKeys as $key) {
@@ -4150,13 +4173,21 @@ class GoogleBusinessController extends Controller
 
         foreach ($integerKeys as $key) {
             if (array_key_exists($key, $input)) {
-                $current[$key] = max(1, (int) $input[$key]);
+                $current[$key] = ($key === 'thinkingBudget') ? max(0, (int) $input[$key]) : max(1, (int) $input[$key]);
             }
+        }
+
+        if (array_key_exists('temperature', $input)) {
+            $current['temperature'] = max(0.1, min(1.0, (float) $input['temperature']));
         }
 
         foreach ($stringKeys as $key) {
             if (array_key_exists($key, $input)) {
-                $current[$key] = trim((string) $input[$key]);
+                $val = trim((string) $input[$key]);
+                if ($key === 'model' && in_array($val, ['gemini-flash-lite-latest', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'])) {
+                    $val = 'gemini-2.5-flash';
+                }
+                $current[$key] = $val;
             }
         }
 

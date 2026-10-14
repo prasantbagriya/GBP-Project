@@ -146,4 +146,7 @@ export interface AiAutomationRules {
   contactEmail: string;
   customInstructions: string;
   model: string;
+  replyLength?: 'concise' | 'standard' | 'detailed';
+  thinkingBudget?: number;
+  temperature?: number;
 }
