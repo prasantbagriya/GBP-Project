@@ -187,7 +187,7 @@
       .carousel-card { flex: 0 0 calc(50% - 8px); }
     }
     @media (max-width: 600px) {
-      .carousel-card { flex: 0 0 100%; }
+      .carousel-card { flex: 0 0 100%; min-width: 0; width: 100%; max-width: 100%; }
     }
     .carousel-nav {
       display: flex;

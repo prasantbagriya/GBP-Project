@@ -2367,7 +2367,7 @@ export default function App() {
         </header>
 
         {/* Content Container - Full Screen Edge-to-Edge */}
-        <div className="p-4 sm:p-6 lg:p-8 space-y-6 w-full">
+        <div className="p-3 sm:p-6 lg:p-8 space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
           {!authStatus && (
             <div className="card p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
