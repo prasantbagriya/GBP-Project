@@ -479,6 +479,70 @@ export default function App() {
     fetchAiSettings(locationName);
   };
 
+  // Live Background Monitor: Silently check for new incoming reviews and auto-reply every 60 seconds
+  useEffect(() => {
+    if (!authStatus || !activeLoc) return;
+
+    const interval = setInterval(async () => {
+      const locName = activeLoc.v4Name || activeLoc.name;
+      if (!locName) return;
+
+      try {
+        const res = await fetch('/api/gbp/reviews/auto-reply-new', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            locationName: locName,
+            force: false,
+            limit: 5
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success && data.repliedCount > 0) {
+            // New incoming review was received and automatically replied to according to profile rules!
+            fetchReviews(locName);
+          }
+        }
+      } catch (err) {
+        // Silent background execution
+      }
+    }, 60000); // Poll every 60 seconds
+
+    return () => clearInterval(interval);
+  }, [authStatus, activeLoc]);
+
+  // Background Multi-Profile Monitor: Checks all linked branches every 3 minutes
+  useEffect(() => {
+    if (!authStatus || locations.length <= 1) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/gbp/reviews/auto-reply-new', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            locationName: 'all',
+            force: false,
+            limit: 3
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.totalReplied > 0 && activeLoc) {
+            fetchReviews(activeLoc.v4Name || activeLoc.name);
+          }
+        }
+      } catch (err) {
+        // Silent background execution
+      }
+    }, 180000); // Every 3 minutes
+
+    return () => clearInterval(interval);
+  }, [authStatus, locations, activeLoc]);
+
   const fetchLinkedSheet = async (locName?: string | null) => {
     const target = locName || selectedLocation;
     if (!target) return;
