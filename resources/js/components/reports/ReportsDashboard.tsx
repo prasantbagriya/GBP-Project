@@ -208,12 +208,12 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     }
 
     filteredReviews.forEach((r) => {
-      const rating = r?.starRating;
-      if (rating === 5 || rating === 'FIVE') counts.five++;
-      else if (rating === 4 || rating === 'FOUR') counts.four++;
-      else if (rating === 3 || rating === 'THREE') counts.three++;
-      else if (rating === 2 || rating === 'TWO') counts.two++;
-      else if (rating === 1 || rating === 'ONE') counts.one++;
+      const rating = String(r?.starRating || '');
+      if (rating === '5' || rating === 'FIVE') counts.five++;
+      else if (rating === '4' || rating === 'FOUR') counts.four++;
+      else if (rating === '3' || rating === 'THREE') counts.three++;
+      else if (rating === '2' || rating === 'TWO') counts.two++;
+      else if (rating === '1' || rating === 'ONE') counts.one++;
     });
     return counts;
   }, [filteredReviews]);
