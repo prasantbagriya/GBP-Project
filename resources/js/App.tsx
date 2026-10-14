@@ -2238,17 +2238,6 @@ export default function App() {
               <span className={`w-2 h-2 rounded-full ${geminiEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
             </button>
 
-            {/* Today's review counter chip */}
-            <div 
-              onClick={() => setActiveTab('reviews')}
-              className="h-8 sm:h-9 px-2 sm:px-2.5 bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200 rounded-lg text-xs font-semibold text-slate-700 flex items-center gap-1 sm:gap-1.5 transition-colors shadow-2xs cursor-pointer whitespace-nowrap flex-shrink-0"
-              title={`New reviews today: +${todayReviews.length} (Click to view)`}
-            >
-              <Clock className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-              <span className="hidden sm:inline text-slate-600">{"Today:"}</span>
-              <strong className="text-blue-900 font-bold">+{todayReviews.length}</strong>
-            </div>
-
             {/* Refresh Button with feedback */}
             <button 
               onClick={async () => {
