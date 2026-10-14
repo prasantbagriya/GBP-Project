@@ -4,7 +4,7 @@ import {
   MessageSquare, 
   Megaphone,
   MessageCircle, 
-  Code, 
+  TrendingUp, 
   Menu
 } from 'lucide-react';
 import { TabType } from '../types';
@@ -83,19 +83,19 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         )}
       </button>
 
-      {/* 4. Widget */}
+      {/* 4. Reports (Weekly Reports) */}
       <button
-        onClick={() => setActiveTab('widget')}
+        onClick={() => setActiveTab('reports')}
         className={`flex-1 flex flex-col items-center justify-center h-full py-1 relative transition-colors cursor-pointer ${
-          activeTab === 'widget' ? 'text-blue-700 font-normal' : 'text-slate-900 hover:text-black font-normal'
+          activeTab === 'reports' ? 'text-blue-700 font-normal' : 'text-slate-900 hover:text-black font-normal'
         }`}
-        title="Website Widget"
+        title="Reports"
       >
-        <Code className="w-4.5 h-4.5 flex-shrink-0" />
+        <TrendingUp className="w-4.5 h-4.5 flex-shrink-0" />
         <span className="text-[11px] font-normal mt-0.5 leading-none whitespace-nowrap truncate max-w-full">
-          Widget
+          Reports
         </span>
-        {activeTab === 'widget' && (
+        {activeTab === 'reports' && (
           <span className="absolute top-0 w-6 h-0.5 bg-blue-600 rounded-full" />
         )}
       </button>
