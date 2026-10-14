@@ -178,12 +178,8 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-base font-bold text-slate-800 flex items-center gap-1.5">
-              <span>{locationTitle ? `AI Rules for "${locationTitle}"` : 'AI Automation Rules'}</span>
-              <InfoTooltip
-                title="Profile AI Automation Rules"
-                content="Manage per-profile auto-reply behavior, safety guardrails, response pacing, star triggers, and language settings."
-              />
+            <h3 className="text-base font-bold text-slate-800">
+              {locationTitle ? `AI Rules for "${locationTitle}"` : 'AI Automation Rules'}
             </h3>
             {locationName && (
               <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md">
@@ -224,25 +220,21 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       )}
 
       {/* Profile Auto-Reply Master Toggle Banner */}
-      <div className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+      <div className={`p-3.5 sm:p-4 rounded-md border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
         rules.enabled
           ? 'bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-white border-emerald-300'
           : 'bg-slate-50 border-slate-200'
       }`}>
         <div className="flex items-center gap-3">
-          <div className={`p-2.5 rounded-lg flex items-center justify-center shrink-0 ${
+          <div className={`p-2 rounded-md flex items-center justify-center shrink-0 ${
             rules.enabled ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-200 text-slate-500'
           }`}>
             <Bot className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5">
-                <span>{locationTitle ? `Auto-Reply for "${locationTitle}"` : 'Profile AI Auto-Reply'}</span>
-                <InfoTooltip
-                  title="Profile Auto-Reply Status"
-                  content="When enabled, AI automatically generates and publishes personalized responses to new reviews for this business profile. When disabled, reviews require manual approval."
-                />
+              <h4 className="font-extrabold text-sm text-slate-800">
+                {locationTitle ? `Auto-Reply for "${locationTitle}"` : 'Profile AI Auto-Reply'}
               </h4>
               <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
                 rules.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
@@ -274,7 +266,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
         <div className="space-y-6">
           
           {/* 1. Rate Limiting / Pacing Section */}
-          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-3">
+          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Clock className="w-4 h-4 text-blue-600" />
               <span>1. Pacing & Rate Limits</span>
@@ -339,7 +331,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           </div>
 
           {/* 2. Rating & Review Filter Conditions */}
-          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-3">
+          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Star className="w-4 h-4 text-amber-500" />
               <span>2. Star Rating Conditions</span>
@@ -412,7 +404,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           </div>
 
           {/* 3. Tone of Voice Selector */}
-          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-3">
+          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Sliders className="w-4 h-4 text-purple-600" />
               <span>3. Tone of Voice</span>
@@ -451,7 +443,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
         <div className="space-y-6">
           
           {/* 4. Anti-Toxicity Guard & Personalization Rules */}
-          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-3">
+          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>4. Anti-Toxicity & Quality Guardrails</span>
@@ -545,7 +537,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           </div>
 
           {/* 5. Direct Offline Contact Info for Negative Ratings */}
-          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-3">
+          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
               <Phone className="w-4 h-4 text-amber-600" />
               <span>5. Offline Escalation Contact</span>
@@ -599,7 +591,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           </div>
 
           {/* 6. Special Business Guidelines */}
-          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-lg space-y-2">
+          <div className="p-4 bg-slate-50/80 border border-slate-200 rounded-md space-y-2">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <span>6. Special Business Guidelines for AI</span>
               <InfoTooltip
@@ -612,14 +604,14 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               value={rules.customInstructions}
               onChange={(e) => setRules({ ...rules, customInstructions: e.target.value })}
               placeholder="e.g. Always emphasize our discipline and selection track record."
-              className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-blue-500"
+              className="w-full p-2.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-blue-500"
             />
           </div>
         </div>
       </div>
 
       {/* 7. AI Model Engine, Speed & Response Control */}
-      <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-white border border-indigo-200 rounded-xl space-y-4 shadow-2xs">
+      <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-white border border-indigo-200 rounded-md space-y-4 shadow-2xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 text-indigo-950 font-bold text-xs uppercase tracking-wider">
             <Cpu className="w-4 h-4 text-indigo-600" />
@@ -629,14 +621,14 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               content="Directly controls Google Gemini parameters: active model, response speed (thinking budget), output verbosity, and creative temperature."
             />
           </div>
-          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
             Active Controller
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* AI Model Selection */}
-          <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5">
+          <div className="p-3 bg-white rounded-md border border-slate-200 space-y-1.5">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Bot className="w-3.5 h-3.5 text-indigo-600" />
               <span>AI Model Engine:</span>
@@ -656,7 +648,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           </div>
 
           {/* Speed & Thinking Mode */}
-          <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5">
+          <div className="p-3 bg-white rounded-md border border-slate-200 space-y-1.5">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-amber-500" />
               <span>Response Speed / Thinking Mode:</span>
@@ -697,7 +689,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                 key={opt.id}
                 type="button"
                 onClick={() => setRules({ ...rules, replyLength: opt.id as any })}
-                className={`p-3 rounded-lg border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                className={`p-3 rounded-md border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
                   (rules.replyLength || 'detailed') === opt.id
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
@@ -720,7 +712,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
         </div>
 
         {/* Temperature / Creativity Level */}
-        <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-2">
+        <div className="p-3 bg-white rounded-md border border-slate-200 space-y-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Sliders className="w-3.5 h-3.5 text-purple-600" />

@@ -2997,14 +2997,15 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className={`grid ${locations.length > 1 ? 'grid-cols-3' : 'grid-cols-2'} gap-1.5 sm:flex sm:flex-row sm:items-center sm:gap-2 w-full md:w-auto`}>
                   {locations.length > 1 && (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <label className="text-[11px] font-medium text-slate-500 whitespace-nowrap">Profile:</label>
+                    <div className="min-w-0 w-full sm:w-auto flex items-center sm:gap-1.5">
+                      <label className="hidden sm:inline text-[11px] font-semibold text-slate-500 whitespace-nowrap">Profile:</label>
                       <select
                         value={activeLoc ? (activeLoc.v4Name || activeLoc.name) : (selectedLocation || '')}
                         onChange={(e) => handleLocationChange(e.target.value)}
-                        className="text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer whitespace-nowrap"
+                        aria-label="Select Profile"
+                        className="w-full sm:w-auto text-[11px] sm:text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-md py-2 px-1.5 sm:px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer truncate"
                       >
                         {locations.map(loc => {
                           const val = loc.v4Name || loc.name;
@@ -3022,14 +3023,17 @@ export default function App() {
                   <button 
                     onClick={handleAutoReplyAllPending}
                     disabled={autoReplyingAll || pendingReviews.length === 0}
-                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    className="w-full sm:w-auto px-1.5 sm:px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs whitespace-nowrap cursor-pointer truncate"
                     title="Auto-reply to all pending reviews on this specific profile"
                   >
-                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Bot className="w-3.5 h-3.5" />}
-                    <span>
+                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 shrink-0 animate-spin" /> : <Bot className="w-3.5 h-3.5 shrink-0" />}
+                    <span className="truncate hidden sm:inline">
                       {autoReplyingAll 
                         ? 'Replying...' 
                         : `Auto-Reply Profile (${pendingReviews.length} Pending)`}
+                    </span>
+                    <span className="truncate sm:hidden">
+                      {autoReplyingAll ? 'Replying...' : `Profile (${pendingReviews.length})`}
                     </span>
                   </button>
 
@@ -3037,11 +3041,12 @@ export default function App() {
                   <button 
                     onClick={handleAutoReplyAllProfiles}
                     disabled={autoReplyingAll}
-                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    className="w-full sm:w-auto px-1.5 sm:px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs whitespace-nowrap cursor-pointer truncate"
                     title="Run AI Auto-Reply across all connected Google Business profiles"
                   >
-                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                    <span>Auto-Reply All Profiles</span>
+                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 shrink-0 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 shrink-0" />}
+                    <span className="truncate hidden sm:inline">Auto-Reply All Profiles</span>
+                    <span className="truncate sm:hidden">All Profiles</span>
                   </button>
                 </div>
               </div>
@@ -3061,50 +3066,12 @@ export default function App() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div className="xl:col-span-2">
-                  <AiRulesSettings 
-                    onRulesUpdated={(updated) => setAiRules(updated)}
-                    locationName={activeLoc?.v4Name || activeLoc?.name}
-                    locationTitle={activeLoc?.title}
-                  />
-                </div>
-
-                {/* Pending list */}
-                <div className="xl:col-span-1">
-                  <div className="card p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-slate-800 text-sm">
-                      {'Pending Reviews'} ({pendingReviews.length})
-                    </h3>
-                  </div>
-
-                  <div className="divide-y divide-slate-100 overflow-y-auto max-h-[350px]">
-                    {pendingReviews.map(rev => (
-                      <div key={rev.reviewId} className="py-2.5 space-y-1 text-xs">
-                        <div className="flex justify-between font-bold">
-                          <span>{rev.reviewer.displayName}</span>
-                          <span className="text-amber-500">{parseRating(rev.starRating)} ★</span>
-                        </div>
-                        <p className="text-slate-600 line-clamp-2 italic">"{rev.comment || 'Rating without comment'}"</p>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenReplyModal(rev, true)}
-                          className="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 pt-1 cursor-pointer"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Draft AI Response
-                        </button>
-                      </div>
-                    ))}
-                    {pendingReviews.length === 0 && (
-                      <div className="py-8 text-center text-slate-400">
-                        <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-1" />
-                        <p className="font-semibold text-xs text-slate-600">All caught up!</p>
-                      </div>
-                    )}
-                    </div>
-                  </div>
-                </div>
+              <div className="w-full max-w-full">
+                <AiRulesSettings 
+                  onRulesUpdated={(updated) => setAiRules(updated)}
+                  locationName={activeLoc?.v4Name || activeLoc?.name}
+                  locationTitle={activeLoc?.title}
+                />
               </div>
             </div>
           )}
