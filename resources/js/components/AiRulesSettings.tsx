@@ -124,7 +124,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       contactPhone: '',
       contactEmail: '',
       customInstructions: 'Always maintain maximum respect and highlight our dedication to student success and discipline.',
-      model: 'gemini-3.5-flash-lite'
+      model: 'gemini-2.5-flash'
     });
   };
 

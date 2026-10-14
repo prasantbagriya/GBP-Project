@@ -1124,23 +1124,26 @@ class GoogleBusinessController extends Controller
         $prompt = implode("\n", $instructions);
 
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-3.5-flash-lite';
+        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-2.5-flash';
         $modelsToTry = array_values(array_filter(array_unique([
             $configuredModel,
-            'gemini-3.5-flash-lite',
             'gemini-2.5-flash',
+            'gemini-3.5-flash-lite',
         ])));
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
                 try {
-                    $response = Http::timeout(6)->connectTimeout(3)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
+                    $response = Http::timeout(8)->connectTimeout(3)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
                         'contents' => [
                             ['parts' => [['text' => $prompt]]],
                         ],
                         'generationConfig' => [
                             'temperature' => 0.85,
-                            'maxOutputTokens' => 250,
+                            'maxOutputTokens' => 800,
+                            'thinkingConfig' => [
+                                'thinkingBudget' => 0,
+                            ],
                         ],
                     ]);
 
@@ -2948,18 +2951,26 @@ class GoogleBusinessController extends Controller
             $prompt = "Write an engaging, high-converting Google Business Profile post for \"{$businessName}\". Type: {$topicType}. Topic: {$promptTopic}. {$langInstruction} Keep it 2-3 sentences with attractive emojis, 2 key bullet points, and a clear call to action. Return ONLY the ready post text without hashtags.";
         }
 
-        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-3.5-flash-lite';
+        $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
+        $configuredModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-2.5-flash';
         $modelsToTry = array_values(array_filter(array_unique([
             $configuredModel,
-            'gemini-3.5-flash-lite',
             'gemini-2.5-flash',
+            'gemini-3.5-flash-lite',
         ])));
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
                 try {
-                    $response = Http::timeout(7)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
+                    $response = Http::timeout(8)->connectTimeout(3)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
                         'contents' => [['parts' => [['text' => $prompt]]]],
+                        'generationConfig' => [
+                            'temperature' => 0.8,
+                            'maxOutputTokens' => 1000,
+                            'thinkingConfig' => [
+                                'thinkingBudget' => 0,
+                            ],
+                        ],
                     ]);
 
                     if ($response->successful()) {
@@ -3780,11 +3791,11 @@ class GoogleBusinessController extends Controller
         })->implode("\n");
 
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $primaryModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-3.5-flash-lite';
+        $primaryModel = config('services.gemini.model') ?: env('GEMINI_MODEL') ?: 'gemini-2.5-flash';
         $modelsToTry = array_values(array_filter(array_unique([
             $primaryModel,
-            'gemini-3.5-flash-lite',
             'gemini-2.5-flash',
+            'gemini-3.5-flash-lite',
         ])));
 
         if (! empty($apiKey) && $this->isGeminiAiEnabled()) {
@@ -3804,6 +3815,13 @@ class GoogleBusinessController extends Controller
                     $response = Http::timeout(15)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
                         'contents' => [
                             ['parts' => [['text' => $prompt]]],
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.4,
+                            'maxOutputTokens' => 1000,
+                            'thinkingConfig' => [
+                                'thinkingBudget' => 0,
+                            ],
                         ],
                     ]);
 
@@ -3922,9 +3940,9 @@ class GoogleBusinessController extends Controller
     {
         $enabled = $this->isGeminiAiEnabled();
         $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $model = config('services.gemini.model', 'gemini-3.5-flash-lite');
+        $model = config('services.gemini.model', 'gemini-2.5-flash');
         if (in_array($model, ['gemini-flash-lite-latest', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'])) {
-            $model = 'gemini-3.5-flash-lite';
+            $model = 'gemini-2.5-flash';
         }
 
         return response()->json([
@@ -3994,7 +4012,7 @@ class GoogleBusinessController extends Controller
             'contactPhone' => '',
             'contactEmail' => '',
             'customInstructions' => 'Always maintain maximum respect and highlight our dedication to excellence and student success.',
-            'model' => 'gemini-3.5-flash-lite',
+            'model' => 'gemini-2.5-flash',
         ];
     }
 
@@ -4056,7 +4074,7 @@ class GoogleBusinessController extends Controller
         }
 
         if (isset($saved['model']) && in_array($saved['model'], ['gemini-flash-lite-latest', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'])) {
-            $saved['model'] = 'gemini-3.5-flash-lite';
+            $saved['model'] = 'gemini-2.5-flash';
         }
 
         try {
