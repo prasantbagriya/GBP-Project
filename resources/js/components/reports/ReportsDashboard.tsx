@@ -574,90 +574,107 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           </p>
         </div>
 
-        {/* Global Action Buttons (Strictly 1-Line) */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Refresh Multi-Profile Data */}
-          <button
-            onClick={() => fetchMultiProfileData(true)}
-            disabled={loadingMultiProfile}
-            title="Fetch live fresh report from Google API"
-            className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingMultiProfile ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
-            <span>{loadingMultiProfile ? 'Syncing...' : 'Live Refresh'}</span>
-          </button>
-
-          {/* WhatsApp Executive Digest Trigger */}
-          <button
-            onClick={() => setShowWhatsAppModal(true)}
-            className="px-3.5 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
-          >
-            <Share2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Share WhatsApp</span>
-          </button>
-
-          {/* CSV Export Dropdown */}
-          <div className="relative shrink-0">
+        {/* Global Action Buttons (Strictly 2 lines on mobile) */}
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2 sm:flex-wrap w-full lg:w-auto">
+          {/* Row 1 on mobile: 3 buttons (Refresh, WhatsApp, Print) */}
+          <div className="grid grid-cols-3 gap-1.5 w-full sm:flex sm:items-center sm:gap-2 sm:w-auto">
+            {/* 1. Refresh Multi-Profile Data */}
             <button
-              onClick={() => setShowCsvMenu(!showCsvMenu)}
-              className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
+              onClick={() => fetchMultiProfileData(true)}
+              disabled={loadingMultiProfile}
+              title="Fetch live fresh report from Google API"
+              className="w-full sm:w-auto px-2 sm:px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap truncate"
             >
-              <Download className="w-3.5 h-3.5 text-slate-500" />
-              <span>Export CSV</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loadingMultiProfile ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
+              <span className="truncate hidden sm:inline">{loadingMultiProfile ? 'Syncing...' : 'Live Refresh'}</span>
+              <span className="truncate sm:hidden">{loadingMultiProfile ? '...' : 'Refresh'}</span>
             </button>
 
-            {showCsvMenu && (
-              <div className="absolute right-0 mt-1.5 w-60 bg-white border border-slate-200 rounded-lg shadow-xl z-30 py-1 animate-in fade-in zoom-in-95 duration-100">
-                <button
-                  onClick={handleExportExecutiveCsv}
-                  className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer whitespace-nowrap"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                  <div>
-                    <strong className="block font-medium">Executive Summary CSV</strong>
-                    <span className="text-[10px] text-slate-400">Branch rankings, totals & SLA</span>
-                  </div>
-                </button>
-                {onDownloadCsv && (
-                  <button
-                    onClick={() => {
-                      onDownloadCsv();
-                      setShowCsvMenu(false);
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer border-t border-slate-100 whitespace-nowrap"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <div>
-                      <strong className="block font-medium">Customer Reviews Log CSV</strong>
-                      <span className="text-[10px] text-slate-400">Full comments, replies & dates</span>
-                    </div>
-                  </button>
-                )}
-              </div>
-            )}
+            {/* 2. WhatsApp Executive Digest Trigger */}
+            <button
+              onClick={() => setShowWhatsAppModal(true)}
+              className="w-full sm:w-auto px-2 sm:px-3.5 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap truncate"
+              title="Share executive summary via WhatsApp"
+            >
+              <Share2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="truncate hidden sm:inline">Share WhatsApp</span>
+              <span className="truncate sm:hidden">WhatsApp</span>
+            </button>
+
+            {/* 3. Print / PDF Dossier */}
+            <button
+              onClick={() => window.print()}
+              className="w-full sm:w-auto px-2 sm:px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap truncate"
+              title="Print or save PDF report"
+            >
+              <Printer className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <span className="truncate hidden sm:inline">Print Report</span>
+              <span className="truncate sm:hidden">Print</span>
+            </button>
           </div>
 
-          {/* Google Sheets Sync */}
-          {onSyncToSheets && (
-            <button
-              onClick={() => onSyncToSheets(reportScope === 'all')}
-              disabled={isSyncing}
-              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>{isSyncing ? 'Syncing...' : 'Export to Sheets'}</span>
-            </button>
-          )}
+          {/* Row 2 on mobile: 2 buttons (Export CSV & Export to Sheets) */}
+          <div className="grid grid-cols-2 gap-1.5 w-full sm:flex sm:items-center sm:gap-2 sm:w-auto">
+            {/* 4. CSV Export Dropdown */}
+            <div className="relative w-full sm:w-auto">
+              <button
+                onClick={() => setShowCsvMenu(!showCsvMenu)}
+                className="w-full sm:w-auto px-2.5 sm:px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap truncate"
+              >
+                <Download className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate">Export CSV</span>
+                <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
+              </button>
 
-          {/* Print / PDF Dossier */}
-          <button
-            onClick={() => window.print()}
-            className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
-          >
-            <Printer className="w-3.5 h-3.5 text-slate-500" />
-            <span>Print Report</span>
-          </button>
+              {showCsvMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowCsvMenu(false)} 
+                  />
+                  <div className="absolute left-0 mt-1.5 w-64 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-md shadow-xl z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
+                    <button
+                      onClick={handleExportExecutiveCsv}
+                      className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <div>
+                        <strong className="block font-medium">Executive Summary CSV</strong>
+                        <span className="text-[10px] text-slate-400">Branch rankings, totals & SLA</span>
+                      </div>
+                    </button>
+                    {onDownloadCsv && (
+                      <button
+                        onClick={() => {
+                          onDownloadCsv();
+                          setShowCsvMenu(false);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer border-t border-slate-100 whitespace-nowrap"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <div>
+                          <strong className="block font-medium">Customer Reviews Log CSV</strong>
+                          <span className="text-[10px] text-slate-400">Full comments, replies & dates</span>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* 5. Google Sheets Sync */}
+            {onSyncToSheets && (
+              <button
+                onClick={() => onSyncToSheets(reportScope === 'all')}
+                disabled={isSyncing}
+                className="w-full sm:w-auto px-2.5 sm:px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap truncate"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{isSyncing ? 'Syncing...' : 'Export to Sheets'}</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
