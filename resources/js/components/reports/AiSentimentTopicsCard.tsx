@@ -49,10 +49,10 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
     <div className="card p-5 space-y-4 relative">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-600" />
-          <h3 className="text-sm font-bold text-slate-800">Gemini AI Sentiment & Topic Intelligence</h3>
+          <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
+          <h3 className="text-sm font-semibold text-slate-800">Gemini AI Sentiment & Topic Intelligence</h3>
         </div>
-        <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200 font-semibold">
+        <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md border border-purple-200 font-medium whitespace-nowrap shrink-0">
           Customer Voice AI
         </span>
       </div>
@@ -60,16 +60,16 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
       {/* Polarity Split Bar */}
       <div>
         <div className="flex justify-between items-center text-xs mb-1.5 font-medium">
-          <span className="text-emerald-700 flex items-center gap-1 font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="text-emerald-700 flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
             Positive ({posPct}%)
           </span>
-          <span className="text-amber-700 flex items-center gap-1 font-semibold">
-            <span className="w-2 h-2 rounded-full bg-amber-500" />
+          <span className="text-amber-700 flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
             Neutral ({neuPct}%)
           </span>
-          <span className="text-red-700 flex items-center gap-1 font-semibold">
-            <span className="w-2 h-2 rounded-full bg-red-500" />
+          <span className="text-red-700 flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
             Critical ({critPct}%)
           </span>
         </div>
@@ -83,9 +83,9 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
 
       {/* AI Summary Highlight */}
       {summaryText && (
-        <div className="p-3 bg-purple-50/50 border border-purple-100 rounded-xl text-xs text-slate-700 leading-relaxed shadow-2xs">
-          <span className="font-bold text-purple-800 mr-1 flex items-center gap-1 mb-0.5">
-            <Sparkles className="w-3 h-3 text-purple-600" />
+        <div className="p-3 bg-purple-50/50 border border-purple-100 rounded-lg text-xs text-slate-700 leading-relaxed shadow-2xs">
+          <span className="font-semibold text-purple-800 mr-1 flex items-center gap-1 mb-0.5">
+            <Sparkles className="w-3 h-3 text-purple-600 shrink-0" />
             Executive AI Reputation Analysis:
           </span>
           <p className="text-slate-600">{summaryText}</p>
@@ -94,7 +94,7 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
 
       {/* Key Topic Badges Cloud */}
       <div>
-        <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider mb-2 flex items-center justify-between">
+        <div className="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-2 flex items-center justify-between">
           <span>Frequently Mentioned Themes & Keywords</span>
           <span className="text-[10px] text-purple-600 font-normal">Click topic to inspect reviews</span>
         </div>
@@ -103,9 +103,9 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
             <button
               key={idx}
               onClick={() => handleTagClick(kw)}
-              className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 border border-slate-200 text-slate-700 rounded-lg text-xs transition-all flex items-center gap-1 cursor-pointer font-medium shadow-2xs active:scale-95"
+              className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 border border-slate-200 text-slate-700 rounded-md text-xs transition-all flex items-center gap-1 cursor-pointer font-medium shadow-2xs active:scale-95 whitespace-nowrap shrink-0"
             >
-              <MessageSquare className="w-3 h-3 text-slate-400 group-hover:text-purple-500" />
+              <MessageSquare className="w-3 h-3 text-slate-400 group-hover:text-purple-500 shrink-0" />
               <span>#{kw}</span>
             </button>
           ))}

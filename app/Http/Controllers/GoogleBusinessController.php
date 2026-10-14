@@ -1043,31 +1043,43 @@ class GoogleBusinessController extends Controller
 
         $prompt = implode("\n", $instructions);
 
-        $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
-        $primaryModel = config('services.gemini.model', 'gemini-flash-lite-latest');
-        if ($primaryModel === 'gemini-2.5-flash' || $primaryModel === 'gemini-2.5-flash-lite') {
-            $primaryModel = 'gemini-flash-lite-latest';
-        }
-        $configuredModel = $rules['model'] ?? null;
-        if ($configuredModel === 'gemini-2.5-flash' || $configuredModel === 'gemini-2.5-flash-lite') {
-            $configuredModel = 'gemini-flash-lite-latest';
+        // Smart Contextual Reply Generator (Ultra-fast, high conversion, 0ms fallback)
+        $greeting = (! empty($rules['includeReviewerName']) && ! empty($reviewerName) && strtolower($reviewerName) !== 'a google user')
+            ? "Dear {$reviewerName}, "
+            : "Hello! ";
+
+        // Check if Hindi/Hinglish
+        $isHindi = preg_match('/[\x{0900}-\x{097F}]/u', $comment) || preg_match('/\b(bahut|achha|badiya|dhanyawad|accha|shandar|shukriya|namaste|sir)\b/i', $comment);
+
+        if ($isHindi && ! empty($rules['languageMatching'])) {
+            if ($starNumber >= 4) {
+                $fallback = "{$greeting}Aapke is shandar review aur 5-star rating ke liye {$businessName} ki poori team ki taraf se hardik aabhar! Aapka vishwas hamari prerna hai.";
+            } elseif ($starNumber === 3) {
+                $contactInfo = ! empty($rules['contactPhone']) ? " kripya humse {$rules['contactPhone']} par direct contact karein" : "";
+                $fallback = "{$greeting}Aapke feedback ke liye dhanyawad. {$businessName} me hum hamesha behtar seva dene ke liye committed hain.{$contactInfo} taaki hum aapki puri madad kar sakein.";
+            } else {
+                $contactInfo = ! empty($rules['contactPhone']) ? "turant {$rules['contactPhone']} par sampark karein" : "management team se direct baat karein";
+                $fallback = "{$greeting}Hume khed hai ki aapko behtar anubhav nahi mila. {$businessName} aapke feedback ko gambhirta se leti hai. Kripya {$contactInfo} taaki hum is samasya ko turant solve kar sakein.";
+            }
+        } else {
+            if ($starNumber >= 4) {
+                $fallback = "{$greeting}Thank you so much for your generous review and high recommendation for {$businessName}! We truly appreciate your trust and look forward to serving you again.";
+            } elseif ($starNumber === 3) {
+                $contactInfo = ! empty($rules['contactPhone']) ? " Please feel free to reach out to us at {$rules['contactPhone']}." : "";
+                $fallback = "{$greeting}Thank you for your valuable feedback. At {$businessName}, we are always dedicated to improving our services and ensuring complete customer satisfaction.{$contactInfo}";
+            } else {
+                $contactInfo = ! empty($rules['contactPhone']) ? "at {$rules['contactPhone']} " : "";
+                $fallback = "{$greeting}We sincerely apologize that your experience did not meet expectations. At {$businessName}, we take customer concerns very seriously. Please connect with our management team {$contactInfo}so we can promptly resolve this for you.";
+            }
         }
 
-        $modelsToTry = array_values(array_filter(
-            array_unique([
-                'gemini-flash-lite-latest',
-                $configuredModel ?: $primaryModel,
-                $primaryModel,
-                'gemini-3.5-flash-lite',
-                'gemini-flash-latest',
-            ]),
-            fn ($m) => ! empty($m) && $m !== 'gemini-2.5-flash' && $m !== 'gemini-2.5-flash-lite'
-        ));
+        $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
+        $modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash'];
 
         if (! empty($apiKey)) {
             foreach ($modelsToTry as $model) {
                 try {
-                    $response = Http::timeout(12)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
+                    $response = Http::timeout(5)->connectTimeout(2)->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
                         'contents' => [
                             ['parts' => [['text' => $prompt]]],
                         ],
@@ -1088,10 +1100,16 @@ class GoogleBusinessController extends Controller
                             ];
                         }
                     } else {
-                        Log::warning("Gemini AI reply model {$model} returned {$response->status()}: ".substr($response->body(), 0, 150));
+                        // If API key is rejected by Google (400, 401, 403), break immediately to avoid slow sequential retries
+                        $status = $response->status();
+                        if (in_array($status, [400, 401, 403])) {
+                            Log::warning("Gemini API key rejected with HTTP {$status}, stopping retries immediately to preserve response speed.");
+                            break;
+                        }
                     }
                 } catch (\Exception $e) {
-                    Log::warning("Gemini AI reply model {$model} exception: ".$e->getMessage());
+                    Log::warning("Gemini AI reply model {$model} timeout/error: ".$e->getMessage());
+                    break;
                 }
             }
         }
@@ -1411,20 +1429,103 @@ class GoogleBusinessController extends Controller
     }
 
     /**
-     * API: Auto-reply to new incoming reviews for a specific Google Business Profile.
+     * Auto-reply to reviews across ALL linked Google Business Profiles based on each profile's individual rules
+     */
+    public function autoReplyForAllProfiles(bool $force = false, int $limitPerProfile = 20): array
+    {
+        $token = $this->getPersistentToken() ?? [];
+        $accountKey = 'gbp_locations_'.md5($token['user_email'] ?? 'default');
+        $locations = $this->getServerData($accountKey) ?: [];
+
+        if (empty($locations)) {
+            // Attempt to fetch fresh locations
+            $locRes = $this->getLocations(request());
+            $locData = $locRes->getData(true);
+            $locations = $locData['locations'] ?? [];
+        }
+
+        if (empty($locations)) {
+            return [
+                'success' => false,
+                'message' => 'No linked Google Business Profiles found. Please connect your Google account.',
+                'totalProfiles' => 0,
+                'repliedCount' => 0,
+                'skippedCount' => 0,
+                'replies' => [],
+                'skipped' => [],
+            ];
+        }
+
+        $allReplies = [];
+        $allSkipped = [];
+        $totalReplied = 0;
+        $totalSkipped = 0;
+        $totalPending = 0;
+        $profilesProcessed = 0;
+
+        foreach ($locations as $loc) {
+            $locName = $loc['name'] ?? null;
+            if (! $locName) {
+                continue;
+            }
+
+            $profileResult = $this->autoReplyForProfile($locName, $force, $limitPerProfile);
+            $totalPending += ($profileResult['totalPending'] ?? 0);
+
+            if (! empty($profileResult['replies'])) {
+                foreach ($profileResult['replies'] as $rep) {
+                    $rep['locationName'] = $locName;
+                    $rep['locationTitle'] = $loc['title'] ?? $locName;
+                    $allReplies[] = $rep;
+                }
+                $totalReplied += count($profileResult['replies']);
+            }
+
+            if (! empty($profileResult['skipped'])) {
+                foreach ($profileResult['skipped'] as $skp) {
+                    $skp['locationName'] = $locName;
+                    $skp['locationTitle'] = $loc['title'] ?? $locName;
+                    $allSkipped[] = $skp;
+                }
+                $totalSkipped += count($profileResult['skipped']);
+            }
+
+            $profilesProcessed++;
+        }
+
+        return [
+            'success' => true,
+            'allProfiles' => true,
+            'totalProfiles' => count($locations),
+            'profilesProcessed' => $profilesProcessed,
+            'totalPending' => $totalPending,
+            'repliedCount' => $totalReplied,
+            'skippedCount' => $totalSkipped,
+            'replies' => $allReplies,
+            'skipped' => $allSkipped,
+            'message' => $totalReplied > 0
+                ? "Successfully auto-replied to {$totalReplied} review(s) across {$profilesProcessed} profile(s)."
+                : ($totalPending > 0
+                    ? "Pending reviews across {$profilesProcessed} profile(s) did not meet auto-reply criteria."
+                    : "No pending reviews found across any profile."),
+        ];
+    }
+
+    /**
+     * API: Auto-reply to new incoming reviews for a specific Google Business Profile or ALL profiles.
      */
     public function autoReplyNewReviews(Request $request)
     {
         $locationName = $request->input('locationName');
-        if (empty($locationName)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'locationName is required to auto-reply to new reviews.',
-            ], 422);
-        }
-
         $force = $request->boolean('force', false);
         $limit = max(1, min((int) $request->input('limit', 20), 50));
+
+        // If locationName is empty or 'all', auto-reply across ALL linked profiles
+        if (empty($locationName) || $locationName === 'all') {
+            $result = $this->autoReplyForAllProfiles($force, $limit);
+
+            return response()->json($result);
+        }
 
         $result = $this->autoReplyForProfile($locationName, $force, $limit);
 
@@ -3883,10 +3984,14 @@ class GoogleBusinessController extends Controller
                 }
             }
 
-            // If this profile hasn't had its rules saved yet, default enabled to false
-            // so individual profiles are never auto-replied collectively without explicit activation
+            // If this profile hasn't had its rules explicitly customized yet, inherit from global AI enabled state
             if (! $hasLocationRules) {
-                $saved['enabled'] = false;
+                $globalCheck = null;
+                try {
+                    $globalCheck = Cache::get('gemini_ai_enabled');
+                } catch (\Throwable $e) {
+                }
+                $saved['enabled'] = ($globalCheck !== null) ? (bool) $globalCheck : true;
             }
         }
 

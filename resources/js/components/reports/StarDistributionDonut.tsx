@@ -83,23 +83,23 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-800">Star Rating Distribution & Reputation Quality</h3>
-          <p className="text-xs text-slate-500 mt-0.5">Customer feedback breakdown and Net Reputation Score (NRS)</p>
+          <h3 className="text-sm font-medium text-slate-800">Star Rating Distribution & Reputation Quality</h3>
+          <p className="text-xs text-slate-500 mt-0.5 font-normal">Customer feedback breakdown and Net Reputation Score (NRS)</p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {selectedStarFilter && onSelectStarFilter && (
             <button
               onClick={() => onSelectStarFilter(null)}
-              className="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-[11px] font-semibold flex items-center gap-1 border border-blue-200 transition-colors"
+              className="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-[11px] font-medium flex items-center gap-1 border border-blue-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <span>{selectedStarFilter}★ Filter Active</span>
               <span className="font-bold">&times;</span>
             </button>
           )}
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-normal shadow-2xs whitespace-nowrap shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
             <span>NPS: {npsScore > 0 ? `+${npsScore}` : npsScore} ({npsScore >= 70 ? 'World Class' : npsScore >= 40 ? 'Healthy' : 'Needs Care'})</span>
           </div>
         </div>
@@ -185,7 +185,7 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
 
           {/* Center Text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-2xl font-bold text-slate-800 leading-none">{numRating.toFixed(1)}</span>
+            <span className="text-2xl font-semibold text-slate-800 leading-none">{numRating.toFixed(1)}</span>
             <div className="flex items-center text-amber-400 mt-1">
               <Star className="w-3 h-3 fill-current" />
               <Star className="w-3 h-3 fill-current" />
@@ -193,7 +193,7 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
               <Star className="w-3 h-3 fill-current" />
               <Star className="w-3 h-3 fill-current" />
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">{currentTotal.toLocaleString()} Reviews</span>
+            <span className="text-[10px] text-slate-400 mt-0.5 font-normal">{currentTotal.toLocaleString()} Reviews</span>
           </div>
         </div>
 
@@ -211,39 +211,39 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
               <div
                 key={tier.star}
                 onClick={() => handleStarClick(tier.star)}
-                className={`flex items-center gap-2 text-xs p-1 rounded-md transition-all cursor-pointer ${tier.hoverColor} ${
-                  isSelected ? 'bg-blue-50 ring-1 ring-blue-400 font-semibold' : ''
+                className={`flex items-center gap-2 text-xs p-1 rounded transition-all cursor-pointer ${tier.hoverColor} ${
+                  isSelected ? 'bg-blue-50 ring-1 ring-blue-400 font-medium' : 'font-normal'
                 }`}
                 title={`Click to filter reviews by ${tier.label}`}
               >
-                <span className="w-14 text-slate-700 whitespace-nowrap">{tier.label}</span>
+                <span className="w-14 text-slate-700 whitespace-nowrap shrink-0">{tier.label}</span>
                 <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${tier.color} rounded-full transition-all duration-500`} 
                     style={{ width: `${Math.min(100, Math.max(0, tier.pct))}%` }} 
                   />
                 </div>
-                <span className="w-10 text-right font-bold text-slate-800">{tier.count}</span>
-                <span className="w-10 text-right text-slate-400 text-[11px]">{Number(tier.pct || 0).toFixed(0)}%</span>
+                <span className="w-10 text-right font-medium text-slate-800 whitespace-nowrap shrink-0">{tier.count}</span>
+                <span className="w-10 text-right text-slate-400 text-[11px] whitespace-nowrap shrink-0">{Number(tier.pct || 0).toFixed(0)}%</span>
               </div>
             );
           })}
 
           {/* Rating Elevation Target Planner */}
-          <div className="mt-3 p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl space-y-1.5 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-amber-950 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-amber-600" />
+          <div className="mt-3 p-3 bg-amber-50/70 border border-amber-200/80 rounded-lg space-y-1.5 text-xs">
+            <div className="flex items-center justify-between flex-wrap gap-1.5">
+              <span className="font-medium text-amber-950 flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                <Flame className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 Target Rating Planner:
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 {[4.7, 4.8, 4.9, 5.0].map((tar) => (
                   <button
                     key={tar}
                     onClick={() => setTargetRating(tar)}
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all ${
+                    className={`px-2 py-0.5 rounded text-[10px] font-normal transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                       targetRating === tar
-                        ? 'bg-amber-600 text-white shadow-2xs'
+                        ? 'bg-amber-600 text-white shadow-2xs font-medium'
                         : 'bg-white text-amber-900 border border-amber-200 hover:bg-amber-100'
                     }`}
                   >
@@ -253,15 +253,15 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
               </div>
             </div>
             
-            <p className="text-[11px] text-amber-900 leading-relaxed">
+            <p className="text-[11px] text-amber-900 leading-relaxed font-normal">
               {numRating >= targetRating ? (
-                <span className="text-emerald-700 font-medium flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span className="text-emerald-700 font-normal flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                   Your profile has already achieved the {targetRating}★ rating benchmark!
                 </span>
               ) : (
                 <span>
-                  Need <strong>+{neededFiveStars} consecutive 5★ reviews</strong> to lift profile rating to <strong>{targetRating}★</strong>.
+                  Need <strong className="font-medium">+{neededFiveStars} consecutive 5★ reviews</strong> to lift profile rating to <strong className="font-medium">{targetRating}★</strong>.
                 </span>
               )}
             </p>

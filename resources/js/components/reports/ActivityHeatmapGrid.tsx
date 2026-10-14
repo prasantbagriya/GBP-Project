@@ -98,12 +98,12 @@ export const ActivityHeatmapGrid: React.FC<ActivityHeatmapGridProps> = ({ review
     <div className="card p-5 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-800">Peak Review Acquisition Heatmap</h3>
+          <h3 className="text-sm font-semibold text-slate-800">Peak Review Acquisition Heatmap</h3>
           <p className="text-xs text-slate-500 mt-0.5">Day of week vs. customer time window distribution</p>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold shadow-2xs">
-          <Zap className="w-3.5 h-3.5 text-blue-600" />
+        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-medium shadow-2xs whitespace-nowrap shrink-0">
+          <Zap className="w-3.5 h-3.5 text-blue-600 shrink-0" />
           <span>Prime Window: {peakDay} ({peakWindow})</span>
         </div>
       </div>
@@ -112,7 +112,7 @@ export const ActivityHeatmapGrid: React.FC<ActivityHeatmapGridProps> = ({ review
       <div className="overflow-x-auto">
         <div className="min-w-[420px]">
           {/* Header Row: Time Windows */}
-          <div className="grid grid-cols-5 gap-1.5 mb-1.5 text-[11px] text-slate-400 font-semibold text-center">
+          <div className="grid grid-cols-5 gap-1.5 mb-1.5 text-[11px] text-slate-400 font-medium text-center">
             <span className="text-left pl-1">Day</span>
             {timeWindows.map((tw, idx) => (
               <span key={idx} title={tw.hours}>
@@ -125,13 +125,13 @@ export const ActivityHeatmapGrid: React.FC<ActivityHeatmapGridProps> = ({ review
           <div className="space-y-1.5">
             {days.map((day, dIdx) => (
               <div key={dIdx} className="grid grid-cols-5 gap-1.5 text-xs items-center">
-                <span className="font-bold text-slate-700 pl-1">{day}</span>
+                <span className="font-semibold text-slate-700 pl-1">{day}</span>
                 {timeWindows.map((_, wIdx) => {
                   const count = matrix[dIdx][wIdx];
                   return (
                     <div
                       key={wIdx}
-                      className={`h-8 rounded-lg flex items-center justify-center text-xs transition-all cursor-default ${getColorClass(count)}`}
+                      className={`h-8 rounded-md flex items-center justify-center text-xs transition-all cursor-default ${getColorClass(count)}`}
                       title={`${day} ${timeWindows[wIdx].label}: ${count} reviews`}
                     >
                       {count > 0 ? count : '—'}
@@ -145,10 +145,10 @@ export const ActivityHeatmapGrid: React.FC<ActivityHeatmapGridProps> = ({ review
       </div>
 
       {/* Actionable Tip */}
-      <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-[11px] text-indigo-900 flex items-center gap-2.5 shadow-2xs">
+      <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-lg text-[11px] text-indigo-900 flex items-center gap-2.5 shadow-2xs">
         <Flame className="w-4 h-4 text-indigo-600 shrink-0" />
         <span className="leading-relaxed">
-          <strong>Strategic Recommendation:</strong> Sending customer feedback requests on <strong>{peakDay} between {peakWindow === 'Evening' ? '4 PM – 8 PM' : '12 PM – 4 PM'}</strong> yields up to <strong>3.2x higher review conversion</strong>.
+          <strong className="font-semibold">Strategic Recommendation:</strong> Sending customer feedback requests on <strong>{peakDay} between {peakWindow === 'Evening' ? '4 PM – 8 PM' : '12 PM – 4 PM'}</strong> yields up to <strong>3.2x higher review conversion</strong>.
         </span>
       </div>
     </div>

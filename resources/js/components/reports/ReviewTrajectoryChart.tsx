@@ -75,32 +75,32 @@ export const ReviewTrajectoryChart: React.FC<ReviewTrajectoryChartProps> = ({ da
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-slate-800">Review Acquisition Trajectory & Velocity</h3>
-            <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200 font-semibold">
+            <h3 className="text-sm font-semibold text-slate-800">Review Acquisition Trajectory & Velocity</h3>
+            <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-200 font-medium whitespace-nowrap shrink-0">
               {timeframeLabel}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Total <strong className="text-slate-700 font-semibold">{totalReviewsInPeriod} reviews</strong> plotted across this window
+            Total <strong className="text-slate-700 font-medium">{totalReviewsInPeriod} reviews</strong> plotted across this window
           </p>
         </div>
 
         {/* Hover inspection pill or peak badge */}
         {hoveredIndex !== null && points[hoveredIndex] ? (
-          <div className="bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs shadow-lg flex items-center gap-3 animate-in fade-in duration-100">
+          <div className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs shadow-lg flex items-center gap-3 animate-in fade-in duration-100 whitespace-nowrap shrink-0">
             <div>
               <span className="text-slate-400 text-[10px] block">{points[hoveredIndex].label} ({points[hoveredIndex].dateStr})</span>
-              <span className="font-bold text-emerald-400">+{points[hoveredIndex].count} Reviews</span>
+              <span className="font-semibold text-emerald-400">+{points[hoveredIndex].count} Reviews</span>
             </div>
             <div className="border-l border-slate-700 pl-2 text-right">
-              <span className="text-amber-400 font-bold block">{points[hoveredIndex].avgRating.toFixed(1)}★</span>
+              <span className="text-amber-400 font-semibold block">{points[hoveredIndex].avgRating.toFixed(1)}★</span>
               <span className="text-[10px] text-slate-400">{points[hoveredIndex].fiveStars} 5-Star</span>
             </div>
           </div>
         ) : peakPoint && peakPoint.count > 0 ? (
-          <div className="px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 flex items-center gap-1.5 shadow-2xs">
-            <Zap className="w-3.5 h-3.5 text-blue-600" />
-            <span>Peak Day: <strong>{peakPoint.label} (+{peakPoint.count})</strong></span>
+          <div className="px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 flex items-center gap-1.5 shadow-2xs whitespace-nowrap shrink-0">
+            <Zap className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span>Peak Day: <strong className="font-semibold">{peakPoint.label} (+{peakPoint.count})</strong></span>
           </div>
         ) : null}
       </div>

@@ -564,13 +564,13 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
   return (
     <div className="space-y-6 w-full">
       {/* ================= 1. REPORT HEADER & ACTIONS TOOLBAR ================= */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+            <span className="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
               <BarChart3 className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold text-slate-800">
+            <h2 className="text-lg font-semibold text-slate-800">
               Executive Review Analytics & Multi-Profile Reports
             </h2>
           </div>
@@ -579,14 +579,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           </p>
         </div>
 
-        {/* Global Action Buttons */}
+        {/* Global Action Buttons (Strictly 1-Line) */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Refresh Multi-Profile Data */}
           <button
             onClick={() => fetchMultiProfileData(true)}
             disabled={loadingMultiProfile}
             title="Fetch live fresh report from Google API"
-            className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+            className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loadingMultiProfile ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
             <span>{loadingMultiProfile ? 'Syncing...' : 'Live Refresh'}</span>
@@ -595,17 +595,17 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           {/* WhatsApp Executive Digest Trigger */}
           <button
             onClick={() => setShowWhatsAppModal(true)}
-            className="px-3.5 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+            className="px-3.5 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
           >
             <Share2 className="w-3.5 h-3.5 text-emerald-600" />
             <span>Share WhatsApp</span>
           </button>
 
           {/* CSV Export Dropdown */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setShowCsvMenu(!showCsvMenu)}
-              className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+              className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <Download className="w-3.5 h-3.5 text-slate-500" />
               <span>Export CSV</span>
@@ -613,14 +613,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
             </button>
 
             {showCsvMenu && (
-              <div className="absolute right-0 mt-1.5 w-60 bg-white border border-slate-200 rounded-xl shadow-xl z-30 py-1 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-1.5 w-60 bg-white border border-slate-200 rounded-lg shadow-xl z-30 py-1 animate-in fade-in zoom-in-95 duration-100">
                 <button
                   onClick={handleExportExecutiveCsv}
-                  className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer whitespace-nowrap"
                 >
-                  <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                  <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                   <div>
-                    <strong className="block font-semibold">Executive Summary CSV</strong>
+                    <strong className="block font-medium">Executive Summary CSV</strong>
                     <span className="text-[10px] text-slate-400">Branch rankings, totals & SLA</span>
                   </div>
                 </button>
@@ -630,11 +630,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                       onDownloadCsv();
                       setShowCsvMenu(false);
                     }}
-                    className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer border-t border-slate-100"
+                    className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer border-t border-slate-100 whitespace-nowrap"
                   >
-                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <div>
-                      <strong className="block font-semibold">Customer Reviews Log CSV</strong>
+                      <strong className="block font-medium">Customer Reviews Log CSV</strong>
                       <span className="text-[10px] text-slate-400">Full comments, replies & dates</span>
                     </div>
                   </button>
@@ -648,7 +648,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
             <button
               onClick={() => onSyncToSheets(reportScope === 'all')}
               disabled={isSyncing}
-              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
               <span>{isSyncing ? 'Syncing...' : 'Export to Sheets'}</span>
@@ -658,7 +658,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           {/* Print / PDF Dossier */}
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print Dossier</span>
@@ -667,15 +667,15 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       </div>
 
       {/* ================= 2. CONTROLS BAR: SCOPE SELECTOR & TIMEFRAME ================= */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
         {/* Scope Selector: Consolidated vs Single Location */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Report Scope:</span>
+          <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px] whitespace-nowrap shrink-0">Report Scope:</span>
           
-          <div className="inline-flex rounded-xl border border-slate-200 bg-white p-0.5 shadow-2xs">
+          <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
             <button
               onClick={() => setReportScope('all')}
-              className={`px-3 py-1.5 rounded-lg transition-all font-semibold ${
+              className={`px-3 py-1.5 rounded-md transition-all font-medium whitespace-nowrap shrink-0 ${
                 reportScope === 'all'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -685,7 +685,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
             </button>
             <button
               onClick={() => setReportScope('single')}
-              className={`px-3 py-1.5 rounded-lg transition-all font-semibold ${
+              className={`px-3 py-1.5 rounded-md transition-all font-medium whitespace-nowrap shrink-0 ${
                 reportScope === 'single'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -697,11 +697,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
           {/* Location Dropdown when in Single Location Mode */}
           {reportScope === 'single' && safeLocations.length > 0 && (
-            <div className="relative">
+            <div className="relative shrink-0">
               <select
                 value={selectedLocationKey}
                 onChange={handleLocationPickerChange}
-                className="pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 font-semibold focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+                className="pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer whitespace-nowrap"
               >
                 {safeLocations.map((loc) => {
                   const val = loc.v4Name || loc.name;
@@ -718,14 +718,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
         </div>
 
         {/* Timeframe Filter */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Timeframe:</span>
-          <div className="inline-flex rounded-xl border border-slate-200 bg-white p-0.5 shadow-2xs">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-slate-400 font-medium uppercase tracking-wider text-[10px] whitespace-nowrap">Timeframe:</span>
+          <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
             {(['7d', '30d', '90d', 'all'] as const).map((tf) => (
               <button
                 key={tf}
                 onClick={() => setTimeframe(tf)}
-                className={`px-3 py-1 rounded-lg transition-all text-xs font-semibold ${
+                className={`px-3 py-1 rounded-md transition-all text-xs font-medium whitespace-nowrap shrink-0 ${
                   timeframe === tf
                     ? 'bg-slate-800 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -740,12 +740,12 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
       {/* Active Profile Info Banner when in Single Location Mode */}
       {reportScope === 'single' && activeLocation && (
-        <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl flex items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-lg flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
             <div>
               <span className="text-slate-500">Currently Analyzing Branch:</span>
-              <strong className="font-bold text-blue-950 ml-1.5 text-sm">{activeLocation.title || activeLocation.name}</strong>
+              <strong className="font-semibold text-blue-950 ml-1.5 text-sm">{activeLocation.title || activeLocation.name}</strong>
               {activeLocation.address && (
                 <span className="text-slate-500 ml-2 hidden sm:inline">({activeLocation.address})</span>
               )}
@@ -754,7 +754,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
           <button
             onClick={() => setReportScope('all')}
-            className="text-blue-700 hover:text-blue-900 hover:underline font-semibold shrink-0 cursor-pointer"
+            className="text-blue-700 hover:text-blue-900 hover:underline font-medium shrink-0 cursor-pointer whitespace-nowrap"
           >
             Switch to All Profiles &rarr;
           </button>
@@ -773,12 +773,12 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       />
 
       {/* ================= 4. DIMENSION SUB-TABS NAVIGATION ================= */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl overflow-x-auto text-xs font-medium border border-slate-200/60">
+      <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg overflow-x-auto text-xs font-medium border border-slate-200/60">
         <button
           onClick={() => setActiveDimension('overview')}
-          className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'overview'
-              ? 'bg-white text-blue-600 font-bold shadow-xs'
+              ? 'bg-white text-blue-600 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -788,9 +788,9 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
         <button
           onClick={() => setActiveDimension('leaderboard')}
-          className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'leaderboard'
-              ? 'bg-white text-blue-600 font-bold shadow-xs'
+              ? 'bg-white text-blue-600 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -800,9 +800,9 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
         <button
           onClick={() => setActiveDimension('ratings')}
-          className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'ratings'
-              ? 'bg-white text-blue-600 font-bold shadow-xs'
+              ? 'bg-white text-blue-600 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -812,9 +812,9 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
         <button
           onClick={() => setActiveDimension('response')}
-          className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'response'
-              ? 'bg-white text-blue-600 font-bold shadow-xs'
+              ? 'bg-white text-blue-600 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -824,9 +824,9 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
         <button
           onClick={() => setActiveDimension('intelligence')}
-          className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'intelligence'
-              ? 'bg-white text-blue-600 font-bold shadow-xs'
+              ? 'bg-white text-blue-600 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -836,9 +836,9 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
         <button
           onClick={() => setActiveDimension('milestones')}
-          className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+          className={`px-3.5 py-2 rounded-md whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
             activeDimension === 'milestones'
-              ? 'bg-white text-blue-600 font-bold shadow-xs'
+              ? 'bg-white text-blue-600 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -998,14 +998,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
               <p className="text-xs text-slate-500 leading-relaxed">
                 Google prioritizes businesses with higher response velocity in local pack rankings. Maintaining a response rate above 85% within 24 hours can boost organic visibility by up to 25%.
               </p>
-              <div className="p-4 bg-blue-50/70 rounded-2xl border border-blue-100 flex items-center justify-between text-xs">
+              <div className="p-4 bg-blue-50/70 rounded-lg border border-blue-100 flex items-center justify-between text-xs">
                 <div>
-                  <span className="font-bold text-blue-900 block">Enable Gemini AI Auto-Replies</span>
+                  <span className="font-semibold text-blue-900 block">Enable Gemini AI Auto-Replies</span>
                   <span className="text-blue-700 text-[11px]">Automatically reply to 4-star and 5-star reviews in real time</span>
                 </div>
                 <button
                   onClick={() => onNavigateTab && onNavigateTab('autoreply')}
-                  className="px-3.5 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shrink-0 ml-3 cursor-pointer shadow-xs"
+                  className="px-3.5 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all shrink-0 ml-3 cursor-pointer shadow-xs whitespace-nowrap"
                 >
                   Configure
                 </button>
@@ -1047,15 +1047,15 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       {/* ================= WHATSAPP SHARE MODAL ================= */}
       {showWhatsAppModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-emerald-50/60">
               <div className="flex items-center gap-2">
-                <span className="p-2 bg-emerald-600 text-white rounded-xl shadow-xs">
+                <span className="p-2 bg-emerald-600 text-white rounded-lg shadow-xs shrink-0">
                   <Share2 className="w-4 h-4" />
                 </span>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-800">Share Executive WhatsApp Digest</h4>
+                  <h4 className="text-sm font-semibold text-slate-800">Share Executive WhatsApp Digest</h4>
                   <span className="text-xs text-slate-500">Send clean reputation summary to team or leadership</span>
                 </div>
               </div>
@@ -1071,7 +1071,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
             <div className="p-5 overflow-y-auto space-y-4 text-xs">
               {/* Recipient Phone Selector */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-1.5">
+                <label className="font-medium text-slate-700 block mb-1.5">
                   Select WhatsApp Recipient Phone:
                 </label>
                 <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -1080,7 +1080,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                       key={phone}
                       type="button"
                       onClick={() => setWhatsappPhone(phone)}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-md border text-xs font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                         whatsappPhone === phone
                           ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                           : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -1097,14 +1097,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                     value={whatsappPhone}
                     onChange={(e) => setWhatsappPhone(e.target.value)}
                     placeholder="Enter recipient phone (e.g. +91 9876543210)"
-                    className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-md text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Custom Executive Note */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-1.5">
+                <label className="font-medium text-slate-700 block mb-1.5">
                   Add Executive Note / Message (Optional):
                 </label>
                 <textarea
@@ -1112,13 +1112,13 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                   onChange={(e) => setWhatsappCustomNote(e.target.value)}
                   placeholder="e.g. Great review pace this week! Sikar campus reached 890 reviews."
                   rows={2}
-                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"
                 />
               </div>
 
               {/* Message Format Options */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
-                <span className="font-semibold text-slate-700 block">Report Inclusions:</span>
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-2">
+                <span className="font-medium text-slate-700 block">Report Inclusions:</span>
                 <label className="flex items-center gap-2 cursor-pointer text-slate-600">
                   <input
                     type="checkbox"
@@ -1133,10 +1133,10 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
               {/* Formatted Message Preview */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-slate-700">Message Preview:</span>
+                  <span className="font-medium text-slate-700">Message Preview:</span>
                   <button
                     onClick={handleCopyWhatsAppText}
-                    className="text-emerald-700 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                    className="text-emerald-700 hover:underline flex items-center gap-1 font-medium cursor-pointer whitespace-nowrap shrink-0"
                   >
                     {copiedWhatsApp ? (
                       <>
@@ -1151,7 +1151,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                     )}
                   </button>
                 </div>
-                <pre className="p-3 bg-slate-900 text-slate-200 rounded-xl font-mono text-[11px] whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed border border-slate-800">
+                <pre className="p-3 bg-slate-900 text-slate-200 rounded-lg font-mono text-[11px] whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed border border-slate-800">
                   {generatedWhatsAppMessage}
                 </pre>
               </div>
@@ -1161,7 +1161,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
             <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3">
               <button
                 onClick={handleCopyWhatsAppText}
-                className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-lg font-medium flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Copy className="w-3.5 h-3.5 text-slate-500" />
                 <span>{copiedWhatsApp ? 'Copied!' : 'Copy Summary'}</span>
@@ -1169,7 +1169,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
               <button
                 onClick={handleSendWhatsApp}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Send to WhatsApp</span>

@@ -890,18 +890,18 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             <div className="p-2.5 sm:p-3 bg-[#f0f2f5] border-t border-slate-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 flex-shrink-0 w-full">
               <button
                 onClick={handleCopy}
-                className="flex-1 min-w-[100px] py-2 px-2.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-md text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all"
+                className="flex-1 min-w-[100px] py-2 px-2.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-md text-xs font-medium text-slate-700 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all whitespace-nowrap shrink-0"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span className="truncate">{copied ? 'Copied!' : 'Copy Text'}</span>
+                <span className="whitespace-nowrap">{copied ? 'Copied!' : 'Copy Text'}</span>
               </button>
 
               <button
                 onClick={() => handleOpenWhatsApp()}
-                className="flex-1 min-w-[110px] py-2 px-2.5 bg-[#25d366] hover:bg-[#20bd5a] text-white rounded-md text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all"
+                className="flex-1 min-w-[110px] py-2 px-2.5 bg-[#25d366] hover:bg-[#20bd5a] text-white rounded-md text-xs font-medium flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all whitespace-nowrap shrink-0"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span className="truncate">
+                <span className="whitespace-nowrap">
                   {targetPhone.trim() ? `Send to ${targetPhone}` : 'Share WhatsApp'}
                 </span>
               </button>
@@ -909,7 +909,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
               <button
                 onClick={handleDownloadTxt}
                 title="Download .txt"
-                className="p-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-md text-slate-600 text-xs shadow-xs cursor-pointer flex-shrink-0"
+                className="p-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-md text-slate-600 text-xs shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
               >
                 <Download className="w-4 h-4" />
               </button>

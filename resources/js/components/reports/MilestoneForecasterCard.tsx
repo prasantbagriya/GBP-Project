@@ -75,24 +75,24 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg shrink-0">
             <Target className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Milestone Forecaster & Target Pace Planner</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Milestone Forecaster & Target Pace Planner</h3>
             <p className="text-[11px] text-slate-400">Pace projection and target achievement date based on rolling daily velocity</p>
           </div>
         </div>
 
-        {/* Milestone Preset Chips */}
+        {/* Milestone Preset Chips (Strictly 1-Line) */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {presets.map((preset) => (
             <button
               key={preset}
               onClick={() => { setTargetCount(preset); setIsEditingCustom(false); }}
-              className={`px-2.5 py-1 text-xs rounded-full border transition-all cursor-pointer ${
+              className={`px-2.5 py-1 text-xs rounded-full border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 targetCount === preset && !isEditingCustom
-                  ? 'bg-indigo-600 text-white border-indigo-600 font-semibold shadow-2xs'
+                  ? 'bg-indigo-600 text-white border-indigo-600 font-medium shadow-2xs'
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -101,9 +101,9 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
           ))}
           <button
             onClick={() => setIsEditingCustom(!isEditingCustom)}
-            className={`px-2.5 py-1 text-xs rounded-full border transition-all cursor-pointer ${
+            className={`px-2.5 py-1 text-xs rounded-full border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               isEditingCustom
-                ? 'bg-indigo-600 text-white border-indigo-600 font-semibold shadow-2xs'
+                ? 'bg-indigo-600 text-white border-indigo-600 font-medium shadow-2xs'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -114,20 +114,20 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
 
       {/* Custom target input form */}
       {isEditingCustom && (
-        <form onSubmit={handleCustomSubmit} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-          <span className="text-slate-600 font-medium">Set target review count:</span>
+        <form onSubmit={handleCustomSubmit} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+          <span className="text-slate-600 font-medium whitespace-nowrap">Set target review count:</span>
           <input
             type="number"
             min={numCurrent + 1}
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
             placeholder={`e.g. ${numCurrent + 100}`}
-            className="w-32 px-2.5 py-1 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500 bg-white"
+            className="w-32 px-2.5 py-1 text-xs border border-slate-300 rounded-md focus:outline-none focus:border-indigo-500 bg-white"
             autoFocus
           />
           <button
             type="submit"
-            className="px-3 py-1 bg-indigo-600 text-white text-xs rounded-lg font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="px-3 py-1 bg-indigo-600 text-white text-xs rounded-md font-medium hover:bg-indigo-700 transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             Apply Target
           </button>
@@ -229,13 +229,13 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
 
       {/* Acceleration Sprints & Action Shortcut */}
       {reviewsNeeded > 0 && (
-        <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="p-3 bg-amber-50/70 rounded-lg border border-amber-200/80 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="flex items-start gap-2">
             <Zap className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-amber-950 block">Sprint Target: Reach {targetCount} reviews in 30 days</span>
+              <span className="font-semibold text-amber-950 block">Sprint Target: Reach {targetCount} reviews in 30 days</span>
               <p className="text-[11px] text-amber-800">
-                Requires <strong className="font-bold text-amber-950">{(reviewsNeeded / 30).toFixed(1)} reviews/day</strong>. Share review invites via WhatsApp or enable the automated review popup.
+                Requires <strong className="font-semibold text-amber-950">{(reviewsNeeded / 30).toFixed(1)} reviews/day</strong>. Share review invites via WhatsApp or enable the automated review popup.
               </p>
             </div>
           </div>
@@ -243,7 +243,7 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
           {onNavigateTab && (
             <button
               onClick={() => onNavigateTab('growth')}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shrink-0 transition-colors shadow-2xs cursor-pointer"
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-xs font-medium flex items-center gap-1 shrink-0 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
             >
               <span>Growth Tools</span>
               <ArrowRight className="w-3 h-3" />

@@ -1028,6 +1028,41 @@ export default function App() {
 
   const handleAutoReplyAllPending = handleAutoReplyNewReviews;
 
+  const handleAutoReplyAllProfiles = async () => {
+    setAutoReplyingAll(true);
+    setAutoReplyProgress({ current: 0, total: 10 });
+
+    try {
+      const res = await fetch('/api/gbp/reviews/auto-reply-new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          locationName: 'all',
+          force: false
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        // Refresh reviews for current active location if any
+        if (activeLoc) {
+          fetchReviews(activeLoc.v4Name || activeLoc.name);
+        }
+        setAutoReplyProgress({ current: data.totalReplied || 0, total: data.totalReplied || 0 });
+        alert(`Success: ${data.message || `Auto-replied across all profiles! Total replied: ${data.totalReplied || 0}`}`);
+      } else {
+        alert(data.message || 'Auto-reply was unable to complete across all profiles.');
+      }
+    } catch (err: any) {
+      alert('Auto-reply for all profiles failed: ' + (err?.message || 'Network error'));
+    } finally {
+      setTimeout(() => {
+        setAutoReplyingAll(false);
+        setAutoReplyProgress(null);
+      }, 500);
+    }
+  };
+
   const tryCompressImageToBlob = async (file: File): Promise<{ blob: Blob; mime: string } | null> => {
     return new Promise((resolve) => {
       if (file.type === 'image/svg+xml') {
@@ -2632,7 +2667,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={handleDownloadCsv}
-                    className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                    className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
                     CSV
@@ -2640,7 +2675,7 @@ export default function App() {
 
                   <button 
                     onClick={() => setActiveTab('autoreply')}
-                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     {'Auto-Reply'}
@@ -2649,7 +2684,7 @@ export default function App() {
               </div>
 
               {/* Segmented Filter Control */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg overflow-x-auto text-xs font-semibold">
+              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg overflow-x-auto text-xs font-medium">
                 {[
                   { id: 'all', label: `${'All'} (${reviews.length})` },
                   { id: 'today', label: `${'Today'} (${todayReviews.length})` },
@@ -2660,8 +2695,8 @@ export default function App() {
                   <button
                     key={f.id}
                     onClick={() => setReviewFilter(f.id as any)}
-                    className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap ${
-                      reviewFilter === f.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                    className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
+                      reviewFilter === f.id ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     {f.label}
@@ -2674,7 +2709,7 @@ export default function App() {
                 {displayedReviews.length === 0 ? (
                   <div className="card p-12 text-center text-slate-400 space-y-3">
                     <MessageSquare className="w-10 h-10 mx-auto text-slate-300" />
-                    <h3 className="text-sm font-bold text-slate-600">
+                    <h3 className="text-sm font-semibold text-slate-600">
                       {'No reviews found'}
                     </h3>
                     <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -2698,15 +2733,15 @@ export default function App() {
                                 referrerPolicy="no-referrer"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-bold text-sm flex items-center justify-center mt-0.5 flex-shrink-0">
+                              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium text-sm flex items-center justify-center mt-0.5 flex-shrink-0">
                                 {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
                               </div>
                             )}
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-bold text-sm text-slate-800">{rev.reviewer.displayName}</h4>
+                              <h4 className="font-semibold text-sm text-slate-800">{rev.reviewer.displayName}</h4>
                               {isToday(rev.createTime) && (
-                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
+                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded">
                                   TODAY
                                 </span>
                               )}
@@ -2719,28 +2754,28 @@ export default function App() {
                               {[1,2,3,4,5].map(i => (
                                 <Star key={i} className={`w-3.5 h-3.5 ${i <= stars ? 'fill-amber-400' : 'text-slate-200'}`} />
                               ))}
-                              <span className="text-xs font-bold text-slate-600 ml-1">{stars} / 5</span>
+                              <span className="text-xs font-semibold text-slate-600 ml-1">{stars} / 5</span>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                           {hasReply ? (
-                            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1">
+                            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
                               <CheckCheck className="w-3.5 h-3.5" /> {'Replied'}
                             </span>
                           ) : (
-                            <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full flex items-center gap-1">
+                            <span className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
                               <Clock className="w-3.5 h-3.5" /> {'Pending Reply'}
                             </span>
                           )}
 
                           {!hasReply ? (
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 shrink-0">
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, true)}
-                                className="px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+                                className="px-2.5 py-1 text-xs font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md shadow-2xs transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                 title="Draft instant response with Gemini AI"
                               >
                                 <Sparkles className="w-3.5 h-3.5" />
@@ -2749,7 +2784,7 @@ export default function App() {
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, false)}
-                                className="px-2.5 py-1 text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-blue-200"
+                                className="px-2.5 py-1 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-blue-200 whitespace-nowrap shrink-0"
                                 title="Open reply modal"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
@@ -2760,7 +2795,7 @@ export default function App() {
                             <button 
                               type="button"
                               onClick={() => handleOpenReplyModal(rev, false)}
-                              className="px-3 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
                               {'Edit'}
@@ -2907,14 +2942,14 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2 flex-wrap">
                   {locations.length > 1 && (
-                    <div className="flex items-center gap-1.5">
-                      <label className="text-[11px] font-bold text-slate-500 whitespace-nowrap">Profile:</label>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <label className="text-[11px] font-medium text-slate-500 whitespace-nowrap">Profile:</label>
                       <select
                         value={activeLoc ? (activeLoc.v4Name || activeLoc.name) : (selectedLocation || '')}
                         onChange={(e) => handleLocationChange(e.target.value)}
-                        className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-md py-1.5 px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer"
+                        className="text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer whitespace-nowrap"
                       >
                         {locations.map(loc => {
                           const val = loc.v4Name || loc.name;
@@ -2928,17 +2963,30 @@ export default function App() {
                     </div>
                   )}
 
+                  {/* Auto-Reply This Profile */}
                   <button 
                     onClick={handleAutoReplyAllPending}
                     disabled={autoReplyingAll || pendingReviews.length === 0}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-2 shadow-sm whitespace-nowrap flex-shrink-0 cursor-pointer"
+                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    title="Auto-reply to all pending reviews on this specific profile"
                   >
-                    {autoReplyingAll ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Bot className="w-4 h-4" />}
+                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Bot className="w-3.5 h-3.5" />}
                     <span>
                       {autoReplyingAll 
-                        ? 'Auto-Replying New Reviews...' 
-                        : `Auto-Reply (${pendingReviews.length} Pending on This Profile)`}
+                        ? 'Replying...' 
+                        : `Auto-Reply Profile (${pendingReviews.length} Pending)`}
                     </span>
+                  </button>
+
+                  {/* Auto-Reply Across ALL Profiles */}
+                  <button 
+                    onClick={handleAutoReplyAllProfiles}
+                    disabled={autoReplyingAll}
+                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    title="Run AI Auto-Reply across all connected Google Business profiles"
+                  >
+                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span>Auto-Reply All Profiles</span>
                   </button>
                 </div>
               </div>

@@ -33,15 +33,15 @@ export const KpiSummaryGrid: React.FC<KpiSummaryGridProps> = ({
       <div className="card p-5 relative overflow-hidden">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Total Reviews</span>
-          <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full truncate max-w-[120px]">
+          <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-normal truncate max-w-[120px] whitespace-nowrap shrink-0">
             {scopeLabel}
           </span>
         </div>
-        <div className="text-3xl font-bold text-slate-800 leading-tight">
+        <div className="text-2xl sm:text-3xl font-semibold text-slate-800 leading-tight">
           {numTotal.toLocaleString()}
         </div>
-        <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500">
-          <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
+        <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 font-normal">
+          <MessageSquare className="w-3.5 h-3.5 text-blue-500 shrink-0" />
           <span>All verified customer ratings</span>
         </div>
       </div>
@@ -50,16 +50,16 @@ export const KpiSummaryGrid: React.FC<KpiSummaryGridProps> = ({
       <div className="card p-5 relative overflow-hidden">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Period Growth</span>
-          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-0.5 font-medium border border-emerald-200">
-            <ArrowUpRight className="w-3 h-3" />
+          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded flex items-center gap-0.5 font-medium border border-emerald-200 whitespace-nowrap shrink-0">
+            <ArrowUpRight className="w-3 h-3 shrink-0" />
             +{numGrowthPct}%
           </span>
         </div>
-        <div className="text-3xl font-bold text-emerald-600 leading-tight">
+        <div className="text-2xl sm:text-3xl font-semibold text-emerald-600 leading-tight">
           +{numGrowth}
         </div>
-        <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-700 font-medium">
-          <TrendingUp className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-700 font-normal">
+          <TrendingUp className="w-3.5 h-3.5 shrink-0" />
           <span>New reviews in selected timeframe</span>
         </div>
       </div>
@@ -69,18 +69,18 @@ export const KpiSummaryGrid: React.FC<KpiSummaryGridProps> = ({
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Average Rating</span>
           <div className="flex items-center text-amber-400">
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
-            <Star className="w-3 h-3 fill-current" />
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3.5 h-3.5 fill-current" />
           </div>
         </div>
-        <div className="text-3xl font-bold text-amber-500 leading-tight">
+        <div className="text-2xl sm:text-3xl font-semibold text-amber-500 leading-tight">
           {numRating.toFixed(1)} <span className="text-sm font-normal text-slate-400">/ 5.0</span>
         </div>
-        <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500">
-          <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+        <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 font-normal">
+          <ShieldCheck className="w-3.5 h-3.5 text-amber-500 shrink-0" />
           <span>Weighted reputation index</span>
         </div>
       </div>
@@ -89,17 +89,17 @@ export const KpiSummaryGrid: React.FC<KpiSummaryGridProps> = ({
       <div className="card p-5 relative overflow-hidden">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Response SLA</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+          <span className={`text-[10px] px-2 py-0.5 rounded font-medium whitespace-nowrap shrink-0 ${
             numReplyRate >= 90 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
           }`}>
             {numReplyRate >= 90 ? 'Healthy' : 'Backlog'}
           </span>
         </div>
-        <div className="text-3xl font-bold text-blue-600 leading-tight">
+        <div className="text-2xl sm:text-3xl font-semibold text-blue-600 leading-tight">
           {numReplyRate}%
         </div>
-        <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500">
-          <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
+        <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 font-normal">
+          <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
           <span>{numReplied} of {numTotal} reviews answered</span>
         </div>
       </div>
