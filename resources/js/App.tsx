@@ -2915,89 +2915,73 @@ export default function App() {
 
           {/* ================= TAB: AUTO-REPLY AI ================= */}
           {activeTab === 'autoreply' && (
-            <div className="space-y-6">
-              {/* Gemini AI Global Enable/Disable Toggle Banner */}
-              <div className={`card p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+            <div className="space-y-3">
+              {/* Gemini AI Global Enable/Disable Compact Bar */}
+              <div className={`card p-2.5 sm:p-3 border flex items-center justify-between gap-2.5 transition-all ${
                 geminiEnabled 
-                  ? 'bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white border-blue-200 shadow-xs' 
-                  : 'bg-gradient-to-r from-slate-100/90 to-slate-50 border-slate-300'
+                  ? 'bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white border-blue-200' 
+                  : 'bg-slate-50 border-slate-300'
               }`}>
-                <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-lg flex items-center justify-center ${
-                    geminiEnabled ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'bg-slate-200 text-slate-500'
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`p-1.5 rounded-md flex items-center justify-center shrink-0 ${
+                    geminiEnabled ? 'bg-blue-600 text-white shadow-2xs' : 'bg-slate-200 text-slate-500'
                   }`}>
-                    <Sparkles className="w-5 h-5" />
+                    <Sparkles className="w-4 h-4" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-extrabold text-slate-800 text-sm">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="font-extrabold text-slate-800 text-xs sm:text-sm">
                         Google Gemini 2.5 Flash AI
                       </h3>
-                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1 ${
+                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider ${
                         geminiEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
                       }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${geminiEnabled ? 'bg-emerald-600 animate-pulse' : 'bg-slate-500'}`} />
-                        {geminiEnabled ? ('Enabled') : ('Disabled')}
+                        {geminiEnabled ? 'Enabled' : 'Disabled'}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-slate-500 truncate hidden sm:block">
                       {geminiEnabled
-                        ? ('Gemini AI is actively crafting personalized, high-conversion responses for each review.')
-                        : ('AI is turned off. System will use safe template replies without calling external AI API.')}
+                        ? 'Crafting personalized, high-conversion responses for each review'
+                        : 'AI disabled; safe static templates active'}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-end sm:self-auto flex-shrink-0">
-                  <button
-                    onClick={toggleGeminiAi}
-                    disabled={togglingAi}
-                    className={`px-3.5 py-2 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap ${
-                      geminiEnabled
-                        ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
-                    }`}
-                  >
-                    <Power className="w-3.5 h-3.5" />
-                    <span>
-                      {togglingAi ? '...' : (geminiEnabled 
-                        ? ('Disable Gemini AI') 
-                        : ('Enable Gemini AI'))}
-                    </span>
-                  </button>
-                </div>
+                <button
+                  onClick={toggleGeminiAi}
+                  disabled={togglingAi}
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer whitespace-nowrap shrink-0 ${
+                    geminiEnabled
+                      ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
+                  }`}
+                >
+                  <Power className="w-3.5 h-3.5" />
+                  <span>
+                    {togglingAi ? '...' : (geminiEnabled ? 'Disable AI' : 'Enable AI')}
+                  </span>
+                </button>
               </div>
 
               {aiSettingsFeedback && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-md text-xs font-bold flex items-center gap-2">
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-md text-xs font-bold flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600" />
                   <span>{aiSettingsFeedback}</span>
                 </div>
               )}
 
-              <div className="card p-4 border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg font-bold text-slate-800">{t.autoReply}</h2>
-                    {activeLoc && (
-                      <span className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 font-extrabold px-2.5 py-0.5 rounded-md">
-                        {activeLoc.title}
-                      </span>
-                    )}
-                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
-                      aiRules?.enabled 
-                        ? 'bg-emerald-100 text-emerald-800' 
-                        : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {aiRules?.enabled ? 'Auto-Reply ON for this Profile' : 'Auto-Reply OFF for this Profile'}
+              <div className="card p-2.5 sm:p-3 border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Bot className="w-4 h-4 text-blue-600 shrink-0" />
+                  <h2 className="text-xs sm:text-sm font-bold text-slate-800 shrink-0">{t.autoReply}:</h2>
+                  {activeLoc && (
+                    <span className="text-[11px] sm:text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold px-2 py-0.5 rounded-md truncate max-w-[180px] sm:max-w-xs">
+                      {activeLoc.title}
                     </span>
-                  </div>
-                  <p className="text-slate-500 text-xs">
-                    {`Manage auto-reply settings and rules specifically for "${activeLoc?.title || 'Selected Profile'}". Each profile operates independently.`}
-                  </p>
+                  )}
                 </div>
 
-                <div className={`grid ${locations.length > 1 ? 'grid-cols-3' : 'grid-cols-2'} gap-1.5 sm:flex sm:flex-row sm:items-center sm:gap-2 w-full md:w-auto`}>
+                <div className={`grid ${locations.length > 1 ? 'grid-cols-3' : 'grid-cols-2'} gap-1.5 sm:flex sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto shrink-0`}>
                   {locations.length > 1 && (
                     <div className="min-w-0 w-full sm:w-auto flex items-center sm:gap-1.5">
                       <label className="hidden sm:inline text-[11px] font-semibold text-slate-500 whitespace-nowrap">Profile:</label>
@@ -3005,7 +2989,7 @@ export default function App() {
                         value={activeLoc ? (activeLoc.v4Name || activeLoc.name) : (selectedLocation || '')}
                         onChange={(e) => handleLocationChange(e.target.value)}
                         aria-label="Select Profile"
-                        className="w-full sm:w-auto text-[11px] sm:text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-md py-2 px-1.5 sm:px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer truncate"
+                        className="w-full sm:w-auto text-[11px] sm:text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-md py-1.5 px-1.5 sm:px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer truncate"
                       >
                         {locations.map(loc => {
                           const val = loc.v4Name || loc.name;
@@ -3023,14 +3007,14 @@ export default function App() {
                   <button 
                     onClick={handleAutoReplyAllPending}
                     disabled={autoReplyingAll || pendingReviews.length === 0}
-                    className="w-full sm:w-auto px-1.5 sm:px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs whitespace-nowrap cursor-pointer truncate"
+                    className="w-full sm:w-auto px-1.5 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 shadow-xs whitespace-nowrap cursor-pointer truncate"
                     title="Auto-reply to all pending reviews on this specific profile"
                   >
-                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 shrink-0 animate-spin" /> : <Bot className="w-3.5 h-3.5 shrink-0" />}
+                    {autoReplyingAll ? <RefreshCw className="w-3 h-3 shrink-0 animate-spin" /> : <Bot className="w-3.5 h-3.5 shrink-0" />}
                     <span className="truncate hidden sm:inline">
                       {autoReplyingAll 
                         ? 'Replying...' 
-                        : `Auto-Reply Profile (${pendingReviews.length} Pending)`}
+                        : `Auto-Reply Profile (${pendingReviews.length})`}
                     </span>
                     <span className="truncate sm:hidden">
                       {autoReplyingAll ? 'Replying...' : `Profile (${pendingReviews.length})`}
@@ -3041,10 +3025,10 @@ export default function App() {
                   <button 
                     onClick={handleAutoReplyAllProfiles}
                     disabled={autoReplyingAll}
-                    className="w-full sm:w-auto px-1.5 sm:px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs whitespace-nowrap cursor-pointer truncate"
+                    className="w-full sm:w-auto px-1.5 sm:px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 shadow-xs whitespace-nowrap cursor-pointer truncate"
                     title="Run AI Auto-Reply across all connected Google Business profiles"
                   >
-                    {autoReplyingAll ? <RefreshCw className="w-3.5 h-3.5 shrink-0 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 shrink-0" />}
+                    {autoReplyingAll ? <RefreshCw className="w-3 h-3 shrink-0 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 shrink-0" />}
                     <span className="truncate hidden sm:inline">Auto-Reply All Profiles</span>
                     <span className="truncate sm:hidden">All Profiles</span>
                   </button>
