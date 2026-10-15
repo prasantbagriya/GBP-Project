@@ -2418,59 +2418,74 @@ export default function App() {
           {/* ================= TAB: DASHBOARD ================= */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
-              {/* Responsive 4 Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                <div className="card p-5 border-l-4 border-l-blue-600">
-                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
+              {/* Responsive 4 Stats Grid (2x2 on Mobile, 4x1 on Desktop) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                <div className="card p-3.5 sm:p-5 border-l-4 border-l-blue-600">
+                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 truncate">
                     {"Reviews Today"}
                   </div>
-                  <div className="text-3xl font-bold text-slate-800">{todayReviews.length}</div>
-                  <div className="text-[11px] text-emerald-600 mt-2 font-semibold flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    {todayReviews.length > 0 ? `+${todayReviews.length} new reviews today` : 'Live monitoring active'}
+                  <div className="text-2xl sm:text-3xl font-bold text-slate-800">{todayReviews.length}</div>
+                  <div className="text-[10px] sm:text-[11px] text-emerald-600 mt-2 font-semibold flex items-center gap-1 truncate">
+                    <TrendingUp className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{todayReviews.length > 0 ? `+${todayReviews.length} today` : 'Live monitoring active'}</span>
                   </div>
                 </div>
 
-                <div className="card p-5 border-l-4 border-l-amber-500">
-                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between">
-                    <span>{'All-Time Average Rating'}</span>
-                    <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full uppercase">All-Time</span>
+                <div className="card p-3.5 sm:p-5 border-l-4 border-l-amber-500">
+                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
+                    <span className="truncate">{'Avg Rating'}</span>
+                    <span className="text-[8px] sm:text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800 flex items-center gap-2">
-                    {avgRating}
+                  <div className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-1.5 flex-wrap">
+                    <span>{avgRating}</span>
                     <div className="flex text-amber-400">
                       {[1,2,3,4,5].map(i => (
-                        <Star key={i} className={`w-3.5 h-3.5 ${i <= Math.round(Number(avgRating)) ? 'fill-amber-400' : 'text-slate-200'}`} />
+                        <Star key={i} className={`w-3 sm:w-3.5 h-3 sm:h-3.5 ${i <= Math.round(Number(avgRating)) ? 'fill-amber-400' : 'text-slate-200'}`} />
                       ))}
                     </div>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-2 font-medium">
-                    {`Total ${totalRatingsCount} customer ratings (All-Time)`}
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-medium truncate">
+                    {`Total ${totalRatingsCount} ratings`}
                   </div>
                 </div>
 
-                <div className="card p-5 border-l-4 border-l-emerald-500">
-                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between">
-                    <span>{'All-Time Response Rate'}</span>
-                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full uppercase">All-Time</span>
+                <div className="card p-3.5 sm:p-5 border-l-4 border-l-emerald-500">
+                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
+                    <span className="truncate">{'Response Rate'}</span>
+                    <span className="text-[8px] sm:text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800">{responseRate}%</div>
-                  <div className="text-[11px] text-slate-500 mt-2 font-medium">
-                    {`${repliedReviews.length} replied / ${pendingReviews.length} pending (All-Time)`}
+                  <div className="text-2xl sm:text-3xl font-bold text-slate-800">{responseRate}%</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 mt-2 font-medium truncate">
+                    {`${repliedReviews.length} replied / ${pendingReviews.length} pending`}
                   </div>
                 </div>
 
-                <div className="card p-5 border-l-4 border-l-indigo-500">
-                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between">
-                    <span>{'Posts & Services Live'}</span>
-                    <span className="text-[9px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded-full uppercase">All-Time</span>
+                <div className="card p-3.5 sm:p-5 border-l-4 border-l-indigo-500">
+                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
+                    <span className="truncate">{'Posts & Services'}</span>
+                    <span className="text-[8px] sm:text-[9px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800">{posts.length + services.length}</div>
-                  <div className="text-[11px] text-slate-400 mt-2 font-medium">
-                    {`${posts.length} posts, ${services.length} services active (All-Time)`}
+                  <div className="text-2xl sm:text-3xl font-bold text-slate-800">{posts.length + services.length}</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-medium truncate">
+                    {`${posts.length} posts, ${services.length} services`}
                   </div>
                 </div>
               </div>
+
+              {/* Star Rating Distribution Donut (Full-Width Responsive Card) */}
+              <StarDistributionDonut
+                ratingsCount={{
+                  five: ratingDistribution[5] || 0,
+                  four: ratingDistribution[4] || 0,
+                  three: ratingDistribution[3] || 0,
+                  two: ratingDistribution[2] || 0,
+                  one: ratingDistribution[1] || 0,
+                }}
+                totalReviews={totalRatingsCount || reviews.length}
+                avgRating={avgRating ?? 0}
+                selectedStarFilter={starFilter}
+                onSelectStarFilter={setStarFilter}
+              />
 
               {/* Daily WhatsApp Growth Banner */}
               <div className="card p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-teal-50/40 to-white border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
@@ -2623,23 +2638,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Star Rating Distribution & 7-Day Activity */}
+                {/* Right: Last 7 Days Activity & Velocity */}
                 <div className="space-y-6">
-                  {/* Star Rating Distribution Donut (Exact Reports Design) */}
-                  <StarDistributionDonut
-                    ratingsCount={{
-                      five: ratingDistribution[5] || 0,
-                      four: ratingDistribution[4] || 0,
-                      three: ratingDistribution[3] || 0,
-                      two: ratingDistribution[2] || 0,
-                      one: ratingDistribution[1] || 0,
-                    }}
-                    totalReviews={totalRatingsCount || reviews.length}
-                    avgRating={avgRating ?? 0}
-                    selectedStarFilter={starFilter}
-                    onSelectStarFilter={setStarFilter}
-                  />
-
                   {/* Modern 7 Days Review Velocity Column & Trend Graph */}
                   {(() => {
                     const total7d = weeklyDayBreakdown.reduce((sum, d) => sum + d.total, 0);

@@ -114,25 +114,25 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
   return (
     <div className="card p-4 sm:p-5 space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-        <div>
-          <h3 className="text-sm font-bold text-slate-800">Star Rating Distribution & Reputation Quality</h3>
-          <p className="text-xs text-slate-500 mt-0.5">Customer feedback breakdown and Net Reputation Score (NRS)</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm sm:text-base font-bold text-slate-800 leading-snug">Star Rating Distribution & Reputation Quality</h3>
+          <p className="text-xs text-slate-500 mt-0.5 leading-normal">Customer feedback breakdown and Net Reputation Score (NRS)</p>
         </div>
         
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           {selectedStarFilter && onSelectStarFilter && (
             <button
               onClick={() => onSelectStarFilter(null)}
-              className="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-[11px] font-semibold flex items-center gap-1 border border-blue-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-[11px] font-semibold flex items-center gap-1.5 border border-blue-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <span>{selectedStarFilter}★ Filter Active</span>
               <span className="font-bold">&times;</span>
             </button>
           )}
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-xs font-bold shadow-2xs whitespace-nowrap shrink-0">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-xs font-bold shadow-2xs whitespace-nowrap shrink-0">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>NPS: {npsScore > 0 ? `+${npsScore}` : npsScore} ({npsScore >= 70 ? 'World Class' : npsScore >= 40 ? 'Healthy' : 'Needs Care'})</span>
           </div>
         </div>
