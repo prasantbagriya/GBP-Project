@@ -236,7 +236,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           
           {/* 1. Rate Limiting / Pacing Section */}
           <div className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2.5">
-            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs sm:text-sm">
               <Clock className="w-4 h-4 text-blue-600" />
               <span>1. Pacing & Rate Limits</span>
               <InfoTooltip
@@ -265,7 +265,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                     onChange={(e) => setRules({ ...rules, maxRepliesPerMinute: Number(e.target.value) })}
                     className="w-full accent-blue-600 cursor-pointer"
                   />
-                  <span className="font-mono font-bold text-xs bg-white px-2 py-0.5 rounded-md border border-slate-200 text-blue-700 min-w-[48px] text-center">
+                  <span className="font-bold text-xs bg-white px-2 py-0.5 rounded-md border border-slate-200 text-blue-700 min-w-[48px] text-center">
                     {rules.maxRepliesPerMinute}/min
                   </span>
                 </div>
@@ -301,7 +301,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
           {/* 2. Rating & Review Filter Conditions */}
           <div className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2.5">
-            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs sm:text-sm">
               <Star className="w-4 h-4 text-amber-500" />
               <span>2. Star Rating Conditions</span>
               <InfoTooltip
@@ -374,7 +374,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
           {/* 3. Tone of Voice Selector */}
           <div className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2.5">
-            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs sm:text-sm">
               <Sliders className="w-4 h-4 text-purple-600" />
               <span>3. Tone of Voice</span>
               <InfoTooltip
@@ -413,7 +413,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           
           {/* 4. Anti-Toxicity Guard & Personalization Rules */}
           <div className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2">
-            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs sm:text-sm">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>4. Anti-Toxicity & Quality Guardrails</span>
               <InfoTooltip
@@ -507,7 +507,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
 
           {/* 5. Direct Offline Contact Info for Negative Ratings */}
           <div className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2">
-            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs sm:text-sm">
               <Phone className="w-4 h-4 text-amber-600" />
               <span>5. Offline Escalation Contact</span>
               <InfoTooltip
@@ -582,7 +582,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       {/* 7. AI Model Engine, Speed & Response Control */}
       <div className="p-3 sm:p-3.5 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-white border border-indigo-200 rounded-md space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2 text-indigo-950 font-bold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-indigo-950 font-bold text-xs sm:text-sm">
             <Cpu className="w-4 h-4 text-indigo-600" />
             <span>7. AI Engine, Speed & Reply Length Controls</span>
             <InfoTooltip
@@ -590,7 +590,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               content="Directly controls Google Gemini parameters: active model, response speed (thinking budget), output verbosity, and creative temperature."
             />
           </div>
-          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider">
+          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
             Active Controller
           </span>
         </div>
@@ -670,7 +670,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   }`} />
                   <span className="text-xs font-bold truncate">{opt.label}</span>
                 </div>
-                <span className={`text-[10px] font-mono shrink-0 ${
+                <span className={`text-[10px] font-semibold shrink-0 ${
                   (rules.replyLength || 'detailed') === opt.id ? 'text-indigo-100' : 'text-slate-400'
                 }`}>
                   {opt.tokens}
@@ -691,7 +691,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                 content="Adjust variety: 0.85 generates varied fresh phrasing, while 0.3 is strict and predictable."
               />
             </label>
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
               {rules.temperature ?? 0.85}
             </span>
           </div>

@@ -3005,10 +3005,10 @@ export default function App() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <h3 className="font-extrabold text-slate-800 text-xs sm:text-sm">
+                      <h3 className="font-bold text-slate-800 text-xs sm:text-sm">
                         Google Gemini 2.5 Flash AI
                       </h3>
-                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
                         geminiEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
                       }`}>
                         {geminiEnabled ? 'Enabled' : 'Disabled'}

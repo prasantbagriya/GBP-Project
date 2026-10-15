@@ -377,7 +377,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
               Google Business Profile
             </span>
           </div>
-          <span className="text-[11px] bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-700 font-mono font-bold flex-shrink-0 whitespace-nowrap shadow-2xs">
+          <span className="text-[11px] bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-700 font-bold flex-shrink-0 whitespace-nowrap shadow-2xs">
             {reportData?.locations?.length || 0} Profiles Linked
           </span>
         </div>
@@ -535,7 +535,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                 {idx + 1}. {loc.title}
                               </h4>
                               {loc.storeCode && (
-                                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono flex-shrink-0">
+                                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold flex-shrink-0">
                                   {loc.storeCode}
                                 </span>
                               )}
@@ -596,7 +596,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                 <span className="text-slate-400 text-[10px] uppercase font-bold">
                                   Today:
                                 </span>
-                                <strong className="text-blue-700 font-extrabold">{loc.totalReviews}</strong>
+                                <strong className="text-blue-700 font-bold">{loc.totalReviews}</strong>
                               </div>
 
                               {/* Growth Tag */}
@@ -824,7 +824,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                         }
                       }}
                       placeholder="+91 9876543210"
-                      className="flex-1 text-xs p-2 bg-white border border-emerald-300 rounded-md outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
+                      className="flex-1 text-xs p-2 bg-white border border-emerald-300 rounded-md outline-none focus:ring-1 focus:ring-emerald-500 font-normal text-slate-800"
                       autoFocus
                     />
                     <button
@@ -837,7 +837,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                     </button>
                   </div>
                   <p className="text-[10px] text-slate-500">
-                    Enter number with country code, e.g. <span className="font-mono text-emerald-800 font-bold">+91 9610447938</span>
+                    Enter number with country code, e.g. <span className="text-emerald-800 font-bold">+91 9610447938</span>
                   </p>
                 </div>
               )}
@@ -849,7 +849,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   value={targetPhone}
                   onChange={(e) => setTargetPhone(e.target.value)}
                   placeholder="e.g. +91 9610447938 or leave empty to choose contact in WhatsApp"
-                  className="w-full text-xs p-2 pl-7 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-emerald-500 font-mono text-slate-800"
+                  className="w-full text-xs p-2 pl-7 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-emerald-500 text-slate-800 font-normal"
                 />
                 <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2.5" />
               </div>
