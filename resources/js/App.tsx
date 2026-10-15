@@ -63,6 +63,7 @@ import { LoginPage } from './components/LoginPage';
 import { TeamManagement } from './components/TeamManagement';
 import { ReportsDashboard } from './components/reports/ReportsDashboard';
 import { ReportErrorBoundary } from './components/reports/ReportErrorBoundary';
+import { StarDistributionDonut } from './components/reports/StarDistributionDonut';
 import { InfoTooltip } from './components/InfoTooltip';
 
 export default function App() {
@@ -104,6 +105,7 @@ export default function App() {
   const [allTimeTotalReviews, setAllTimeTotalReviews] = useState<number | null>(null);
   const [allTimeAverageRating, setAllTimeAverageRating] = useState<number | null>(null);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'unreplied' | 'replied' | 'critical' | 'today'>('all');
+  const [starFilter, setStarFilter] = useState<number | null>(null);
   const [replyingReview, setReplyingReview] = useState<Review | null>(null);
   const [replyText, setReplyText] = useState('');
   const [aiGeneratingReply, setAiGeneratingReply] = useState(false);
@@ -872,12 +874,17 @@ export default function App() {
   }, [reviews, repliedReviews, totalRatingsCount]);
 
   const displayedReviews = useMemo(() => {
-    if (reviewFilter === 'unreplied') return pendingReviews;
-    if (reviewFilter === 'replied') return repliedReviews;
-    if (reviewFilter === 'today') return todayReviews;
-    if (reviewFilter === 'critical') return reviews.filter(r => parseRating(r.starRating) <= 3);
-    return reviews;
-  }, [reviews, reviewFilter, pendingReviews, repliedReviews, todayReviews]);
+    let list = reviews;
+    if (reviewFilter === 'unreplied') list = pendingReviews;
+    else if (reviewFilter === 'replied') list = repliedReviews;
+    else if (reviewFilter === 'today') list = todayReviews;
+    else if (reviewFilter === 'critical') list = reviews.filter(r => parseRating(r.starRating) <= 3);
+
+    if (starFilter) {
+      list = list.filter(r => parseRating(r.starRating) === starFilter);
+    }
+    return list;
+  }, [reviews, reviewFilter, starFilter, pendingReviews, repliedReviews, todayReviews]);
 
   const ratingDistribution = useMemo(() => {
     const counts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -2618,62 +2625,129 @@ export default function App() {
 
                 {/* Right: Star Rating Distribution & 7-Day Activity */}
                 <div className="space-y-6">
-                  {/* Rating Breakdown Card */}
-                  <div className="card p-5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
-                        Rating Breakdown
-                      </h4>
-                      <span className="text-[11px] font-bold text-slate-500">
-                        {reviews.length} Reviews
-                      </span>
-                    </div>
-                    <div className="space-y-2 pt-1">
-                      {[5, 4, 3, 2, 1].map((stars) => {
-                        const count = ratingDistribution[stars] || 0;
-                        const pct = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
-                        return (
-                          <div key={stars} className="flex items-center gap-2 text-xs">
-                            <span className="flex items-center gap-1 font-bold text-slate-700 w-8 flex-shrink-0">
-                              {stars} <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            </span>
-                            <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  stars >= 4 ? 'bg-amber-400' : stars === 3 ? 'bg-amber-300' : 'bg-red-400'
-                                }`}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                            <span className="font-mono text-slate-500 text-[11px] w-14 text-right flex-shrink-0">
-                              {count} ({pct}%)
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  {/* Star Rating Distribution Donut (Exact Reports Design) */}
+                  <StarDistributionDonut
+                    ratingsCount={{
+                      five: ratingDistribution[5] || 0,
+                      four: ratingDistribution[4] || 0,
+                      three: ratingDistribution[3] || 0,
+                      two: ratingDistribution[2] || 0,
+                      one: ratingDistribution[1] || 0,
+                    }}
+                    totalReviews={totalRatingsCount || reviews.length}
+                    avgRating={avgRating ?? 0}
+                    selectedStarFilter={starFilter}
+                    onSelectStarFilter={setStarFilter}
+                  />
 
-                  {/* 7 Days Bar */}
-                  <div className="card p-5 space-y-3">
-                    <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
-                      {'Last 7 Days Velocity'}
-                    </h4>
-                    <div className="space-y-2">
-                      {weeklyDayBreakdown.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500 font-medium w-16">{item.dayName}</span>
-                          <div className="flex-1 mx-3 bg-slate-100 rounded-full h-2 overflow-hidden">
-                            <div 
-                              className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                              style={{ width: `${Math.min(100, item.total * 30 + 10)}%` }}
-                            />
+                  {/* Modern 7 Days Review Velocity Column & Trend Graph */}
+                  {(() => {
+                    const total7d = weeklyDayBreakdown.reduce((sum, d) => sum + d.total, 0);
+                    const maxDaily = Math.max(...weeklyDayBreakdown.map((d) => d.total), 1);
+                    const peakDay = weeklyDayBreakdown.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), weeklyDayBreakdown[0]);
+                    const dailyAvg = (total7d / 7).toFixed(1);
+
+                    return (
+                      <div className="card p-5 space-y-4">
+                        {/* Header with Title and Velocity Pills */}
+                        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+                          <div>
+                            <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                              <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                              Last 7 Days Velocity
+                            </h4>
+                            <p className="text-[11px] text-slate-400 mt-0.5">Day-by-day customer review volume</p>
                           </div>
-                          <span className="font-mono text-slate-700 font-bold w-12 text-right">{item.total} revs</span>
+                          
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[11px] px-2.5 py-0.5 bg-blue-50 text-blue-700 font-bold rounded-md border border-blue-200 shadow-2xs whitespace-nowrap">
+                              +{total7d} Total
+                            </span>
+                            <span className="text-[11px] px-2 py-0.5 bg-slate-100 text-slate-600 font-medium rounded-md whitespace-nowrap">
+                              ~{dailyAvg}/day
+                            </span>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+
+                        {/* Interactive Vertical Column Chart */}
+                        <div className="pt-2">
+                          <div className="flex items-end justify-between gap-1.5 sm:gap-2 h-36 px-1 border-b border-slate-100 pb-2">
+                            {weeklyDayBreakdown.map((item, idx) => {
+                              const isPeak = item.total === peakDay?.total && item.total > 0;
+                              const isToday = idx === weeklyDayBreakdown.length - 1;
+                              const heightPct = item.total === 0 ? 6 : Math.max(14, Math.round((item.total / maxDaily) * 100));
+
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex-1 flex flex-col items-center justify-end h-full group relative cursor-pointer"
+                                  title={`${item.dayName} (${item.dateLabel}): ${item.total} reviews`}
+                                >
+                                  {/* Floating Hover Card */}
+                                  <div className="absolute -top-12 z-20 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] rounded px-2 py-1 pointer-events-none whitespace-nowrap shadow-lg">
+                                    <div className="font-bold">{item.dayName}, {item.dateLabel}</div>
+                                    <div className="text-slate-300">Total: {item.total} | 5★: {item.fiveStars}</div>
+                                  </div>
+
+                                  {/* Review Count Badge on top of Bar */}
+                                  <span className={`text-[10px] mb-1 font-bold transition-all ${
+                                    isPeak 
+                                      ? 'text-blue-700 scale-105' 
+                                      : item.total > 0 
+                                      ? 'text-slate-700' 
+                                      : 'text-slate-300 font-normal'
+                                  }`}>
+                                    {item.total > 0 ? item.total : '0'}
+                                  </span>
+
+                                  {/* Animated Vertical Bar */}
+                                  <div className="w-full max-w-[28px] bg-slate-100 rounded-t-md overflow-hidden flex items-end h-full">
+                                    <div
+                                      className={`w-full rounded-t-md transition-all duration-500 shadow-2xs ${
+                                        isToday
+                                          ? 'bg-gradient-to-t from-blue-600 via-indigo-600 to-indigo-400 group-hover:brightness-110'
+                                          : isPeak
+                                          ? 'bg-gradient-to-t from-blue-500 to-sky-400 group-hover:brightness-110'
+                                          : item.total > 0
+                                          ? 'bg-gradient-to-t from-slate-400 to-slate-300 group-hover:from-blue-400 group-hover:to-blue-300'
+                                          : 'bg-slate-200'
+                                      }`}
+                                      style={{ height: `${heightPct}%` }}
+                                    />
+                                  </div>
+
+                                  {/* Day Name */}
+                                  <span className={`text-[11px] mt-2 font-medium transition-colors ${
+                                    isToday ? 'font-bold text-blue-700' : 'text-slate-500 group-hover:text-slate-900'
+                                  }`}>
+                                    {item.dayName.slice(0, 3)}
+                                  </span>
+
+                                  {/* Date Subtitle */}
+                                  <span className="text-[9px] text-slate-400 font-mono">
+                                    {item.dateLabel.split(' ')[0]}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Velocity Insights Footer */}
+                        <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500 font-medium">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                            <span className="truncate">
+                              {peakDay && peakDay.total > 0 
+                                ? `Peak velocity: ${peakDay.dayName} (+${peakDay.total} reviews)` 
+                                : 'Steady weekly velocity'}
+                            </span>
+                          </div>
+                          <span className="text-blue-600 font-semibold shrink-0">Live Google Sync</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -3334,7 +3408,7 @@ export default function App() {
           {/* ================= TAB: SHEETS SYNC ================= */}
           {activeTab === 'sheets' && (
             <div className="space-y-6 max-w-4xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex flex-row items-center justify-between gap-3 flex-wrap">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-xl font-bold text-slate-800">{t.sheetsSync}</h2>
@@ -3346,7 +3420,7 @@ export default function App() {
                 </div>
 
                 {linkedSheet && (
-                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 self-start sm:self-auto shadow-2xs">
+                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 shadow-2xs shrink-0">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     Permanent Sheet Linked
                   </span>
@@ -3459,33 +3533,36 @@ export default function App() {
                 /* Not Connected State: Offer 1-Click Auto Create or Manual Link */
                 <div className="card p-4 sm:p-6 space-y-5 sm:space-y-6">
                   {/* Option 1: 1-Click Auto Generate */}
-                  <div className="p-4 sm:p-5 bg-gradient-to-br from-blue-50/80 via-indigo-50/30 to-white border border-blue-200 rounded-xl space-y-3 shadow-2xs">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-100/80 px-2 py-0.5 rounded-md inline-block">
-                          Recommended (One-Time Setup)
-                        </span>
-                        <InfoTooltip 
-                          title="Auto-Create & Link Google Sheet"
-                          content={`A permanent Google Sheet named '${activeLoc?.title || 'Your Business'}' will be automatically created in your Google Drive with ready-to-use Reviews_Log and GBP_Analytics_Report tabs.`}
-                        />
+                  <div className="p-4 sm:p-5 bg-gradient-to-br from-blue-50/80 via-indigo-50/30 to-white border border-blue-200 rounded-xl shadow-2xs">
+                    <div className="flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-100/80 px-2 py-0.5 rounded-md inline-block">
+                            Recommended
+                          </span>
+                          <InfoTooltip 
+                            title="Auto-Create & Link Google Sheet"
+                            content={`A permanent Google Sheet named '${activeLoc?.title || 'Your Business'}' will be automatically created in your Google Drive with ready-to-use Reviews_Log and GBP_Analytics_Report tabs.`}
+                          />
+                        </div>
+                        <h3 className="font-bold text-slate-800 text-xs sm:text-sm mt-1 flex items-center gap-1.5 truncate">
+                          <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                          <span className="truncate">1-Click Auto-Create & Link Sheet</span>
+                        </h3>
                       </div>
-                      <h3 className="font-bold text-slate-800 text-sm sm:text-base mt-1.5 flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-                        <span>1-Click Auto-Create & Link Google Sheet</span>
-                      </h3>
-                    </div>
 
-                    <div className="pt-1">
-                      <button
-                        type="button"
-                        onClick={handleAutoCreateSheet}
-                        disabled={autoCreatingSheet}
-                        className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer whitespace-nowrap"
-                      >
-                        {autoCreatingSheet ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                        <span>{autoCreatingSheet ? 'Creating Google Sheet in Drive...' : 'Create & Link Google Sheet Now'}</span>
-                      </button>
+                      <div className="shrink-0">
+                        <button
+                          type="button"
+                          onClick={handleAutoCreateSheet}
+                          disabled={autoCreatingSheet}
+                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
+                        >
+                          {autoCreatingSheet ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                          <span className="hidden xs:inline">{autoCreatingSheet ? 'Creating...' : 'Create & Link Sheet'}</span>
+                          <span className="xs:hidden">{autoCreatingSheet ? '...' : 'Create Sheet'}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 

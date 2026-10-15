@@ -28,66 +28,64 @@ export const KpiSummaryGrid: React.FC<KpiSummaryGridProps> = ({
   const numReplied = Number(repliedCount) || 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* 1. Total Reviews */}
-      <div className="card p-5 border-l-4 border-l-blue-600 relative overflow-hidden">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 1. Total Reviews (Full width on mobile, 1 col on desktop) */}
+      <div className="card p-4 sm:p-5 border-l-4 border-l-blue-600 relative overflow-hidden col-span-2 sm:col-span-1 lg:col-span-1">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs font-medium text-slate-600">Total Reviews</span>
           <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-normal truncate max-w-[120px] whitespace-nowrap shrink-0">
             {scopeLabel}
           </span>
         </div>
-        <div className="text-3xl font-bold text-slate-800 leading-tight">
+        <div className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight">
           {numTotal.toLocaleString()}
         </div>
         <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 font-normal">
           <MessageSquare className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-          <span>All verified customer ratings</span>
+          <span className="truncate">All verified customer ratings</span>
         </div>
       </div>
 
-      {/* 2. Review Velocity & Growth */}
-      <div className="card p-5 border-l-4 border-l-emerald-500 relative overflow-hidden">
+      {/* 2. Review Velocity & Growth (Middle Card 1: 1 col on mobile) */}
+      <div className="card p-3.5 sm:p-5 border-l-4 border-l-emerald-500 relative overflow-hidden col-span-1">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-slate-600">Period Growth</span>
-          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded flex items-center gap-0.5 font-medium border border-emerald-200 whitespace-nowrap shrink-0">
+          <span className="text-xs font-medium text-slate-600">Growth</span>
+          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded flex items-center gap-0.5 font-medium border border-emerald-200 whitespace-nowrap shrink-0">
             <ArrowUpRight className="w-3 h-3 shrink-0" />
             +{numGrowthPct}%
           </span>
         </div>
-        <div className="text-3xl font-bold text-slate-800 leading-tight">
+        <div className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight">
           +{numGrowth}
         </div>
         <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-600 font-normal">
           <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-          <span>New reviews in selected timeframe</span>
+          <span className="truncate">New reviews</span>
         </div>
       </div>
 
-      {/* 3. Average Rating */}
-      <div className="card p-5 border-l-4 border-l-amber-500 relative overflow-hidden">
+      {/* 3. Average Rating (Middle Card 2: 1 col on mobile, side-by-side with Growth) */}
+      <div className="card p-3.5 sm:p-5 border-l-4 border-l-amber-500 relative overflow-hidden col-span-1">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-slate-600">Average Rating</span>
+          <span className="text-xs font-medium text-slate-600">Avg Rating</span>
           <div className="flex items-center text-amber-400">
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className="w-3 h-3 fill-current" />
+            <Star className="w-3 h-3 fill-current hidden xs:inline" />
+            <Star className="w-3 h-3 fill-current hidden sm:inline" />
           </div>
         </div>
-        <div className="text-3xl font-bold text-slate-800 leading-tight flex items-baseline gap-1.5">
+        <div className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight flex items-baseline gap-1">
           <span>{numRating.toFixed(1)}</span>
-          <span className="text-sm font-normal text-slate-400">/ 5.0</span>
+          <span className="text-xs sm:text-sm font-normal text-slate-400">/ 5.0</span>
         </div>
         <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 font-normal">
           <ShieldCheck className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span>Weighted reputation index</span>
+          <span className="truncate">Reputation index</span>
         </div>
       </div>
 
-      {/* 4. Response SLA Rate */}
-      <div className="card p-5 border-l-4 border-l-indigo-500 relative overflow-hidden">
+      {/* 4. Response SLA Rate (Full width on mobile, 1 col on desktop) */}
+      <div className="card p-4 sm:p-5 border-l-4 border-l-indigo-500 relative overflow-hidden col-span-2 sm:col-span-1 lg:col-span-1">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs font-medium text-slate-600">Response SLA</span>
           <span className={`text-[10px] px-2 py-0.5 rounded font-medium whitespace-nowrap shrink-0 ${
@@ -96,12 +94,12 @@ export const KpiSummaryGrid: React.FC<KpiSummaryGridProps> = ({
             {numReplyRate >= 90 ? 'Healthy' : 'Backlog'}
           </span>
         </div>
-        <div className="text-3xl font-bold text-slate-800 leading-tight">
+        <div className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight">
           {numReplyRate}%
         </div>
         <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 font-normal">
           <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-          <span>{numReplied} of {numTotal} reviews answered</span>
+          <span className="truncate">{numReplied} of {numTotal} answered</span>
         </div>
       </div>
     </div>

@@ -567,7 +567,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-slate-200 shadow-xs">
         <div>
           <h2 className="text-xl font-bold text-slate-800">
-            Reviews Analytics & Performance Reports
+            Analytics & Performance Reports
           </h2>
           <p className="text-slate-500 text-xs mt-1">
             Detailed graphical analysis, branch rankings, rating distribution, and response SLA benchmarks.
@@ -709,11 +709,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
           {/* Location Dropdown when in Single Location Mode */}
           {reportScope === 'single' && safeLocations.length > 0 && (
-            <div className="relative shrink-0">
+            <div className="relative w-full sm:w-auto min-w-0 max-w-full sm:max-w-[280px]">
               <select
                 value={selectedLocationKey}
                 onChange={handleLocationPickerChange}
-                className="pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer whitespace-nowrap"
+                className="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer truncate"
               >
                 {safeLocations.map((loc) => {
                   const val = loc.v4Name || loc.name;
@@ -724,7 +724,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                   );
                 })}
               </select>
-              <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           )}
         </div>
