@@ -3,6 +3,7 @@ import { Sparkles, ThumbsUp, AlertCircle, MessageSquare, X, Star } from 'lucide-
 import { Review } from '../../types';
 
 interface AiSentimentTopicsCardProps {
+  title?: string;
   positiveCount: number;
   neutralCount: number;
   criticalCount: number;
@@ -13,6 +14,7 @@ interface AiSentimentTopicsCardProps {
 }
 
 export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
+  title = 'AI Sentiment & Topics',
   positiveCount,
   neutralCount,
   criticalCount,
@@ -50,7 +52,7 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
-          <h3 className="text-sm font-semibold text-slate-800">Gemini AI Sentiment & Topic Intelligence</h3>
+          <h3 className="text-xs sm:text-sm font-bold text-slate-800">{title}</h3>
         </div>
         <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md border border-purple-200 font-medium whitespace-nowrap shrink-0">
           Customer Voice AI

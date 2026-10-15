@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock, Bot, CheckCircle, AlertCircle, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface ResponseHealthGaugeProps {
+  title?: string;
   replyRate?: number | string;
   totalReviews?: number | string;
   repliedCount?: number | string;
@@ -11,6 +12,7 @@ interface ResponseHealthGaugeProps {
 }
 
 export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
+  title = 'Response SLA & Health',
   replyRate = 0,
   totalReviews = 0,
   repliedCount = 0,
@@ -32,11 +34,11 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
   const isHealthy = numReplyRate >= 85;
 
   return (
-    <div className="card p-5 space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+    <div className="card p-4 sm:p-5 space-y-4">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Customer Response SLA & Health Speedometer</h3>
-          <p className="text-xs text-slate-500 mt-0.5">Turnaround speed, answered ratio, and review backlog</p>
+          <h3 className="text-xs sm:text-sm font-bold text-slate-800">{title}</h3>
+          <p className="text-[11px] text-slate-500 mt-0.5">Turnaround speed, answered ratio, and review backlog</p>
         </div>
         <span className={`text-[10px] px-2.5 py-1 rounded-md font-medium shadow-2xs whitespace-nowrap shrink-0 ${
           isHealthy ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
