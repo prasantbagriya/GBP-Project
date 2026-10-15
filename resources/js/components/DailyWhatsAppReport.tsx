@@ -25,7 +25,6 @@ import {
   Minus
 } from 'lucide-react';
 import { ProfileReportItem, MultiProfileReportData } from '../types';
-import { InfoTooltip } from './InfoTooltip';
 
 interface DailyWhatsAppReportProps {
   userEmail?: string | null;
@@ -346,10 +345,6 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
               <Share2 className="w-3 h-3 text-emerald-600" /> WhatsApp Ready
             </span>
-            <InfoTooltip
-              title="Daily WhatsApp Growth Report"
-              content="Generate automated daily WhatsApp reports comparing before vs today reviews, ratings, and growth for all connected Google profiles."
-            />
           </div>
         </div>
 
