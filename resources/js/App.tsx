@@ -2535,6 +2535,35 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Daily WhatsApp Growth Banner */}
+              <div className="card p-4 sm:p-5 bg-gradient-to-r from-emerald-50/70 via-teal-50/30 to-white border-emerald-200 border-l-4 border-l-emerald-600 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-sm shadow-emerald-600/20">
+                    <MessageCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-bold text-slate-800 text-sm">
+                        {'Daily WhatsApp Growth Report'}
+                      </h4>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                        {locations.length} {locations.length === 1 ? 'Profile' : 'Profiles'}
+                      </span>
+                    </div>
+                    <p className="text-slate-500 text-xs mt-0.5">
+                      {'Generate complete daily review report with today vs before comparison for all profiles linked to this Google account.'}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setActiveTab('whatsappReport')}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-2 self-start sm:self-auto cursor-pointer flex-shrink-0"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  {'Open WhatsApp Report'}
+                </button>
+              </div>
+
               {/* Row 1: Star Rating Distribution (Left) & Last 7 Days Velocity (Right) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* Left: Star Rating Distribution & Reputation Quality */}
@@ -2697,35 +2726,6 @@ export default function App() {
                   summaryText={homeSentimentBreakdown.summaryText}
                   reviews={reviews}
                 />
-              </div>
-
-              {/* Daily WhatsApp Growth Banner */}
-              <div className="card p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-teal-50/40 to-white border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-sm bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-sm shadow-emerald-600/20">
-                    <MessageCircle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-extrabold text-slate-800 text-sm">
-                        {'Daily WhatsApp Growth Report'}
-                      </h4>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-sm">
-                        {locations.length} {'Profiles'}
-                      </span>
-                    </div>
-                    <p className="text-slate-500 text-xs mt-0.5">
-                      {'Generate complete daily review report with today vs before comparison for all profiles linked to this Google account.'}
-                    </p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setActiveTab('whatsappReport')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-sm shadow-xs transition-all flex items-center justify-center gap-2 self-start sm:self-auto cursor-pointer flex-shrink-0"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  {'Open WhatsApp Report'}
-                </button>
               </div>
 
               {/* Recent Reviews & Owner Replies (Full-Width Card) */}
