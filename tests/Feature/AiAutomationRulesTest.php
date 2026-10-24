@@ -2,11 +2,20 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 class AiAutomationRulesTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Session::flush();
+        Cache::flush();
+    }
+
     public function test_can_fetch_default_ai_automation_rules(): void
     {
         $response = $this->getJson('/api/settings/ai-rules');
@@ -192,7 +201,7 @@ class AiAutomationRulesTest extends TestCase
             'success' => true,
             'hasReport' => true,
             'userEmail' => $userEmail,
-            'generatedAt' => '2026-10-11T12:00:00+00:00',
+            'generatedAt' => Carbon::now('Asia/Kolkata')->toIso8601String(),
             'locations' => [
                 [
                     'id' => 'locations/loc-1',
@@ -227,6 +236,55 @@ class AiAutomationRulesTest extends TestCase
                     'totalReviews' => 120,
                 ],
             ]);
+    }
+
+    public function test_multi_profile_report_sorts_profiles_by_lowest_rating_first(): void
+    {
+        $userEmail = 'rating-sort-user@example.com';
+        $dummyToken = [
+            'access_token' => 'ya29.test-access-token',
+            'refresh_token' => '1//test-refresh-token',
+            'expires_in' => 3599,
+            'created' => time(),
+            'user_email' => $userEmail,
+        ];
+        Cache::forever('gbp_persistent_google_token', $dummyToken);
+
+        $reportKey = 'gbp_multi_report_'.md5($userEmail);
+        $savedData = [
+            'success' => true,
+            'hasReport' => true,
+            'userEmail' => $userEmail,
+            'generatedAt' => now()->toIso8601String(),
+            'locations' => [
+                ['id' => 'loc-1', 'title' => 'Top Branch', 'averageRating' => 4.9, 'totalReviews' => 500],
+                ['id' => 'loc-2', 'title' => 'Lowest Branch', 'averageRating' => 3.2, 'totalReviews' => 120],
+                ['id' => 'loc-3', 'title' => 'Mid Branch', 'averageRating' => 4.1, 'totalReviews' => 200],
+                ['id' => 'loc-4', 'title' => 'Good Branch', 'averageRating' => 4.6, 'totalReviews' => 350],
+            ],
+            'overall' => [
+                'totalProfiles' => 4,
+                'totalReviews' => 1170,
+                'totalTodayNew' => 5,
+                'totalPending' => 2,
+                'averageRating' => 4.2,
+            ],
+        ];
+        Cache::forever($reportKey, $savedData);
+
+        $response = $this->getJson('/api/gbp/multi-profile-report');
+        $response->assertStatus(200);
+
+        $locations = $response->json('locations');
+        $this->assertCount(4, $locations);
+        $this->assertEquals('Lowest Branch', $locations[0]['title']);
+        $this->assertEquals(3.2, $locations[0]['averageRating']);
+        $this->assertEquals('Mid Branch', $locations[1]['title']);
+        $this->assertEquals(4.1, $locations[1]['averageRating']);
+        $this->assertEquals('Good Branch', $locations[2]['title']);
+        $this->assertEquals(4.6, $locations[2]['averageRating']);
+        $this->assertEquals('Top Branch', $locations[3]['title']);
+        $this->assertEquals(4.9, $locations[3]['averageRating']);
     }
 
     public function test_posts_and_services_serve_cached_server_data_when_not_refreshing(): void

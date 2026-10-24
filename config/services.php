@@ -46,4 +46,12 @@ return [
         'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'facebook' => [
+        'app_id' => env('FACEBOOK_APP_ID'),
+        'app_secret' => env('FACEBOOK_APP_SECRET'),
+        'redirect_uri' => env('FACEBOOK_REDIRECT_URI'),
+        'config_id' => env('FACEBOOK_CONFIG_ID', '1435321504697339'),
+        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v21.0'),
+    ],
+
 ];

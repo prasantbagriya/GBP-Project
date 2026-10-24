@@ -18,7 +18,20 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => (function () {
+        $driver = env('SESSION_DRIVER', 'file');
+        if ($driver === 'file') {
+            $path = storage_path('framework/sessions');
+            if (! is_dir($path)) {
+                @mkdir($path, 0777, true);
+            }
+            if (! is_dir($path) || ! is_writable($path)) {
+                return 'cookie';
+            }
+        }
+
+        return $driver;
+    })(),
 
     /*
     |--------------------------------------------------------------------------

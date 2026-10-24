@@ -22,18 +22,25 @@ import {
   Plus,
   Phone,
   X,
-  Minus
+  Minus,
+  ArrowUpDown,
+  Target,
+  BarChart3
 } from 'lucide-react';
 import { ProfileReportItem, MultiProfileReportData } from '../types';
+import { DailyReviewTargetModal } from './DailyReviewTargetModal';
+import { getBusinessDateStr, getBusinessShiftedDate, BUSINESS_TIMEZONE } from '../utils/dateUtils';
 
 interface DailyWhatsAppReportProps {
   userEmail?: string | null;
   onSelectLocation?: (locationName: string) => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   userEmail,
-  onSelectLocation
+  onSelectLocation,
+  onNavigateTab
 }) => {
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState<MultiProfileReportData | null>(null);
@@ -56,6 +63,8 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   });
   const [newPhoneInput, setNewPhoneInput] = useState('');
   const [showAddPhone, setShowAddPhone] = useState(false);
+  const [showTargetModal, setShowTargetModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Custom formatting options
   const [includeComparison, setIncludeComparison] = useState(true);
@@ -65,6 +74,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   const [includeSummaryFooter, setIncludeSummaryFooter] = useState(true);
   const [showNetDifference, setShowNetDifference] = useState(false);
   const [boldProfileNames, setBoldProfileNames] = useState(true);
+  const [sortBy, setSortBy] = useState<'rating_asc' | 'rating_desc' | 'growth_desc' | 'reviews_desc'>('rating_asc');
 
   // Baseline edit state
   const [editingBaselineId, setEditingBaselineId] = useState<string | null>(null);
@@ -72,33 +82,88 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   const [savingBaseline, setSavingBaseline] = useState(false);
 
   useEffect(() => {
-    fetchReportData(false);
+    fetchReportData(true);
   }, []);
+
+  // Sort profiles helper function
+  const sortProfiles = (list: ProfileReportItem[]): ProfileReportItem[] => {
+    return [...list].sort((a, b) => {
+      if (sortBy === 'rating_asc') {
+        const ratingA = Number(a.averageRating) || 0;
+        const ratingB = Number(b.averageRating) || 0;
+        if (ratingA !== ratingB) {
+          return ratingA - ratingB; // Ascending: lowest rating first
+        }
+        return (Number(a.totalReviews) || 0) - (Number(b.totalReviews) || 0);
+      }
+      if (sortBy === 'rating_desc') {
+        const ratingA = Number(a.averageRating) || 0;
+        const ratingB = Number(b.averageRating) || 0;
+        if (ratingA !== ratingB) {
+          return ratingB - ratingA; // Descending: highest rating first
+        }
+        return (Number(b.totalReviews) || 0) - (Number(a.totalReviews) || 0);
+      }
+      if (sortBy === 'growth_desc') {
+        const growthA = Number(a.difference || a.todayNewReviews) || 0;
+        const growthB = Number(b.difference || b.todayNewReviews) || 0;
+        if (growthA !== growthB) {
+          return growthB - growthA;
+        }
+        return (Number(a.averageRating) || 0) - (Number(b.averageRating) || 0);
+      }
+      if (sortBy === 'reviews_desc') {
+        return (Number(b.totalReviews) || 0) - (Number(a.totalReviews) || 0);
+      }
+      return 0;
+    });
+  };
 
   const fetchReportData = async (forceRefresh: boolean = false) => {
     setLoading(true);
+    setErrorMessage(null);
     try {
       const res = await fetch(`/api/gbp/multi-profile-report${forceRefresh ? '?refresh=true' : ''}`);
       if (res.ok) {
         const data: MultiProfileReportData = await res.json();
-        setReportData(data);
         if (data.locations) {
+          // Sort locations initially with lowest rating first (ascending)
+          data.locations.sort((a, b) => {
+            const ratingA = Number(a.averageRating) || 0;
+            const ratingB = Number(b.averageRating) || 0;
+            if (ratingA !== ratingB) {
+              return ratingA - ratingB;
+            }
+            return (Number(a.totalReviews) || 0) - (Number(b.totalReviews) || 0);
+          });
           setSelectedIds(data.locations.map(l => l.id));
         }
+        setReportData(data);
+      } else {
+        const errData = await res.json().catch(() => null);
+        const msg = errData?.message || errData?.error || `Failed to fetch report (HTTP ${res.status})`;
+        setErrorMessage(msg);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to fetch multi-profile report:', e);
+      setErrorMessage(e?.message || 'Network error while fetching Google Business profiles');
     } finally {
       setLoading(false);
     }
   };
 
+  // Sorted locations for UI list display
+  const sortedLocations = useMemo(() => {
+    if (!reportData?.locations) return [];
+    return sortProfiles(reportData.locations);
+  }, [reportData?.locations, sortBy]);
+
   const handleSelectAll = () => {
-    if (!reportData?.locations) return;
-    if (selectedIds.length === reportData.locations.length) {
+    if (!sortedLocations || sortedLocations.length === 0) return;
+    if (selectedIds.length === sortedLocations.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(reportData.locations.map(l => l.id));
+      setSelectedIds(sortedLocations.map(l => l.id));
     }
   };
 
@@ -108,20 +173,21 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
     );
   };
 
-  // Filtered locations included in the report
+  // Filtered locations included in the report, sorted by current order (lowest rating first)
   const activeProfiles = useMemo(() => {
     if (!reportData?.locations) return [];
-    return reportData.locations.filter(l => selectedIds.includes(l.id));
-  }, [reportData, selectedIds]);
+    const filtered = reportData.locations.filter(l => selectedIds.includes(l.id));
+    return sortProfiles(filtered);
+  }, [reportData, selectedIds, sortBy]);
 
   // Aggregate stats for selected profiles
   const selectedStats = useMemo(() => {
-    const totalReviews = activeProfiles.reduce((acc, p) => acc + p.totalReviews, 0);
-    const todayNew = activeProfiles.reduce((acc, p) => acc + p.todayNewReviews, 0);
-    const totalPending = activeProfiles.reduce((acc, p) => acc + p.pendingCount, 0);
-    const totalDiff = activeProfiles.reduce((acc, p) => acc + p.difference, 0);
+    const totalReviews = activeProfiles.reduce((acc, p) => acc + (p.totalReviews || 0), 0);
+    const todayNew = activeProfiles.reduce((acc, p) => acc + Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0)), 0);
+    const totalPending = activeProfiles.reduce((acc, p) => acc + (p.pendingCount || 0), 0);
+    const totalDiff = activeProfiles.reduce((acc, p) => acc + (p.difference || 0), 0);
     const avgRating = activeProfiles.length > 0 
-      ? (activeProfiles.reduce((acc, p) => acc + p.averageRating, 0) / activeProfiles.length).toFixed(1)
+      ? (activeProfiles.reduce((acc, p) => acc + (p.averageRating || 0), 0) / activeProfiles.length).toFixed(1)
       : '0.0';
 
     return {
@@ -137,12 +203,15 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   // Generate WhatsApp formatted message text
   const generatedMessage = useMemo(() => {
     const now = new Date();
-    const dateFormatted = now.toLocaleDateString('en-US', {
+    // 5:00 AM daily cutoff: shift current time by 5 hours so report date rolls over at 5:00 AM IST
+    const businessDate = getBusinessShiftedDate(now);
+    const dateFormatted = businessDate.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: BUSINESS_TIMEZONE
     });
-    const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: BUSINESS_TIMEZONE });
 
     let lines: string[] = [];
 
@@ -163,8 +232,9 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
       // Average Rating: 4.6 
       // Today: 420 ➔  423
       const profileTitle = boldProfileNames ? `*${p.title}*` : p.title;
+      const effectiveTodayNew = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
       lines.push(`📍 ${idx + 1}. ${profileTitle}`);
-      lines.push(`New Reviews Today: ${p.todayNewReviews}`);
+      lines.push(`New Reviews Today: ${effectiveTodayNew}`);
 
       if (includeRatings) {
         lines.push(`Average Rating: ${p.averageRating}`);
@@ -334,36 +404,60 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   };
 
   return (
-    <div className="space-y-6 w-full max-w-full overflow-x-hidden">
+    <div className="space-y-3.5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 w-full">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-xl font-bold text-slate-800">
               Daily WhatsApp Growth Report
             </h2>
-            <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-              <Share2 className="w-3 h-3 text-emerald-600" /> WhatsApp Ready
+            <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+              <Share2 className="w-3 h-3 text-emerald-600 shrink-0" /> WhatsApp Ready
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
           {reportData?.generatedAt && (
-            <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1 border border-slate-200" title="Report is saved on server">
-              <Clock className="w-3 h-3 text-blue-600" />
-              <span>Saved: {new Date(reportData.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1 border border-slate-200 shrink-0 whitespace-nowrap" title="Report timestamp">
+              <Clock className="w-3 h-3 text-blue-600 shrink-0" />
+              <span className="whitespace-nowrap">
+                {getBusinessDateStr(new Date(reportData.generatedAt)) === getBusinessDateStr(new Date())
+                  ? `Today at ${new Date(reportData.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}`
+                  : `Updated ${new Date(reportData.generatedAt).toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' })}`}
+              </span>
             </span>
+          )}
+
+          {onNavigateTab ? (
+            <button
+              onClick={() => onNavigateTab('reviewTargets')}
+              className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer transition-all whitespace-nowrap shrink-0"
+              title="Open Daily Review Targets & Goals Page"
+            >
+              <Target className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">Target Planner</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowTargetModal(true)}
+              className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+              title="Open Quick Target Planner Popup"
+            >
+              <Target className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+              <span className="whitespace-nowrap">Target Planner</span>
+            </button>
           )}
 
           <button
             onClick={() => fetchReportData(true)}
             disabled={loading}
-            className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap shrink-0 transition-colors"
             title="Fetch fresh data from Google API and update server cache"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600' : ''}`} />
-            <span>Live Refresh</span>
+            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loading ? 'animate-spin text-blue-600' : 'text-blue-600'}`} />
+            <span className="whitespace-nowrap">{loading ? 'Checking Google...' : 'Live Refresh'}</span>
           </button>
         </div>
       </div>
@@ -380,6 +474,48 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           <span className="text-[11px] bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-700 font-bold flex-shrink-0 whitespace-nowrap shadow-2xs">
             {reportData?.locations?.length || 0} Profiles Linked
           </span>
+        </div>
+      )}
+
+      {/* Error Alert Banner */}
+      {errorMessage && (
+        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-rose-900 shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span className="text-xs">
+              <strong>Error:</strong> {errorMessage}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchReportData(true)}
+            disabled={loading}
+            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg shrink-0 cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-2xs"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Retry Live Fetch</span>
+          </button>
+        </div>
+      )}
+
+      {/* Stale Report Warning Alert */}
+      {!loading && reportData?.locations && reportData.locations.length > 0 && reportData?.isToday === false && (
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-amber-900 shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="text-xs">
+              <strong>Notice:</strong> This report is from earlier (saved on {new Date(reportData.generatedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}). Click <strong>Live Refresh</strong> to fetch today's latest reviews from Google.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchReportData(true)}
+            disabled={loading}
+            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg shrink-0 cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-2xs"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Fetch Today's Reviews</span>
+          </button>
         </div>
       )}
 
@@ -450,15 +586,47 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         {/* Left Column: Profile Selector & Controls (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           
+          {/* Quick Target Planner Banner */}
+          <div className="p-3.5 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-emerald-500/10 border border-blue-200/80 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Target className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-800">
+                  Daily Review Target & Member Planner
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  Assign daily goals to team members, auto-adjust remaining days, and download weekly PDF reports.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigateTab) {
+                  onNavigateTab('reviewTargets');
+                } else {
+                  setShowTargetModal(true);
+                }
+              }}
+              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
+            >
+              <Target className="w-3.5 h-3.5" />
+              <span>Open Target Planner</span>
+            </button>
+          </div>
+
           {/* Profile List Card */}
           <div className="card overflow-hidden">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+            <div className="p-3 sm:p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5 bg-slate-50/70">
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleSelectAll}
                   className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
                 >
-                  {selectedIds.length === (reportData?.locations?.length || 0) && (reportData?.locations?.length || 0) > 0 ? (
+                  {selectedIds.length === (sortedLocations?.length || 0) && (sortedLocations?.length || 0) > 0 ? (
                     <CheckSquare className="w-4 h-4 text-blue-600" />
                   ) : (
                     <Square className="w-4 h-4 text-slate-400" />
@@ -466,19 +634,33 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   <span>Select All</span>
                 </button>
                 <span className="text-xs text-slate-400">
-                  ({selectedIds.length} of {reportData?.locations?.length || 0} included)
+                  ({selectedIds.length} of {sortedLocations?.length || 0} included)
                 </span>
               </div>
 
-              <div className="text-xs font-medium text-slate-500">
-                Before ➔ Today
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
+                  Sort:
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="text-xs font-bold bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+                  title="Profile order in report"
+                >
+                  <option value="rating_asc">⭐ Lowest Rating First (Default)</option>
+                  <option value="rating_desc">⭐ Highest Rating First</option>
+                  <option value="growth_desc">📈 Today's Growth (Highest First)</option>
+                  <option value="reviews_desc">📊 Total Reviews (Highest First)</option>
+                </select>
               </div>
             </div>
 
-            {loading ? (
+            {loading && (!reportData?.locations || reportData.locations.length === 0) ? (
               <div className="p-12 text-center text-slate-400">
                 <RefreshCw className="w-7 h-7 animate-spin mx-auto text-blue-600 mb-2" />
-                <p className="text-xs font-medium">Fetching all profiles and live review counts...</p>
+                <p className="text-xs font-medium">Checking all Google Business profiles from scratch...</p>
               </div>
             ) : (!reportData?.locations || reportData.locations.length === 0) ? (
               reportData?.hasReport === false || !reportData?.generatedAt ? (
@@ -510,7 +692,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
               )
             ) : (
               <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto">
-                {reportData.locations.map((loc, idx) => {
+                {sortedLocations.map((loc, idx) => {
                   const isChecked = selectedIds.includes(loc.id);
                   const isEditing = editingBaselineId === loc.id;
 
@@ -615,11 +797,11 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                 </span>
                               )}
 
-                              {loc.todayNewReviews > 0 && (
+                              {Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0)) > 0 && (
                                 <span className="p-1 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 flex-shrink-0">
-                                  <MessageSquare className="w-3 h-3 text-blue-600" />
-                                  <span>+{loc.todayNewReviews} today</span>
-                                </span>
+                                <MessageSquare className="w-3 h-3 text-blue-600" />
+                                <span>+{Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0))} today</span>
+                              </span>
                               )}
 
                               {loc.pendingCount > 0 && (
@@ -634,8 +816,12 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
                         {onSelectLocation && (
                           <button
-                            onClick={() => onSelectLocation(loc.name)}
-                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 flex-shrink-0"
+                            onClick={() => {
+                              onSelectLocation(loc.v4Name || loc.name || loc.id);
+                              onNavigateTab?.('reviews');
+                            }}
+                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 flex-shrink-0 cursor-pointer"
+                            title={`Open ${loc.title} reviews`}
                           >
                             Open ↗
                           </button>
@@ -726,6 +912,56 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                 />
                 <span>Include Overall Summary footer</span>
               </label>
+            </div>
+
+            {/* Profile Order Selector in Message with SVG Icons */}
+            <div className="pt-2 border-t border-slate-100">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
+                Profile Ordering in Report Message:
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {[
+                  {
+                    value: 'rating_asc',
+                    label: 'Lowest Rating First (Default)',
+                    icon: <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                  },
+                  {
+                    value: 'rating_desc',
+                    label: 'Highest Rating First',
+                    icon: <Star className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  },
+                  {
+                    value: 'growth_desc',
+                    label: "Today's Growth (Highest)",
+                    icon: <TrendingUp className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  },
+                  {
+                    value: 'reviews_desc',
+                    label: 'Total Reviews (Highest)',
+                    icon: <BarChart3 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  }
+                ].map((opt) => {
+                  const isSelected = sortBy === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setSortBy(opt.value as any)}
+                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors text-left cursor-pointer border ${
+                        isSelected
+                          ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                      }`}
+                    >
+                      {opt.icon}
+                      <span className="truncate flex-1">{opt.label}</span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 ml-auto" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Custom Note Input */}
@@ -932,6 +1168,21 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         </div>
 
       </div>
+
+      {/* Daily Review Target & Planner Modal */}
+      <DailyReviewTargetModal
+        isOpen={showTargetModal}
+        onClose={() => setShowTargetModal(false)}
+        locations={reportData?.locations?.map(l => ({ 
+          name: l.name, 
+          v4Name: l.v4Name || l.name, 
+          title: l.title, 
+          address: l.address, 
+          storeCode: l.storeCode,
+          metadata: { placeId: l.reviewLink?.split('placeid=')[1] }
+        } as any)) || []}
+        userEmail={userEmail}
+      />
     </div>
   );
 };

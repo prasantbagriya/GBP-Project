@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -39,5 +40,15 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return ($this->status ?? 'active') === 'active';
+    }
+
+    /**
+     * Get chat conversations assigned to this user.
+     *
+     * @return HasMany<ChatConversation, $this>
+     */
+    public function assignedChatConversations(): HasMany
+    {
+        return $this->hasMany(ChatConversation::class, 'assigned_to_user_id');
     }
 }

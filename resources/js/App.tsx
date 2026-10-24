@@ -50,13 +50,15 @@ import {
   Globe,
   Upload,
   Smartphone,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Target
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Location, Review, Post, BusinessService, TabType, AiAutomationRules, PanelUser } from './types';
+import { Location, Review, Post, BusinessService, TabType, HubType, AiAutomationRules, PanelUser } from './types';
 import { GrowthTools } from './components/GrowthTools';
 import { AiRulesSettings } from './components/AiRulesSettings';
 import { DailyWhatsAppReport } from './components/DailyWhatsAppReport';
+import { DailyReviewTargetPage } from './components/DailyReviewTargetPage';
 import { WebsiteWidget } from './components/WebsiteWidget';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { LoginPage } from './components/LoginPage';
@@ -67,11 +69,30 @@ import { StarDistributionDonut } from './components/reports/StarDistributionDonu
 import { ResponseHealthGauge } from './components/reports/ResponseHealthGauge';
 import { AiSentimentTopicsCard } from './components/reports/AiSentimentTopicsCard';
 import { InfoTooltip } from './components/InfoTooltip';
+import { FacebookDashboard } from './components/facebook/FacebookDashboard';
+import { ChatManager } from './components/chat/ChatManager';
+import { getBusinessDateStr, getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp } from './utils/dateUtils';
 
 export default function App() {
   const [panelUser, setPanelUser] = useState<PanelUser | null>(null);
   const [isCheckingPanelAuth, setIsCheckingPanelAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [activeHub, setActiveHub] = useState<HubType>('reputation');
+
+  // Auto-sync activeHub whenever activeTab changes
+  useEffect(() => {
+    if (['dashboard', 'posts', 'services', 'growth', 'widget'].includes(activeTab)) {
+      setActiveHub('reputation');
+    } else if (['chat', 'facebook'].includes(activeTab)) {
+      setActiveHub('inbox');
+    } else if (['autoreply'].includes(activeTab)) {
+      setActiveHub('automation');
+    } else if (['reports', 'whatsappReport', 'reviewTargets', 'sheets'].includes(activeTab)) {
+      setActiveHub('reports');
+    } else if (['team'].includes(activeTab)) {
+      setActiveHub('team');
+    }
+  }, [activeTab]);
   const [authStatus, setAuthStatus] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [clientId, setClientId] = useState<string>('54275296663-9dfpe3tv04orefj3dugoa75lm8g9t732.apps.googleusercontent.com');
@@ -93,10 +114,26 @@ export default function App() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
 
+  const cleanLocationKey = (k?: string | null): string => {
+    if (!k) return '';
+    return k.replace(/^accounts\/[^/]+\/locations\//, '').replace(/^locations\//, '').trim();
+  };
+
   const activeLoc = useMemo(() => {
     if (!selectedLocation || locations.length === 0) return locations[0] || null;
+    const targetClean = cleanLocationKey(selectedLocation);
     return (
-      locations.find(l => (l.v4Name && l.v4Name === selectedLocation) || l.name === selectedLocation) ||
+      locations.find(l => {
+        if (l.v4Name && l.v4Name === selectedLocation) return true;
+        if (l.name === selectedLocation) return true;
+        if (l.id && l.id === selectedLocation) return true;
+        if (cleanLocationKey(l.v4Name) === targetClean) return true;
+        if (cleanLocationKey(l.name) === targetClean) return true;
+        if (cleanLocationKey(l.id) === targetClean) return true;
+        if (l.storeCode && l.storeCode === targetClean) return true;
+        if (l.title && l.title.toLowerCase() === selectedLocation.toLowerCase()) return true;
+        return false;
+      }) ||
       locations[0] ||
       null
     );
@@ -106,6 +143,7 @@ export default function App() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [allTimeTotalReviews, setAllTimeTotalReviews] = useState<number | null>(null);
   const [allTimeAverageRating, setAllTimeAverageRating] = useState<number | null>(null);
+  const [serverTodayReviewsCount, setServerTodayReviewsCount] = useState<number | null>(null);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'unreplied' | 'replied' | 'critical' | 'today'>('all');
   const [starFilter, setStarFilter] = useState<number | null>(null);
   const [replyingReview, setReplyingReview] = useState<Review | null>(null);
@@ -242,8 +280,10 @@ export default function App() {
     connectGoogle: 'Connect Google Account',
     disconnect: 'Disconnect Account',
     whatsappReport: 'WhatsApp Report',
+    reviewTargets: 'Daily Targets',
     widget: 'Website Widget',
-    team: 'Team & Access'
+    team: 'Team & Access',
+    chat: 'Support Chatbot'
   };
 
   const checkPanelAuth = async () => {
@@ -430,7 +470,18 @@ export default function App() {
         const locs: Location[] = data.locations || [];
         setLocations(locs);
         if (locs.length > 0) {
-          const currentValid = selectedLocation && locs.find(l => (l.v4Name && l.v4Name === selectedLocation) || l.name === selectedLocation);
+          const targetClean = cleanLocationKey(selectedLocation);
+          const currentValid = selectedLocation && locs.find(l => {
+            if (l.v4Name && l.v4Name === selectedLocation) return true;
+            if (l.name === selectedLocation) return true;
+            if (l.id && l.id === selectedLocation) return true;
+            if (cleanLocationKey(l.v4Name) === targetClean) return true;
+            if (cleanLocationKey(l.name) === targetClean) return true;
+            if (cleanLocationKey(l.id) === targetClean) return true;
+            if (l.storeCode && l.storeCode === targetClean) return true;
+            if (l.title && l.title.toLowerCase() === selectedLocation.toLowerCase()) return true;
+            return false;
+          });
           const activeItem = currentValid || locs[0];
           const chosenKey = activeItem.v4Name || activeItem.name;
           setSelectedLocation(chosenKey);
@@ -465,13 +516,25 @@ export default function App() {
     setReviews([]);
     setAllTimeTotalReviews(null);
     setAllTimeAverageRating(null);
+    setServerTodayReviewsCount(null);
     setPosts([]);
     setPostsNextPageToken(null);
     setServices([]);
     setLinkedSheet(null);
     setSpreadsheetId('');
 
-    const matched = locations.find(l => (l.v4Name && l.v4Name === newLocationKey) || l.name === newLocationKey);
+    const targetClean = cleanLocationKey(newLocationKey);
+    const matched = locations.find(l => {
+      if (l.v4Name && l.v4Name === newLocationKey) return true;
+      if (l.name === newLocationKey) return true;
+      if (l.id && l.id === newLocationKey) return true;
+      if (cleanLocationKey(l.v4Name) === targetClean) return true;
+      if (cleanLocationKey(l.name) === targetClean) return true;
+      if (cleanLocationKey(l.id) === targetClean) return true;
+      if (l.storeCode && l.storeCode === targetClean) return true;
+      if (l.title && l.title.toLowerCase() === newLocationKey.toLowerCase()) return true;
+      return false;
+    });
     const effectiveParam = matched?.v4Name || matched?.name || newLocationKey;
     loadAllData(effectiveParam, false);
   };
@@ -486,7 +549,7 @@ export default function App() {
       setSpreadsheetId('');
       return;
     }
-    fetchReviews(locationName);
+    fetchReviews(locationName, refresh);
     fetchPosts(locationName, refresh);
     fetchServices(locationName, refresh);
     fetchLinkedSheet(locationName);
@@ -593,19 +656,25 @@ export default function App() {
     }
   };
 
-  const fetchReviews = async (locationName: string) => {
+  const fetchReviews = async (locationName: string, refresh: boolean = false) => {
     if (!locationName) {
       setReviews([]);
       setAllTimeTotalReviews(0);
       setAllTimeAverageRating(0);
+      setServerTodayReviewsCount(0);
       return;
     }
     try {
-      const res = await fetch(`/api/gbp/reviews?locationName=${encodeURIComponent(locationName)}`);
+      const res = await fetch(`/api/gbp/reviews?locationName=${encodeURIComponent(locationName)}${refresh ? '&refresh=true' : ''}`);
       if (res.ok) {
         const data = await res.json();
-        const revList = data.reviews || [];
+        const revList = (data.reviews || []).slice().sort((a: any, b: any) => {
+          return new Date(b.createTime || 0).getTime() - new Date(a.createTime || 0).getTime();
+        });
         setReviews(revList);
+        if (data.todayReviewsCount !== undefined && data.todayReviewsCount !== null) {
+          setServerTodayReviewsCount(Number(data.todayReviewsCount));
+        }
         if (data.totalReviewCount !== undefined && data.totalReviewCount !== null) {
           setAllTimeTotalReviews(Number(data.totalReviewCount));
         } else {
@@ -623,11 +692,13 @@ export default function App() {
         setReviews([]);
         setAllTimeTotalReviews(0);
         setAllTimeAverageRating(0);
+        setServerTodayReviewsCount(0);
       }
     } catch (err) {
       setReviews([]);
       setAllTimeTotalReviews(0);
       setAllTimeAverageRating(0);
+      setServerTodayReviewsCount(0);
     }
   };
 
@@ -708,6 +779,7 @@ export default function App() {
           client_id: effectiveClientId,
           scope: 'https://www.googleapis.com/auth/business.manage https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/spreadsheets',
           ux_mode: 'popup',
+          prompt: 'select_account',
           callback: async (response: any) => {
             if (response.error) {
               console.error('Google Auth Error:', response);
@@ -724,8 +796,11 @@ export default function App() {
                 const exData = await exRes.json();
                 if (exData.success) {
                   setAuthStatus(true);
-                  fetchLocations();
-                  alert('Google Account connected successfully!');
+                  if (exData.userEmail) {
+                    setUserEmail(exData.userEmail);
+                  }
+                  fetchLocations(true);
+                  alert(`Google Account (${exData.userEmail || 'Account'}) connected successfully on this device!`);
                 } else {
                   alert('Login failed: ' + (exData.error || 'Server error'));
                 }
@@ -841,15 +916,25 @@ export default function App() {
     return isNaN(num) ? 5 : num;
   };
 
-  const isToday = (dateStr: string) => {
-    const d = new Date(dateStr);
-    const today = new Date();
-    return d.getDate() === today.getDate() &&
-      d.getMonth() === today.getMonth() &&
-      d.getFullYear() === today.getFullYear();
-  };
+  const todayReviews = useMemo(() => {
+    return reviews
+      .filter(r => isToday(r.createTime))
+      .sort((a, b) => new Date(b.createTime || 0).getTime() - new Date(a.createTime || 0).getTime());
+  }, [reviews]);
 
-  const todayReviews = useMemo(() => reviews.filter(r => isToday(r.createTime)), [reviews]);
+  const recentReviewsList = useMemo(() => {
+    const sorted = [...reviews].sort(
+      (a, b) => new Date(b.createTime || 0).getTime() - new Date(a.createTime || 0).getTime()
+    );
+    return sorted.slice(0, 6);
+  }, [reviews]);
+
+  const effectiveTodayCount = useMemo(() => {
+    if (reviews.length > 0) {
+      return todayReviews.length;
+    }
+    return serverTodayReviewsCount ?? 0;
+  }, [reviews.length, todayReviews.length, serverTodayReviewsCount]);
   const repliedReviews = useMemo(() => reviews.filter(r => !!r.reviewReply?.comment), [reviews]);
   const pendingReviews = useMemo(() => reviews.filter(r => !r.reviewReply?.comment), [reviews]);
 
@@ -902,9 +987,11 @@ export default function App() {
     const now = new Date();
 
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
-      const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+      // 5:00 AM daily cutoff: shift current time so days roll over at 5:00 AM IST
+      const shiftedNow = getBusinessShiftedDate(now);
+      const d = new Date(shiftedNow.getFullYear(), shiftedNow.getMonth(), shiftedNow.getDate() - i);
+      const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 5, 0, 0);
+      const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 4, 59, 59, 999);
 
       const dayReviews = reviews.filter(r => {
         const revTime = new Date(r.createTime).getTime();
@@ -1899,59 +1986,257 @@ export default function App() {
     );
   }
 
-  // Navigation Items
-  const navItems: { id: TabType; label: string; icon: React.ReactElement; badge?: number | string }[] = [
-    { id: 'dashboard', label: t.dashboard, icon: <BarChart3 className="w-4 h-4 flex-shrink-0" /> },
-    { id: 'whatsappReport', label: t.whatsappReport, icon: <MessageCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />, badge: 'Daily' },
-    { id: 'reviews', label: t.reviewsReplies, icon: <MessageSquare className="w-4 h-4 flex-shrink-0" />, badge: pendingReviews.length || undefined },
-    { id: 'widget', label: t.widget, icon: <Code className="w-4 h-4 text-blue-500 flex-shrink-0" />, badge: 'Embed' },
-    { id: 'reports', label: t.reportsWeekly, icon: <TrendingUp className="w-4 h-4 flex-shrink-0" /> },
-    { id: 'autoreply', label: t.autoReply, icon: <Bot className="w-4 h-4 flex-shrink-0" />, badge: 'AI' },
-    { id: 'growth', label: t.growthTools, icon: <QrCode className="w-4 h-4 flex-shrink-0" />, badge: 'New' },
-    { id: 'posts', label: t.profilePosts, icon: <Megaphone className="w-4 h-4 flex-shrink-0" /> },
-    { id: 'services', label: t.servicesManager, icon: <Briefcase className="w-4 h-4 flex-shrink-0" /> },
-    { id: 'sheets', label: t.sheetsSync, icon: <FileSpreadsheet className="w-4 h-4 flex-shrink-0" /> },
-    { id: 'team', label: 'Team & Access', icon: <Users className="w-4 h-4 flex-shrink-0" />, badge: panelUser?.role === 'admin' ? 'Admin' : undefined }
+  // Contextual Sub-Items Grouped by Hub (4-Hub Unified Architecture)
+  const hubConfig: Record<HubType, {
+    title: string;
+    subtitle: string;
+    items: { id: TabType; label: string; icon: React.ReactElement; badge?: number | string }[];
+  }> = {
+    reputation: {
+      title: 'Reputation & GBP',
+      subtitle: 'Google Local Presence',
+      items: [
+        { id: 'dashboard', label: 'Overview & KPIs', icon: <BarChart3 className="w-4 h-4 text-blue-600 shrink-0" /> },
+        { id: 'reviews', label: 'Reviews & Replies', icon: <MessageSquare className="w-4 h-4 text-slate-600 shrink-0" />, badge: pendingReviews.length || undefined },
+        { id: 'posts', label: 'GBP Post Studio', icon: <Megaphone className="w-4 h-4 text-slate-600 shrink-0" /> },
+        { id: 'services', label: 'Services & Menu', icon: <Briefcase className="w-4 h-4 text-slate-600 shrink-0" /> },
+        { id: 'growth', label: 'Growth Tools (QR)', icon: <QrCode className="w-4 h-4 text-slate-600 shrink-0" />, badge: 'New' },
+        { id: 'widget', label: 'Website Review Badge', icon: <Code className="w-4 h-4 text-blue-500 shrink-0" />, badge: 'Embed' },
+      ]
+    },
+    inbox: {
+      title: 'Omnichannel Inbox',
+      subtitle: 'Customer Conversations',
+      items: [
+        { id: 'chat', label: 'Support Live Chat', icon: <Bot className="w-4 h-4 text-blue-600 shrink-0" />, badge: 'Live' },
+        { id: 'facebook', label: 'Meta / Facebook Suite', icon: <Share2 className="w-4 h-4 text-blue-600 shrink-0" />, badge: 'Meta' },
+        { id: 'reviews', label: 'Google Reviews Moderation', icon: <MessageSquare className="w-4 h-4 text-slate-600 shrink-0" />, badge: pendingReviews.length || undefined },
+      ]
+    },
+    automation: {
+      title: 'Automation Studio',
+      subtitle: 'AI & Workflow Engine',
+      items: [
+        { id: 'autoreply', label: 'AI Auto-Reply Rules', icon: <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />, badge: 'Gemini' },
+        { id: 'chat', label: 'Visual Chatbot Flows', icon: <Bot className="w-4 h-4 text-blue-600 shrink-0" />, badge: 'Canvas' },
+      ]
+    },
+    reports: {
+      title: 'Analytics & Reports',
+      subtitle: 'Executive Intelligence',
+      items: [
+        { id: 'reports', label: 'Executive Analytics', icon: <TrendingUp className="w-4 h-4 text-blue-600 shrink-0" /> },
+        { id: 'reviewTargets', label: 'Daily Review Targets', icon: <Target className="w-4 h-4 text-indigo-500 shrink-0" />, badge: 'Goals' },
+        { id: 'whatsappReport', label: 'WhatsApp Daily Digest', icon: <MessageCircle className="w-4 h-4 text-emerald-500 shrink-0" />, badge: 'Daily' },
+        { id: 'sheets', label: 'Google Sheets 2-Way Sync', icon: <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" /> },
+      ]
+    },
+    team: {
+      title: 'Administration',
+      subtitle: 'Workspace & Security',
+      items: [
+        { id: 'team', label: 'Team & Role Access', icon: <Users className="w-4 h-4 text-slate-700 shrink-0" />, badge: panelUser?.role === 'admin' ? 'Admin' : undefined },
+      ]
+    }
+  };
+
+  // Flat list for mobile drawers
+  const navItems = [
+    ...hubConfig.reputation.items,
+    ...hubConfig.inbox.items.filter(i => i.id !== 'reviews'),
+    ...hubConfig.automation.items.filter(i => i.id !== 'chat'),
+    ...hubConfig.reports.items,
+    ...hubConfig.team.items
   ];
 
   return (
     <div className="flex bg-slate-50 min-h-screen w-full text-slate-800 font-sans overflow-x-hidden">
-      {/* Desktop Persistent Sidebar (Hidden on mobile < 768px) - Collapsible (Chota / Bada) */}
-      <aside className={`hidden md:flex ${sidebarCollapsed ? 'w-18 px-2' : 'w-64 px-4'} bg-white border-r border-slate-200 h-screen flex-col py-5 sticky top-0 overflow-y-auto sidebar-scroll z-20 flex-shrink-0 transition-all duration-300 ease-in-out`}>
-        <div className={`flex items-center ${sidebarCollapsed ? 'flex-col gap-3' : 'justify-between gap-2'} mb-6`}>
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold shadow-sm flex-shrink-0">G</div>
-            {!sidebarCollapsed && (
-              <div className="flex flex-col whitespace-nowrap overflow-hidden">
-                <span className="font-bold text-slate-800 text-lg leading-tight tracking-tight">{t.appName}</span>
-                <span className="text-[10px] text-slate-400 font-medium">{t.appSub}</span>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0 cursor-pointer"
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      {/* ========================================================================= */}
+      {/* TIER 1: 64px SLIM ICON RAIL (Modern SaaS Localith/Slack Pattern) */}
+      {/* ========================================================================= */}
+      <aside className="hidden md:flex w-16 bg-slate-900 text-slate-400 h-screen flex-col items-center py-4 justify-between sticky top-0 z-30 shrink-0 select-none shadow-xl border-r border-slate-800">
+        <div className="space-y-5 flex flex-col items-center w-full">
+          {/* App Brand Mark */}
+          <div 
+            onClick={() => { setActiveHub('reputation'); setActiveTab('dashboard'); }}
+            className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-base shadow-lg cursor-pointer hover:scale-105 active:scale-95 transition-all"
+            title={`${t.appName} - Dashboard`}
           >
-            {sidebarCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </button>
+            G
+          </div>
+
+          {/* Hub Switcher Rail Icons */}
+          <nav className="space-y-2.5 flex flex-col items-center w-full px-2">
+            {/* Hub 1: Reputation */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHub('reputation');
+                if (!['dashboard', 'reviews', 'posts', 'services', 'growth', 'widget'].includes(activeTab)) {
+                  setActiveTab('dashboard');
+                }
+                if (sidebarCollapsed) setSidebarCollapsed(false);
+              }}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                activeHub === 'reputation' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              title="Reputation & Local SEO (Google Business)"
+            >
+              <Star className="w-5 h-5" />
+              <span className="sr-only">Reputation</span>
+            </button>
+
+            {/* Hub 2: Omnichannel Inbox */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHub('inbox');
+                if (!['chat', 'facebook'].includes(activeTab)) {
+                  setActiveTab('chat');
+                }
+                if (sidebarCollapsed) setSidebarCollapsed(false);
+              }}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                activeHub === 'inbox' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              title="Omnichannel Inbox (Live Chat, Meta, Google)"
+            >
+              <MessageSquare className="w-5 h-5" />
+              {pendingReviews.length > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-slate-900" />
+              )}
+              <span className="sr-only">Inbox</span>
+            </button>
+
+            {/* Hub 3: Automation Studio */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHub('automation');
+                if (!['autoreply'].includes(activeTab)) {
+                  setActiveTab('autoreply');
+                }
+                if (sidebarCollapsed) setSidebarCollapsed(false);
+              }}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                activeHub === 'automation' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              title="Automation & AI Flow Studio"
+            >
+              <Bot className="w-5 h-5" />
+              <span className="sr-only">Automation</span>
+            </button>
+
+            {/* Hub 4: Intelligence & Reports */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHub('reports');
+                if (!['reports', 'whatsappReport', 'reviewTargets', 'sheets'].includes(activeTab)) {
+                  setActiveTab('reports');
+                }
+                if (sidebarCollapsed) setSidebarCollapsed(false);
+              }}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                activeHub === 'reports' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              title="Intelligence, Target Streaks & WhatsApp Digest"
+            >
+              <TrendingUp className="w-5 h-5" />
+              <span className="sr-only">Reports</span>
+            </button>
+
+            {/* Hub 5: Team Management */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHub('team');
+                setActiveTab('team');
+                if (sidebarCollapsed) setSidebarCollapsed(false);
+              }}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                activeHub === 'team' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              title="Team Management & Access"
+            >
+              <Users className="w-5 h-5" />
+              <span className="sr-only">Team</span>
+            </button>
+          </nav>
         </div>
 
-        {/* Location Selector */}
-        {!sidebarCollapsed ? (
-          <div className="mb-6">
-            <div className="text-[10px] uppercase font-normal text-slate-400 tracking-wider mb-2 flex items-center justify-between">
-              <span>{'Location'}</span>
-              <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">{locations.length}</span>
+        {/* Bottom Actions on Rail */}
+        <div className="space-y-3 flex flex-col items-center w-full px-2">
+          {!isAppInstalled && (
+            <button
+              type="button"
+              onClick={handleInstallAppClick}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-blue-400 hover:bg-slate-800 transition cursor-pointer"
+              title="Install Progressive Web App"
+            >
+              <Smartphone className="w-4.5 h-4.5" />
+            </button>
+          )}
+
+          {/* User Profile Avatar */}
+          {panelUser && (
+            <div 
+              onClick={() => { setActiveHub('team'); setActiveTab('team'); }}
+              className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center cursor-pointer shadow-sm ring-2 ring-slate-800 hover:scale-105 transition"
+              title={`${panelUser.name} (${panelUser.role}) - Click for Team Settings`}
+            >
+              {(panelUser.name || 'U').charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* ========================================================================= */}
+      {/* TIER 2: 224px CONTEXTUAL SUB-DRAWER (Collapsible) */}
+      {/* ========================================================================= */}
+      <aside className={`hidden md:flex ${
+        sidebarCollapsed ? 'w-0 p-0 border-none opacity-0 overflow-hidden' : 'w-56 p-3.5 border-r border-slate-200 opacity-100'
+      } bg-white h-screen flex-col justify-between sticky top-0 overflow-y-auto sidebar-scroll z-20 shrink-0 transition-all duration-200 ease-in-out`}>
+        <div className="space-y-4">
+          {/* Sub-Drawer Header with Collapse Button */}
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="min-w-0">
+              <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
+                {hubConfig[activeHub]?.title || 'Workspace'}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium block truncate">
+                {hubConfig[activeHub]?.subtitle || t.appName}
+              </span>
+            </div>
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              title="Collapse sub-panel"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Location Selector (Compact) */}
+          <div>
+            <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5 flex items-center justify-between">
+              <span>{'Business Profile'}</span>
+              <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-mono font-bold">{locations.length}</span>
             </div>
             <select 
               value={activeLoc ? (activeLoc.v4Name || activeLoc.name) : (selectedLocation || '')}
               onChange={(e) => handleLocationChange(e.target.value)}
-              className="w-full text-xs font-normal bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-700 outline-none focus:border-blue-500 cursor-pointer"
+              className="w-full text-xs font-semibold bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-blue-500 cursor-pointer transition-colors"
             >
               {locations.length === 0 ? (
                 <option value="">{authStatus ? ('No locations found') : ('Connect Google')}</option>
@@ -1967,175 +2252,89 @@ export default function App() {
               )}
             </select>
           </div>
-        ) : (
-          <div className="mb-4 flex justify-center" title={`Active: ${activeLoc?.title || 'No Location'}`}>
-            <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
-              <MapPin className="w-4 h-4 text-blue-600" />
-            </div>
-          </div>
-        )}
 
-        {/* Active Location Info Card */}
-        {!sidebarCollapsed && activeLoc && (activeLoc as any).categories && (
-          <div className="mb-6 p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-600 shadow-sm">
-            {(activeLoc as any).categories?.primaryCategory?.displayName && (
-              <div className="flex items-center gap-1.5 mb-1.5 font-medium text-slate-700">
-                <Building2 className="w-3.5 h-3.5 text-blue-500" />
-                {(activeLoc as any).categories.primaryCategory.displayName}
+          {/* Active Location Info Snippet */}
+          {activeLoc && (activeLoc as any).categories?.primaryCategory?.displayName && (
+            <div className="p-2.5 bg-blue-50/50 border border-blue-100 rounded-lg text-[11px] text-slate-700 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-blue-900 truncate">
+                <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate">{(activeLoc as any).categories.primaryCategory.displayName}</span>
               </div>
-            )}
-            {(activeLoc as any).storefrontAddress?.locality && (
-              <div className="flex items-start gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
-                <span className="leading-tight">
-                  {(activeLoc as any).storefrontAddress.addressLines?.[0]} {(activeLoc as any).storefrontAddress.locality}
-                </span>
-              </div>
-            )}
-            {activeLoc.storeCode && (
-              <div className="mt-2 text-[9px] text-slate-500 font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 inline-block">
-                Code: {activeLoc.storeCode}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Nav Tabs */}
-        <nav className="flex-1 space-y-1">
-          {navItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full sidebar-item ${sidebarCollapsed ? 'justify-center px-0 relative group' : 'px-3'} ${activeTab === item.id ? 'sidebar-item-active' : ''}`}
-              title={sidebarCollapsed ? item.label : undefined}
-            >
-              <div className={`flex items-center justify-center flex-shrink-0 ${sidebarCollapsed ? '' : 'mr-2.5'}`}>
-                {item.icon}
-              </div>
-              {!sidebarCollapsed && (
-                <>
-                  <span className={`flex-1 text-left text-sm font-normal whitespace-nowrap ${activeTab === item.id ? 'text-blue-700' : 'text-slate-900'}`}>{item.label}</span>
-                  {item.badge !== undefined && (
-                    <span className={`text-[9px] font-normal px-1.5 py-0.5 rounded-full flex-shrink-0 ml-1.5 ${
-                      typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </>
+              {(activeLoc as any).storefrontAddress?.locality && (
+                <div className="text-[10px] text-slate-500 truncate flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span className="truncate">{(activeLoc as any).storefrontAddress.locality}</span>
+                </div>
               )}
-              {sidebarCollapsed && item.badge !== undefined && (
-                <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white" />
-              )}
-            </button>
-          ))}
-        </nav>
-
-        {/* Footer Monitor Badge */}
-        <div className="mt-auto space-y-3 pt-4 border-t border-slate-100">
-          {!sidebarCollapsed ? (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-[11px] text-slate-500">
-              <div className="flex items-center justify-between mb-1">
-                <span className="flex items-center font-medium text-slate-700">
-                  <span className="status-pulse"></span> {t.monitoringActive}
-                </span>
-              </div>
-              <div className="flex justify-between text-[10px] text-slate-400">
-                <span>{"Today's Revs:"}</span>
-                <span className="font-bold text-slate-700 font-mono">+{todayReviews.length} new</span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center" title={`${t.monitoringActive}: +${todayReviews.length} new reviews today`}>
-              <span className="status-pulse mr-0"></span>
             </div>
           )}
+
+          {/* Context Sub-Items Navigation */}
+          <nav className="space-y-1 pt-1">
+            {hubConfig[activeHub]?.items.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                  activeTab === item.id 
+                    ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs font-bold' 
+                    : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 font-medium'
+                }`}
+              >
+                <span className="flex items-center gap-2 truncate">
+                  {item.icon}
+                  <span className="truncate">{item.label}</span>
+                </span>
+                {item.badge !== undefined && (
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+                    typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Footer Channel Status & Google Auth */}
+        <div className="mt-auto space-y-2.5 pt-3 border-t border-slate-100 text-xs">
+          {/* Quick Channels Health Indicator */}
+          <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5 text-[11px]">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Connected Channels</span>
+            <div className="flex items-center justify-between text-slate-700">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Google Business</span>
+              <span className="text-[10px] font-mono text-slate-400">Live</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-700">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Meta / Facebook</span>
+              <span className="text-[10px] font-mono text-slate-400">Sync</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-700">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-500"></span> Web Support Chat</span>
+              <span className="text-[10px] font-mono text-slate-400">Ready</span>
+            </div>
+          </div>
 
           {authStatus ? (
             <button 
               onClick={handleLogout} 
-              className={`w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors ${sidebarCollapsed ? 'p-2' : ''}`}
-              title={sidebarCollapsed ? t.disconnect : undefined}
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+              title={t.disconnect}
             >
               <LogOut className="w-3.5 h-3.5" />
-              {!sidebarCollapsed && t.disconnect}
+              <span>{t.disconnect}</span>
             </button>
           ) : (
             <button
               onClick={handleConnect}
-              className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md text-xs transition-colors flex items-center justify-center gap-2 shadow-sm ${sidebarCollapsed ? 'px-1' : 'px-3'}`}
-              title={sidebarCollapsed ? t.connectGoogle : undefined}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+              title={t.connectGoogle}
             >
               <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5 invert brightness-200" alt="" />
-              {!sidebarCollapsed && t.connectGoogle}
+              <span>{t.connectGoogle}</span>
             </button>
           )}
-
-          {/* PWA Install Button in Desktop Sidebar */}
-          {!isAppInstalled && (
-            <div className="mb-2">
-              {!sidebarCollapsed ? (
-                <button
-                  type="button"
-                  onClick={handleInstallAppClick}
-                  className="w-full p-2 bg-gradient-to-r from-indigo-50 to-blue-50 hover:from-indigo-100 hover:to-blue-100 border border-indigo-200/90 rounded-lg flex items-center gap-2 text-indigo-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                  title="Install GBP Live Sync on Desktop / Mobile"
-                >
-                  <Smartphone className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span className="flex-1 text-left">Install App</span>
-                  <span className="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">App</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleInstallAppClick}
-                  className="w-full flex items-center justify-center p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                  title="Install App"
-                >
-                  <Smartphone className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Panel User Profile & Logout */}
-          <div className="pt-2 border-t border-slate-200/80">
-            {!sidebarCollapsed ? (
-              <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between gap-1.5">
-                <div className="min-w-0 flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                    {panelUser?.name?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-slate-800 truncate leading-tight">
-                      {panelUser?.name || 'User'}
-                    </div>
-                    <div className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
-                      <span className={`w-1.5 h-1.5 rounded-full ${panelUser?.role === 'admin' ? 'bg-purple-500' : 'bg-blue-500'}`} />
-                      <span className="capitalize">{panelUser?.role || 'Member'}</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handlePanelLogout}
-                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
-                  title="Sign Out from Panel"
-                >
-                  <Power className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={handlePanelLogout}
-                className="w-full flex items-center justify-center p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                title={`Sign Out (${panelUser?.name})`}
-              >
-                <Power className="w-4 h-4 text-rose-500" />
-              </button>
-            )}
-          </div>
         </div>
       </aside>
 
@@ -2223,37 +2422,52 @@ export default function App() {
                 </div>
               )}
 
-              {/* Mobile Nav Links */}
-              <nav className="space-y-1 flex-1">
-                {navItems.map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full sidebar-item text-sm ${activeTab === item.id ? 'sidebar-item-active' : ''}`}
-                  >
-                    <div className="flex items-center justify-center flex-shrink-0 mr-2.5">
-                      {item.icon}
-                    </div>
-                    <span className={`flex-1 text-left text-sm font-normal whitespace-nowrap ${activeTab === item.id ? 'text-blue-700' : 'text-slate-900'}`}>{item.label}</span>
-                    {item.badge !== undefined && (
-                      <span className={`text-[9px] font-normal px-1.5 py-0.5 rounded-full flex-shrink-0 ml-1.5 ${
-                        typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {item.badge}
+              {/* Mobile Nav Links Grouped by Hub */}
+              <nav className="space-y-4 flex-1 pb-4">
+                {(Object.keys(hubConfig) as HubType[]).map(hubKey => {
+                  const hub = hubConfig[hubKey];
+                  return (
+                    <div key={hubKey} className="space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 block">
+                        {hub.title}
                       </span>
-                    )}
-                  </button>
-                ))}
+                      {hub.items.map(item => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setActiveHub(hubKey);
+                            setActiveTab(item.id);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                            activeTab === item.id 
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs font-bold' 
+                              : 'text-slate-800 hover:bg-slate-100 font-medium'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 truncate">
+                            {item.icon}
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          {item.badge !== undefined && (
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+                              typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })}
               </nav>
 
               {panelUser && (
                 <div className="mt-4 p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                      {panelUser.name.charAt(0).toUpperCase()}
+                      {(panelUser.name || 'U').charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
                       <div className="text-xs font-bold text-slate-800 truncate leading-tight">
@@ -2310,6 +2524,18 @@ export default function App() {
             >
               <Menu className="w-5 h-5" />
             </button>
+
+            {/* Desktop Expand Drawer Button if collapsed */}
+            {sidebarCollapsed && (
+              <button 
+                onClick={() => setSidebarCollapsed(false)}
+                className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0"
+                title="Expand Navigation Drawer"
+              >
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                <span className="capitalize">{activeHub}</span>
+              </button>
+            )}
 
             {/* Location / Business Title & Status (Single Line) */}
             <div 
@@ -2396,13 +2622,13 @@ export default function App() {
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
             </button>
 
-            {/* Panel User Pill & Sign Out */}
+            {/* Panel User Pill & Sign Out (Hidden on mobile < 640px to prevent header squish/wrapping; available in mobile drawer) */}
             {panelUser && (
-              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200">
+              <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200">
                 <button
                   type="button"
                   onClick={() => setActiveTab('team')}
-                  className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     activeTab === 'team'
                       ? 'bg-indigo-50 border border-indigo-300 text-indigo-700 shadow-xs'
                       : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
@@ -2410,7 +2636,7 @@ export default function App() {
                   title={`Logged in as ${panelUser.name} (${panelUser.role}). Click to manage team.`}
                 >
                   <div className="w-5 h-5 rounded-md bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                    {panelUser.name.charAt(0).toUpperCase()}
+                    {(panelUser.name || 'U').charAt(0).toUpperCase()}
                   </div>
                   <span className="hidden sm:inline font-bold truncate max-w-[90px]">
                     {panelUser.name}
@@ -2427,7 +2653,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handlePanelLogout}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
                   title="Sign Out from Panel"
                 >
                   <LogOut className="w-4 h-4" />
@@ -2437,10 +2663,10 @@ export default function App() {
           </div>
         </header>
 
-        {/* Content Container - Full Screen Edge-to-Edge */}
-        <div className="p-3 sm:p-6 lg:p-8 space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
+        {/* Content Container - Compact on Mobile, Spacious on Desktop */}
+        <div className="p-2.5 sm:p-5 lg:p-6 space-y-3.5 sm:space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
           {!authStatus && (
-            <div className="card p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="card p-4 sm:p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
               <div className="space-y-1">
                 <h3 className="text-base font-bold flex items-center gap-2">
                   <Building2 className="w-5 h-5" />
@@ -2480,21 +2706,34 @@ export default function App() {
 
           {/* ================= TAB: DASHBOARD ================= */}
           {activeTab === 'dashboard' && (
-            <div className="space-y-6">
+            <div className="space-y-3.5 sm:space-y-6">
               {/* Responsive 4 Stats Grid (2x2 on Mobile, 4x1 on Desktop) */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                <div className="card p-3.5 sm:p-5 border-l-4 border-l-blue-600">
-                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 truncate">
-                    {"Reviews Today"}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6">
+                <div 
+                  onClick={() => {
+                    setActiveTab('reviews');
+                    setReviewFilter('today');
+                    setStarFilter(null);
+                  }}
+                  className="card p-3 sm:p-5 border-l-4 border-l-blue-600 hover:shadow-md hover:border-l-blue-700 cursor-pointer transition-all group"
+                  title="Click to view today's reviews"
+                >
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider truncate">
+                      {"Reviews Today"}
+                    </div>
+                    <span className="text-[10px] text-blue-600 group-hover:underline font-semibold flex items-center gap-0.5 shrink-0">
+                      View <ChevronRight className="w-3 h-3" />
+                    </span>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-800">{todayReviews.length}</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-slate-800">{effectiveTodayCount}</div>
                   <div className="text-[10px] sm:text-[11px] text-emerald-600 mt-2 font-semibold flex items-center gap-1 truncate">
                     <TrendingUp className="w-3 h-3 shrink-0" />
-                    <span className="truncate">{todayReviews.length > 0 ? `+${todayReviews.length} today` : 'Live monitoring active'}</span>
+                    <span className="truncate">{effectiveTodayCount > 0 ? `+${effectiveTodayCount} today` : 'Live monitoring active'}</span>
                   </div>
                 </div>
 
-                <div className="card p-3.5 sm:p-5 border-l-4 border-l-amber-500">
+                <div className="card p-3 sm:p-5 border-l-4 border-l-amber-500">
                   <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
                     <span className="truncate">{'Avg Rating'}</span>
                     <span className="text-[8px] sm:text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
@@ -2512,7 +2751,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="card p-3.5 sm:p-5 border-l-4 border-l-emerald-500">
+                <div className="card p-3 sm:p-5 border-l-4 border-l-emerald-500">
                   <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
                     <span className="truncate">{'Response Rate'}</span>
                     <span className="text-[8px] sm:text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
@@ -2523,7 +2762,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="card p-3.5 sm:p-5 border-l-4 border-l-indigo-500">
+                <div className="card p-3 sm:p-5 border-l-4 border-l-indigo-500">
                   <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
                     <span className="truncate">{'Posts & Services'}</span>
                     <span className="text-[8px] sm:text-[9px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
@@ -2536,8 +2775,8 @@ export default function App() {
               </div>
 
               {/* Daily WhatsApp Growth Banner */}
-              <div className="card p-4 sm:p-5 bg-gradient-to-r from-emerald-50/70 via-teal-50/30 to-white border-emerald-200 border-l-4 border-l-emerald-600 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-                <div className="flex items-center gap-3.5">
+              <div className="card p-3.5 sm:p-5 bg-gradient-to-r from-emerald-50/70 via-teal-50/30 to-white border-emerald-200 border-l-4 border-l-emerald-600 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
+                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-sm shadow-emerald-600/20">
                     <MessageCircle className="w-5 h-5" />
                   </div>
@@ -2555,13 +2794,22 @@ export default function App() {
                     </p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => setActiveTab('whatsappReport')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-2 self-start sm:self-auto cursor-pointer flex-shrink-0"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  {'Open WhatsApp Report'}
-                </button>
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto shrink-0">
+                  <button 
+                    onClick={() => setActiveTab('reviewTargets')}
+                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+                  >
+                    <Target className="w-4 h-4 shrink-0" />
+                    <span>Daily Targets</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('whatsappReport')}
+                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+                  >
+                    <MessageCircle className="w-4 h-4 shrink-0" />
+                    <span>WhatsApp Report</span>
+                  </button>
+                </div>
               </div>
 
               {/* Row 1: Star Rating Distribution (Left) & Last 7 Days Velocity (Right) */}
@@ -2736,8 +2984,22 @@ export default function App() {
                       {'Recent Reviews & Owner Replies'}
                     </h3>
                     <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
-                      {reviews.length} {'All-Time'}
+                      {totalRatingsCount || allTimeTotalReviews || reviews.length} {'All-Time'}
                     </span>
+                    {effectiveTodayCount > 0 && (
+                      <button 
+                        onClick={() => {
+                          setActiveTab('reviews');
+                          setReviewFilter('today');
+                          setStarFilter(null);
+                        }}
+                        className="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Click to view all reviews received today"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        +{effectiveTodayCount} Today
+                      </button>
+                    )}
                   </div>
                   <button 
                     onClick={() => setActiveTab('reviews')}
@@ -2759,50 +3021,50 @@ export default function App() {
                       </p>
                     </div>
                   ) : (
-                    reviews.slice(0, 5).map((rev) => {
+                    recentReviewsList.map((rev) => {
                       const stars = parseRating(rev.starRating);
                       const hasReply = !!rev.reviewReply?.comment;
                       const todayReview = isToday(rev.createTime);
 
-                      return (
-                        <div key={rev.reviewId} className="p-4 hover:bg-slate-50/60 transition-colors space-y-2">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-3">
-                              {rev.reviewer.profilePhotoUrl ? (
-                                <img 
-                                  src={rev.reviewer.profilePhotoUrl} 
-                                  className="w-8 h-8 rounded-full border border-slate-200"
-                                  alt=""
-                                  referrerPolicy="no-referrer"
-                                />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs flex items-center justify-center flex-shrink-0">
-                                  {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
-                                </div>
-                              )}
-                              <div>
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="font-semibold text-xs text-slate-800">{rev.reviewer.displayName}</span>
-                                  {todayReview && (
-                                    <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 rounded">
-                                      TODAY
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                                  <div className="flex text-amber-400">
-                                    {[1,2,3,4,5].map(i => (
-                                      <Star key={i} className={`w-3 h-3 ${i <= stars ? 'fill-amber-400' : 'text-slate-200'}`} />
-                                    ))}
+                        return (
+                          <div key={rev.reviewId} className="p-4 hover:bg-slate-50/60 transition-colors space-y-2">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                {rev.reviewer.profilePhotoUrl ? (
+                                  <img 
+                                    src={rev.reviewer.profilePhotoUrl} 
+                                    className="w-8 h-8 rounded-full border border-slate-200"
+                                    alt=""
+                                    referrerPolicy="no-referrer"
+                                  />
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                                    {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
                                   </div>
-                                  <span>•</span>
-                                  <span>{new Date(rev.createTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                )}
+                                <div>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="font-semibold text-xs text-slate-800">{rev.reviewer.displayName}</span>
+                                    {todayReview && (
+                                      <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 rounded">
+                                        TODAY
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1 text-[11px] text-slate-400">
+                                    <div className="flex text-amber-400">
+                                      {[1,2,3,4,5].map(i => (
+                                        <Star key={i} className={`w-3 h-3 ${i <= stars ? 'fill-amber-400' : 'text-slate-200'}`} />
+                                      ))}
+                                    </div>
+                                    <span>•</span>
+                                    <span className="font-medium text-slate-500">{formatReviewTimestamp(rev.createTime)}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
 
                             {hasReply ? (
-                              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1 flex-shrink-0">
+                              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
                                 <CheckCheck className="w-3 h-3" /> {'Replied'}
                               </span>
                             ) : (
@@ -2810,18 +3072,18 @@ export default function App() {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenReplyModal(rev, true)}
-                                  className="px-2 py-1 text-[11px] font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                                  className="px-2 py-1 text-[11px] font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded transition-all flex items-center gap-1 shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
                                   title="Draft instant personalized response with Gemini AI"
                                 >
-                                  <Sparkles className="w-3 h-3" /> {'AI Reply'}
+                                  <Sparkles className="w-3 h-3 shrink-0" /> <span className="whitespace-nowrap">AI Reply</span>
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleOpenReplyModal(rev, false)}
-                                  className="px-2 py-1 text-[11px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition-colors flex items-center gap-1 cursor-pointer"
+                                  className="px-2 py-1 text-[11px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                   title="Open reply modal"
                                 >
-                                  <MessageSquare className="w-3 h-3" /> {'Reply'}
+                                  <MessageSquare className="w-3 h-3 shrink-0" /> <span className="whitespace-nowrap">Reply</span>
                                 </button>
                               </div>
                             )}
@@ -2863,6 +3125,19 @@ export default function App() {
           {/* ================= TAB: DAILY WHATSAPP REPORT ================= */}
           {activeTab === 'whatsappReport' && (
             <DailyWhatsAppReport 
+              userEmail={panelUser?.email}
+              onNavigateTab={(tab) => setActiveTab(tab as TabType)}
+              onSelectLocation={(locName) => {
+                handleLocationChange(locName);
+                setActiveTab('dashboard');
+              }}
+            />
+          )}
+
+          {/* ================= TAB: DAILY REVIEW TARGETS & GOALS ================= */}
+          {activeTab === 'reviewTargets' && (
+            <DailyReviewTargetPage 
+              userEmail={panelUser?.email}
               onSelectLocation={(locName) => {
                 handleLocationChange(locName);
                 setActiveTab('dashboard');
@@ -2879,10 +3154,15 @@ export default function App() {
             />
           )}
 
+          {/* ================= TAB: FACEBOOK SUITE ================= */}
+          {activeTab === 'facebook' && (
+            <FacebookDashboard />
+          )}
+
           {/* ================= TAB: REVIEWS & REPLIES ================= */}
           {activeTab === 'reviews' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-3.5 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div>
                   <h2 className="text-xl font-bold text-slate-800">{t.reviewsReplies}</h2>
                   <p className="text-slate-500 text-xs">
@@ -2890,21 +3170,21 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button 
                     onClick={handleDownloadCsv}
-                    className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    className="flex-1 sm:flex-initial px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    CSV
+                    <Download className="w-3.5 h-3.5 shrink-0" />
+                    <span>CSV</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('autoreply')}
-                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    className="flex-1 sm:flex-initial px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {'Auto-Reply'}
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span>Auto-Reply</span>
                   </button>
                 </div>
               </div>
@@ -2912,15 +3192,18 @@ export default function App() {
               {/* Segmented Filter Control */}
               <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg overflow-x-auto text-xs font-medium">
                 {[
-                  { id: 'all', label: `${'All'} (${reviews.length})` },
-                  { id: 'today', label: `${'Today'} (${todayReviews.length})` },
+                  { id: 'all', label: `${'All'} (${totalRatingsCount || allTimeTotalReviews || reviews.length})` },
+                  { id: 'today', label: `${'Today'} (${effectiveTodayCount})` },
                   { id: 'unreplied', label: `${'Pending'} (${pendingReviews.length})` },
                   { id: 'replied', label: `${'Replied'} (${repliedReviews.length})` },
                   { id: 'critical', label: 'Critical (1-3★)' }
                 ].map(f => (
                   <button
                     key={f.id}
-                    onClick={() => setReviewFilter(f.id as any)}
+                    onClick={() => {
+                      setReviewFilter(f.id as any);
+                      if (f.id === 'today') setStarFilter(null);
+                    }}
                     className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
                       reviewFilter === f.id ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900'
                     }`}
@@ -2967,12 +3250,12 @@ export default function App() {
                             <div className="flex items-center gap-2 flex-wrap">
                               <h4 className="font-semibold text-sm text-slate-800">{rev.reviewer.displayName}</h4>
                               {isToday(rev.createTime) && (
-                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-medium px-2 py-0.5 rounded">
+                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
                                   TODAY
                                 </span>
                               )}
-                              <span className="text-xs text-slate-400 font-mono">
-                                {new Date(rev.createTime).toLocaleDateString()}
+                              <span className="text-xs text-slate-500 font-medium">
+                                {formatReviewTimestamp(rev.createTime)}
                               </span>
                             </div>
 
@@ -2985,14 +3268,14 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                        <div className="flex items-center gap-1.5 self-start sm:self-auto flex-wrap shrink-0">
                           {hasReply ? (
-                            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
-                              <CheckCheck className="w-3.5 h-3.5" /> {'Replied'}
+                            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
+                              <CheckCheck className="w-3.5 h-3.5 shrink-0" /> <span className="whitespace-nowrap">{'Replied'}</span>
                             </span>
                           ) : (
-                            <span className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
-                              <Clock className="w-3.5 h-3.5" /> {'Pending Reply'}
+                            <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
+                              <Clock className="w-3.5 h-3.5 shrink-0" /> <span className="whitespace-nowrap">{'Pending Reply'}</span>
                             </span>
                           )}
 
@@ -3001,30 +3284,30 @@ export default function App() {
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, true)}
-                                className="px-2.5 py-1 text-xs font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md shadow-2xs transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                                className="px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md shadow-2xs transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                 title="Draft instant response with Gemini AI"
                               >
-                                <Sparkles className="w-3.5 h-3.5" />
-                                {'AI Reply'}
+                                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                                <span className="whitespace-nowrap">{'AI Reply'}</span>
                               </button>
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, false)}
-                                className="px-2.5 py-1 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-blue-200 whitespace-nowrap shrink-0"
+                                className="px-2.5 py-1 text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-blue-200 whitespace-nowrap shrink-0"
                                 title="Open reply modal"
                               >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                {'Reply'}
+                                <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                                <span className="whitespace-nowrap">{'Reply'}</span>
                               </button>
                             </div>
                           ) : (
                             <button 
                               type="button"
                               onClick={() => handleOpenReplyModal(rev, false)}
-                              className="px-3 py-1 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                              className="px-3 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                             >
-                              <Edit3 className="w-3.5 h-3.5" />
-                              {'Edit'}
+                              <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                              <span className="whitespace-nowrap">{'Edit'}</span>
                             </button>
                           )}
                         </div>
@@ -3728,6 +4011,11 @@ export default function App() {
             <TeamManagement currentUser={panelUser} />
           )}
 
+          {/* ================= TAB: WEBSITE SUPPORT CHATBOT ================= */}
+          {activeTab === 'chat' && (
+            <ChatManager panelUser={panelUser} />
+          )}
+
         </div>
       </main>
 
@@ -3741,11 +4029,11 @@ export default function App() {
 
       {/* Modal: Reply to Review */}
       {replyingReview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-6">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-xl card p-6 space-y-4 shadow-xl"
+            className="w-full max-w-xl card p-5 sm:p-6 space-y-4 shadow-xl my-auto"
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
@@ -3809,11 +4097,11 @@ export default function App() {
 
       {/* Modal: Create Post */}
       {showNewPostModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-6">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`w-full card p-6 space-y-4 shadow-xl max-h-[92vh] overflow-y-auto transition-all duration-300 ${showFbImporter ? 'max-w-5xl' : 'max-w-lg'}`}
+            className={`w-full card p-5 sm:p-6 space-y-4 shadow-xl max-h-[92vh] overflow-y-auto my-auto transition-all duration-300 ${showFbImporter ? 'max-w-5xl' : 'max-w-lg'}`}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -4287,11 +4575,11 @@ export default function App() {
 
       {/* Modal: Edit Post */}
       {showEditPostModal && editingPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-6">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`w-full card p-6 space-y-4 shadow-xl max-h-[92vh] overflow-y-auto transition-all duration-300 ${showEditFbImporter ? 'max-w-5xl' : 'max-w-lg'}`}
+            className={`w-full card p-5 sm:p-6 space-y-4 shadow-xl max-h-[92vh] overflow-y-auto my-auto transition-all duration-300 ${showEditFbImporter ? 'max-w-5xl' : 'max-w-lg'}`}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -4768,11 +5056,11 @@ export default function App() {
 
       {/* Modal: Add Service */}
       {showAddServiceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-6">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md card p-6 space-y-4 shadow-xl"
+            className="w-full max-w-md card p-5 sm:p-6 space-y-4 shadow-xl my-auto"
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-800 text-sm">Add Business Service</h3>
