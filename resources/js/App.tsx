@@ -72,6 +72,7 @@ import { InfoTooltip } from './components/InfoTooltip';
 import { FacebookDashboard } from './components/facebook/FacebookDashboard';
 import { ChatManager } from './components/chat/ChatManager';
 import { getBusinessDateStr, getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp } from './utils/dateUtils';
+import { isItemAllowedForMember } from './utils/profileIsolation';
 
 export default function App() {
   const [panelUser, setPanelUser] = useState<PanelUser | null>(null);
@@ -376,6 +377,13 @@ export default function App() {
     };
   }, []);
 
+  // Strict Profile Sync: When panelUser changes or logs in, immediately fetch only authorized locations
+  useEffect(() => {
+    if (panelUser) {
+      fetchLocations(true);
+    }
+  }, [panelUser?.id, panelUser?.role, panelUser?.assigned_wing]);
+
   const handleInstallAppClick = async () => {
     if (deferredInstallPrompt) {
       try {
@@ -467,7 +475,13 @@ export default function App() {
       const res = await fetch(`/api/gbp/locations${refresh ? '?refresh=true' : ''}`);
       if (res.ok) {
         const data = await res.json();
-        const locs: Location[] = data.locations || [];
+        let locs: Location[] = data.locations || [];
+
+        // Strict Client-Side Filter: If user is a member, strictly isolate to their assigned profile
+        if (panelUser && panelUser.role !== 'admin') {
+          locs = locs.filter(l => isItemAllowedForMember(l.title || '', l.v4Name || l.name || l.id || '', panelUser));
+        }
+
         setLocations(locs);
         if (locs.length > 0) {
           const targetClean = cleanLocationKey(selectedLocation);
@@ -1972,7 +1986,7 @@ export default function App() {
   }
 
   if (!panelUser) {
-    return <LoginPage onLoginSuccess={(user) => setPanelUser(user)} />;
+    return <LoginPage onLoginSuccess={(user) => { setPanelUser(user); fetchLocations(true); }} />;
   }
 
   if (loading) {
@@ -2046,7 +2060,7 @@ export default function App() {
     ...hubConfig.inbox.items.filter(i => i.id !== 'reviews'),
     ...hubConfig.automation.items.filter(i => i.id !== 'chat'),
     ...hubConfig.reports.items,
-    ...hubConfig.team.items
+    ...(panelUser?.role === 'admin' ? hubConfig.team.items : [])
   ];
 
   return (
@@ -2154,24 +2168,26 @@ export default function App() {
               <span className="sr-only">Reports</span>
             </button>
 
-            {/* Hub 5: Team Management */}
-            <button
-              type="button"
-              onClick={() => {
-                setActiveHub('team');
-                setActiveTab('team');
-                if (sidebarCollapsed) setSidebarCollapsed(false);
-              }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
-                activeHub === 'team' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-              title="Team Management & Access"
-            >
-              <Users className="w-5 h-5" />
-              <span className="sr-only">Team</span>
-            </button>
+            {/* Hub 5: Team Management (Admin Only) */}
+            {panelUser?.role === 'admin' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveHub('team');
+                  setActiveTab('team');
+                  if (sidebarCollapsed) setSidebarCollapsed(false);
+                }}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                  activeHub === 'team' 
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+                title="Team Management & Access"
+              >
+                <Users className="w-5 h-5" />
+                <span className="sr-only">Team</span>
+              </button>
+            )}
           </nav>
         </div>
 
@@ -2191,9 +2207,14 @@ export default function App() {
           {/* User Profile Avatar */}
           {panelUser && (
             <div 
-              onClick={() => { setActiveHub('team'); setActiveTab('team'); }}
+              onClick={() => {
+                if (panelUser?.role === 'admin') {
+                  setActiveHub('team');
+                  setActiveTab('team');
+                }
+              }}
               className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center cursor-pointer shadow-sm ring-2 ring-slate-800 hover:scale-105 transition"
-              title={`${panelUser.name} (${panelUser.role}) - Click for Team Settings`}
+              title={`${panelUser.name} (${panelUser.role})${panelUser.assigned_wing ? ` • Wing: ${panelUser.assigned_wing}` : ''}`}
             >
               {(panelUser.name || 'U').charAt(0).toUpperCase()}
             </div>
@@ -2316,24 +2337,31 @@ export default function App() {
             </div>
           </div>
 
-          {authStatus ? (
-            <button 
-              onClick={handleLogout} 
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-              title={t.disconnect}
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>{t.disconnect}</span>
-            </button>
+          {panelUser?.role === 'admin' ? (
+            authStatus ? (
+              <button 
+                onClick={handleLogout} 
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                title={t.disconnect}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{t.disconnect}</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleConnect}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+                title={t.connectGoogle}
+              >
+                <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5 invert brightness-200" alt="" />
+                <span>{t.connectGoogle}</span>
+              </button>
+            )
           ) : (
-            <button
-              onClick={handleConnect}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
-              title={t.connectGoogle}
-            >
-              <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5 invert brightness-200" alt="" />
-              <span>{t.connectGoogle}</span>
-            </button>
+            <div className="p-2 bg-slate-50 border border-slate-200/80 rounded-lg text-[10px] text-slate-500 text-center">
+              <span className="font-semibold text-slate-700 block truncate">{panelUser?.name}</span>
+              <span className="text-[9px] text-emerald-600 font-medium">● Connected via Admin</span>
+            </div>
           )}
         </div>
       </aside>
@@ -2493,16 +2521,16 @@ export default function App() {
                 </div>
               )}
 
-              <div className="pt-4 border-t border-slate-100 space-y-3">
-                {authStatus && (
+              {panelUser?.role === 'admin' && authStatus && (
+                <div className="pt-4 border-t border-slate-100 space-y-3">
                   <button 
                     onClick={handleLogout}
-                    className="w-full text-xs text-red-600 font-semibold py-1.5 text-center"
+                    className="w-full text-xs text-red-600 font-semibold py-1.5 text-center cursor-pointer"
                   >
                     {t.disconnect}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
@@ -2627,13 +2655,19 @@ export default function App() {
               <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200">
                 <button
                   type="button"
-                  onClick={() => setActiveTab('team')}
-                  className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                  onClick={() => {
+                    if (panelUser?.role === 'admin') {
+                      setActiveTab('team');
+                    }
+                  }}
+                  className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 ${
+                    panelUser?.role === 'admin' ? 'cursor-pointer' : 'cursor-default'
+                  } ${
                     activeTab === 'team'
                       ? 'bg-indigo-50 border border-indigo-300 text-indigo-700 shadow-xs'
                       : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
                   }`}
-                  title={`Logged in as ${panelUser.name} (${panelUser.role}). Click to manage team.`}
+                  title={panelUser.role === 'admin' ? `Logged in as ${panelUser.name} (Admin). Click to manage team.` : `Logged in as ${panelUser.name} (${panelUser.role})${panelUser.assigned_wing ? ` • Wing: ${panelUser.assigned_wing}` : ''}`}
                 >
                   <div className="w-5 h-5 rounded-md bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
                     {(panelUser.name || 'U').charAt(0).toUpperCase()}
@@ -3126,6 +3160,7 @@ export default function App() {
           {activeTab === 'whatsappReport' && (
             <DailyWhatsAppReport 
               userEmail={panelUser?.email}
+              currentUser={panelUser}
               onNavigateTab={(tab) => setActiveTab(tab as TabType)}
               onSelectLocation={(locName) => {
                 handleLocationChange(locName);
@@ -3138,6 +3173,7 @@ export default function App() {
           {activeTab === 'reviewTargets' && (
             <DailyReviewTargetPage 
               userEmail={panelUser?.email}
+              currentUser={panelUser}
               onSelectLocation={(locName) => {
                 handleLocationChange(locName);
                 setActiveTab('dashboard');
@@ -4008,7 +4044,17 @@ export default function App() {
 
           {/* ================= TAB: TEAM MANAGEMENT ================= */}
           {activeTab === 'team' && (
-            <TeamManagement currentUser={panelUser} />
+            panelUser?.role === 'admin' ? (
+              <TeamManagement currentUser={panelUser} availableLocations={locations} />
+            ) : (
+              <div className="p-8 text-center bg-white rounded-lg border border-slate-200 max-w-lg mx-auto mt-12 shadow-sm">
+                <ShieldCheck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-slate-800">Admin Access Required</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Team and role management is restricted to Super Admins.
+                </p>
+              </div>
+            )
           )}
 
           {/* ================= TAB: WEBSITE SUPPORT CHATBOT ================= */}
@@ -5168,7 +5214,7 @@ export default function App() {
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-extrabold text-slate-900">Install GBP Live Sync</h3>
+                <h3 className="text-base font-extrabold text-slate-900">Install Prince Edu Hub App</h3>
                 <p className="text-xs text-slate-500">Fast 1-click access right from your screen</p>
               </div>
             </div>

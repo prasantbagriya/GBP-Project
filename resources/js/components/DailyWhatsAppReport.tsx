@@ -27,18 +27,53 @@ import {
   Target,
   BarChart3
 } from 'lucide-react';
-import { ProfileReportItem, MultiProfileReportData } from '../types';
+import { ProfileReportItem, MultiProfileReportData, PanelUser } from '../types';
 import { DailyReviewTargetModal } from './DailyReviewTargetModal';
 import { getBusinessDateStr, getBusinessShiftedDate, BUSINESS_TIMEZONE } from '../utils/dateUtils';
+import { isItemAllowedForMember } from '../utils/profileIsolation';
+import { 
+  getAssignedStaffBracket, 
+  getAssignedStaffPhone, 
+  formatPhoneWithPlus91, 
+  OFFICIAL_REVIEW_TEAM 
+} from '../utils/reviewTeam';
+
+const STORAGE_KEY_DESELECTED_PROFILES = 'gbp_whatsapp_deselected_profiles';
+
+const getPersistedDeselectedList = (): string[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DESELECTED_PROFILES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+};
+
+const savePersistedDeselectedList = (list: string[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY_DESELECTED_PROFILES, JSON.stringify(list));
+  } catch {}
+};
+
+const isLocationDeselected = (loc: ProfileReportItem, deselectedList: string[]): boolean => {
+  if (!loc || !Array.isArray(deselectedList) || deselectedList.length === 0) return false;
+  return deselectedList.includes(loc.id) || 
+         Boolean(loc.name && deselectedList.includes(loc.name)) || 
+         Boolean(loc.title && deselectedList.includes(loc.title));
+};
 
 interface DailyWhatsAppReportProps {
   userEmail?: string | null;
+  currentUser?: PanelUser | null;
   onSelectLocation?: (locationName: string) => void;
   onNavigateTab?: (tab: string) => void;
 }
 
 export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   userEmail,
+  currentUser,
   onSelectLocation,
   onNavigateTab
 }) => {
@@ -47,19 +82,19 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [customNote, setCustomNote] = useState('');
-  const [targetPhone, setTargetPhone] = useState('+91 9610447938');
+  const [targetPhone, setTargetPhone] = useState('+91 7296989764');
   const [savedPhoneNumbers, setSavedPhoneNumbers] = useState<string[]>(() => {
+    const teamPhones = OFFICIAL_REVIEW_TEAM.map(m => m.phone);
     try {
       const stored = localStorage.getItem('gbp_whatsapp_saved_phones');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const defaults = ['+91 9610447938', '+91 9024031003'];
-          return Array.from(new Set([...defaults, ...parsed]));
+          return Array.from(new Set([...teamPhones, ...parsed]));
         }
       }
     } catch {}
-    return ['+91 9610447938', '+91 9024031003'];
+    return teamPhones;
   });
   const [newPhoneInput, setNewPhoneInput] = useState('');
   const [showAddPhone, setShowAddPhone] = useState(false);
@@ -73,6 +108,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   const [includeReviewLinks, setIncludeReviewLinks] = useState(false);
   const [includeSummaryFooter, setIncludeSummaryFooter] = useState(true);
   const [showNetDifference, setShowNetDifference] = useState(false);
+  const [includePhone, setIncludePhone] = useState(true);
   const [boldProfileNames, setBoldProfileNames] = useState(true);
   const [sortBy, setSortBy] = useState<'rating_asc' | 'rating_desc' | 'growth_desc' | 'reviews_desc'>('rating_asc');
 
@@ -127,6 +163,11 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
       if (res.ok) {
         const data: MultiProfileReportData = await res.json();
         if (data.locations) {
+          // Strict Profile Isolation: Non-admin members ONLY see their assigned profile
+          if (currentUser && currentUser.role !== 'admin') {
+            data.locations = data.locations.filter(l => isItemAllowedForMember(l.title || '', l.id || l.name || '', currentUser));
+          }
+
           // Sort locations initially with lowest rating first (ascending)
           data.locations.sort((a, b) => {
             const ratingA = Number(a.averageRating) || 0;
@@ -136,7 +177,12 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             }
             return (Number(a.totalReviews) || 0) - (Number(b.totalReviews) || 0);
           });
-          setSelectedIds(data.locations.map(l => l.id));
+          // Retain only profiles that the user has NOT explicitly deselected
+          const deselectedList = getPersistedDeselectedList();
+          const retainedSelected = data.locations
+            .filter(l => !isLocationDeselected(l, deselectedList))
+            .map(l => l.id);
+          setSelectedIds(retainedSelected);
         }
         setReportData(data);
       } else {
@@ -161,16 +207,40 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   const handleSelectAll = () => {
     if (!sortedLocations || sortedLocations.length === 0) return;
     if (selectedIds.length === sortedLocations.length) {
+      // User is deselecting all:
       setSelectedIds([]);
+      const allIdentifiers = sortedLocations.flatMap(l => [l.id, l.name, l.title].filter(Boolean)) as string[];
+      savePersistedDeselectedList(Array.from(new Set(allIdentifiers)));
     } else {
+      // User is selecting all:
       setSelectedIds(sortedLocations.map(l => l.id));
+      savePersistedDeselectedList([]);
     }
   };
 
   const toggleSelectProfile = (id: string) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
+    const loc = reportData?.locations?.find(l => l.id === id);
+    setSelectedIds(prev => {
+      const isCurrentlySelected = prev.includes(id);
+      const nextSelected = isCurrentlySelected 
+        ? prev.filter(item => item !== id)
+        : [...prev, id];
+
+      const currentDeselected = getPersistedDeselectedList();
+      const locIdentifiers = [id, loc?.name, loc?.title].filter(Boolean) as string[];
+
+      let updatedDeselected: string[];
+      if (isCurrentlySelected) {
+        // Was selected, now deselected -> add to deselected list so it NEVER returns automatically
+        updatedDeselected = Array.from(new Set([...currentDeselected, ...locIdentifiers]));
+      } else {
+        // Was deselected, now selected -> remove from deselected list
+        updatedDeselected = currentDeselected.filter(k => !locIdentifiers.includes(k));
+      }
+      savePersistedDeselectedList(updatedDeselected);
+
+      return nextSelected;
+    });
   };
 
   // Filtered locations included in the report, sorted by current order (lowest rating first)
@@ -231,9 +301,16 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
       // New Reviews Today: 3 
       // Average Rating: 4.6 
       // Today: 420 ➔  423
+      const staffBracket = getAssignedStaffBracket(p.title);
       const profileTitle = boldProfileNames ? `*${p.title}*` : p.title;
       const effectiveTodayNew = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
-      lines.push(`📍 ${idx + 1}. ${profileTitle}`);
+      lines.push(`📍 ${idx + 1}. ${profileTitle}${staffBracket ? ` ${staffBracket}` : ''}`);
+      if (includePhone) {
+        const staffPhone = getAssignedStaffPhone(p.title);
+        if (staffPhone) {
+          lines.push(`📞 Phone: ${staffPhone}`);
+        }
+      }
       lines.push(`New Reviews Today: ${effectiveTodayNew}`);
 
       if (includeRatings) {
@@ -286,6 +363,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
     includeReviewLinks,
     includeSummaryFooter,
     showNetDifference,
+    includePhone,
     boldProfileNames,
     selectedStats,
     customNote
@@ -621,7 +699,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           {/* Profile List Card */}
           <div className="card overflow-hidden">
             <div className="p-3 sm:p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5 bg-slate-50/70">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <button
                   onClick={handleSelectAll}
                   className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
@@ -633,9 +711,14 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   )}
                   <span>Select All</span>
                 </button>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs font-semibold text-slate-600">
                   ({selectedIds.length} of {sortedLocations?.length || 0} included)
                 </span>
+                {selectedIds.length < (sortedLocations?.length || 0) && (
+                  <span className="text-[10px] sm:text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    {(sortedLocations?.length || 0) - selectedIds.length} profile(s) deselected & excluded
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-1.5">
@@ -713,8 +796,19 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                              <h4 className="font-bold text-slate-800 text-xs sm:text-sm break-words">
-                                {idx + 1}. {loc.title}
+                              <h4 className="font-bold text-slate-800 text-xs sm:text-sm break-words flex items-center gap-1.5 flex-wrap">
+                                <span>{idx + 1}. {loc.title}</span>
+                                {getAssignedStaffBracket(loc.title) && (
+                                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                    {getAssignedStaffBracket(loc.title)}
+                                  </span>
+                                )}
+                                {getAssignedStaffPhone(loc.title) && (
+                                  <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 flex items-center gap-1">
+                                    <Phone className="w-2.5 h-2.5" />
+                                    {getAssignedStaffPhone(loc.title)}
+                                  </span>
+                                )}
                               </h4>
                               {loc.storeCode && (
                                 <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold flex-shrink-0">
@@ -724,6 +818,16 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                               <span className="text-xs text-amber-600 font-bold flex items-center gap-0.5 flex-shrink-0">
                                 {loc.averageRating} <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                               </span>
+                              {isChecked ? (
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1 flex-shrink-0">
+                                  <Check className="w-2.5 h-2.5 text-emerald-600" />
+                                  In Report
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 flex-shrink-0" title="This profile is deselected and will NOT appear in the report until checked">
+                                  Deselected (Hidden from report)
+                                </span>
+                              )}
                             </div>
 
                             {loc.address && (
@@ -901,6 +1005,19 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   className="rounded text-blue-600 focus:ring-blue-500"
                 />
                 <span>Show (+net change) in Today line</span>
+              </label>
+
+              <label className="flex items-center gap-2 text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includePhone}
+                  onChange={(e) => setIncludePhone(e.target.checked)}
+                  className="rounded text-blue-600 focus:ring-blue-500"
+                />
+                <span className="font-semibold text-emerald-800 flex items-center gap-1">
+                  <Phone className="w-3 h-3 text-emerald-600" />
+                  Include Staff Phone (+91)
+                </span>
               </label>
 
               <label className="flex items-center gap-2 text-slate-700 cursor-pointer sm:col-span-2">

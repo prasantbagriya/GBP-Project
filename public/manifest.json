@@ -1,8 +1,8 @@
 {
-  "name": "GBP Live Sync - Multi-Location Management",
-  "short_name": "GBP Sync",
-  "description": "Real-time Google Business Profile monitor, reviews management, AI post publisher, and growth tools.",
-  "start_url": "/",
+  "name": "Prince Edu Hub - GBP Review Portal",
+  "short_name": "Prince Edu Hub",
+  "description": "Official Google Business Profile management, live review sync, and customer engagement portal for Prince Edu Hub.",
+  "start_url": "/login",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

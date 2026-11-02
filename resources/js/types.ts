@@ -84,6 +84,9 @@ export interface PanelUser {
   id: number;
   name: string;
   email: string;
+  phone?: string | null;
+  assigned_wing?: string | null;
+  assigned_wings?: string[];
   role: 'admin' | 'member';
   status: 'active' | 'inactive';
   last_login_at?: string | null;
@@ -94,6 +97,9 @@ export interface TeamMember {
   id: number;
   name: string;
   email: string;
+  phone?: string | null;
+  assigned_wing?: string | null;
+  assigned_wings?: string[];
   role: 'admin' | 'member';
   status: 'active' | 'inactive';
   last_login_at?: string | null;
@@ -115,6 +121,9 @@ export interface ProfileReportItem {
   pendingCount: number;
   reviewLink?: string;
   selected?: boolean;
+  assignedStaff?: string[];
+  assignedStaffBracket?: string;
+  assignedStaffPhone?: string;
 }
 
 export interface MultiProfileReportData {

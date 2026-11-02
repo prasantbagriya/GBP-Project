@@ -7,22 +7,98 @@ use App\Http\Controllers\ChatWidgetController;
 use App\Http\Controllers\FacebookPageController;
 use App\Http\Controllers\GoogleBusinessController;
 use App\Http\Controllers\TeamController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
-// Dashboard UI
-Route::get('/', function () {
+// Public Homepage Landing (Complies with Google OAuth Verification: No login barrier, links to Privacy Policy & Terms)
+Route::view('/', 'landing')->name('landing');
+
+// Staff Portal / Dashboard UI
+Route::get('/dashboard', function () {
     return view('dashboard');
-});
+})->name('dashboard');
+Route::get('/login', function () {
+    return view('dashboard');
+})->name('login');
+Route::get('/app', function () {
+    return view('dashboard');
+})->name('app');
 
-// Legal and Compliance Pages (Required by Meta/Facebook and Google)
+// Google Search Console HTML File Verification Route
+Route::get('/google{token}.html', function ($token) {
+    return response("google-site-verification: google{$token}.html", 200)
+        ->header('Content-Type', 'text/html');
+})->where('token', '[a-zA-Z0-9_-]+');
+
+// Legal and Compliance Pages (Required by Google and Meta)
 Route::view('/privacy-policy', 'legal.privacy')->name('legal.privacy');
+Route::view('/privacy', 'legal.privacy')->name('legal.privacy.alias');
 Route::view('/terms-of-service', 'legal.terms')->name('legal.terms');
+Route::view('/terms', 'legal.terms')->name('legal.terms.alias');
 Route::view('/data-deletion', 'legal.data_deletion')->name('legal.data_deletion');
+
+// Server DB Setup Route (Runs migrations & seeders via code on the server)
+Route::match(['get', 'post'], '/api/admin/setup-db', function (Request $request) {
+    if ($request->input('key', $request->query('key')) !== 'PrinceEduHub@2026Setup') {
+        return response()->json(['error' => 'Unauthorized key.'], 403);
+    }
+
+    try {
+        if (! Schema::hasColumn('users', 'role')) {
+            DB::statement("ALTER TABLE `users` ADD `role` VARCHAR(255) NOT NULL DEFAULT 'member' AFTER `email`");
+        }
+        if (! Schema::hasColumn('users', 'status')) {
+            DB::statement("ALTER TABLE `users` ADD `status` VARCHAR(255) NOT NULL DEFAULT 'active' AFTER `role`");
+        }
+        if (! Schema::hasColumn('users', 'phone')) {
+            DB::statement('ALTER TABLE `users` ADD `phone` VARCHAR(255) NULL AFTER `email`');
+        }
+        if (! Schema::hasColumn('users', 'assigned_wing')) {
+            DB::statement('ALTER TABLE `users` ADD `assigned_wing` VARCHAR(255) NULL AFTER `phone`');
+        }
+        if (! Schema::hasColumn('users', 'last_login_at')) {
+            DB::statement('ALTER TABLE `users` ADD `last_login_at` TIMESTAMP NULL AFTER `remember_token`');
+        }
+    } catch (Throwable $e) {
+    }
+
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $migrateOutput = Artisan::output();
+    } catch (Throwable $e) {
+        $migrateOutput = 'Migrate warning: '.$e->getMessage();
+    }
+
+    Artisan::call('db:seed', [
+        '--class' => 'Database\\Seeders\\ReviewTeamSeeder',
+        '--force' => true,
+    ]);
+    $teamSeedOutput = Artisan::output();
+
+    Artisan::call('db:seed', [
+        '--class' => 'Database\\Seeders\\GbpSqlSyncSeeder',
+        '--force' => true,
+    ]);
+    $syncSeedOutput = Artisan::output();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Database tables created and seeded successfully on server!',
+        'migrate' => $migrateOutput,
+        'team_seeder' => $teamSeedOutput,
+        'sync_seeder' => $syncSeedOutput,
+    ]);
+});
 
 // Panel Authentication (Email & Password)
 Route::post('/api/auth/login', [AuthController::class, 'login']);
 Route::get('/api/auth/me', [AuthController::class, 'me']);
 Route::post('/api/auth/logout', [AuthController::class, 'logout']);
+Route::post('/api/auth/forgot-password/send-otp', [AuthController::class, 'forgotPasswordSendOtp']);
+Route::post('/api/auth/forgot-password/verify-reset', [AuthController::class, 'forgotPasswordVerifyAndReset']);
 
 // Team Management
 Route::get('/api/team/members', [TeamController::class, 'index']);

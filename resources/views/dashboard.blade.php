@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>GBP Live Sync</title>
-    <meta name="description" content="Real-time Google Business Profile monitor that syncs reviews and updates directly to Google Sheets." />
-    <meta property="og:title" content="GBP Live Sync" />
-    <meta property="og:description" content="Real-time Google Business Profile monitor that syncs reviews and updates directly to Google Sheets." />
+    <meta name="google-site-verification" content="T5VaJ-WYl09aUADf0hGF4FmF3rh-wElz2QvzRcZT8rk">
+    <title>Prince Edu Hub - GBP Review Portal</title>
+    <meta name="description" content="Official Google Business Profile management, live review sync, and customer engagement portal for Prince Edu Hub." />
+    <meta property="og:title" content="Prince Edu Hub - GBP Review Portal" />
+    <meta property="og:description" content="Official Google Business Profile management, live review sync, and customer engagement portal for Prince Edu Hub." />
     <meta name="theme-color" content="#4f46e5">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GBP Sync">
+    <meta name="apple-mobile-web-app-title" content="Prince Edu Hub">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +33,7 @@
 
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js?v=2').then(function(reg) {
+            navigator.serviceWorker.register('/sw.js?v=3').then(function(reg) {
               console.log('[PWA] ServiceWorker registered successfully:', reg.scope);
             }).catch(function(err) {
               console.warn('[PWA] ServiceWorker registration failed:', err);

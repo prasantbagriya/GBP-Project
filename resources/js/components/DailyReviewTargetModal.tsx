@@ -28,6 +28,12 @@ import {
   Edit2
 } from 'lucide-react';
 import { Location } from '../types';
+import { 
+  OFFICIAL_REVIEW_TEAM, 
+  getAssignedStaffBracket, 
+  getAssignedStaffMembersForProfile,
+  getAssignedStaffPhone
+} from '../utils/reviewTeam';
 
 export interface TargetMember {
   id: string;
@@ -172,19 +178,21 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
     // 1. Load Members
     let loadedMembers: TargetMember[] = [];
     try {
+      const storedGlobal = localStorage.getItem('gbp_global_target_members');
       const storedMembers = localStorage.getItem(membersStorageKey);
-      if (storedMembers) {
-        loadedMembers = JSON.parse(storedMembers);
+      const raw = storedGlobal || storedMembers;
+      if (raw) {
+        loadedMembers = JSON.parse(raw);
+        const isOld = loadedMembers.some((m: any) => m.name === 'Rahul Sharma' || m.name === 'Amit Verma' || m.id === 'm1');
+        if (isOld) {
+          loadedMembers = OFFICIAL_REVIEW_TEAM;
+        }
       }
     } catch {}
 
     if (!loadedMembers || loadedMembers.length === 0) {
-      // Default initial team members
-      loadedMembers = [
-        { id: 'm1', name: 'Rahul Sharma', role: 'Counselor', phone: '+91 9610447938' },
-        { id: 'm2', name: 'Amit Verma', role: 'Front Desk', phone: '+91 9024031003' },
-        { id: 'm3', name: 'Pooja Singh', role: 'Operations', phone: '' },
-      ];
+      // Official team members permanently
+      loadedMembers = OFFICIAL_REVIEW_TEAM;
       try {
         localStorage.setItem(membersStorageKey, JSON.stringify(loadedMembers));
       } catch {}
@@ -208,6 +216,68 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
       initNewPlan(35, loadedMembers);
     }
   }, [storageKey, membersStorageKey, weekInfo.startDateStr]);
+
+  // Sync team members from SQL database
+  useEffect(() => {
+    const loadTeamFromApi = async () => {
+      try {
+        const res = await fetch('/api/team/members', {
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.members)) {
+          setMembers(prev => {
+            const merged = [...prev];
+            data.members.forEach((dbM: any) => {
+              if (dbM.status === 'inactive') return;
+              const cleanDbName = dbM.name.toLowerCase().trim();
+              const existingIdx = merged.findIndex(m => 
+                m.id === ('u_' + dbM.id) || 
+                m.id === String(dbM.id) ||
+                m.name.toLowerCase().trim() === cleanDbName
+              );
+              if (existingIdx >= 0) {
+                if (dbM.phone) {
+                  merged[existingIdx] = {
+                    ...merged[existingIdx],
+                    phone: dbM.phone,
+                    role: dbM.role === 'admin' ? 'Admin' : (merged[existingIdx].role || 'Team Member')
+                  };
+                }
+              } else {
+                merged.push({
+                  id: 'u_' + dbM.id,
+                  name: dbM.name,
+                  phone: dbM.phone || undefined,
+                  role: dbM.role === 'admin' ? 'Admin' : 'Team Member',
+                });
+              }
+            });
+            try {
+              localStorage.setItem('gbp_global_target_members', JSON.stringify(merged));
+              localStorage.setItem(membersStorageKey, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load team from API', err);
+      }
+    };
+
+    loadTeamFromApi();
+
+    const handleTeamUpdate = () => {
+      loadTeamFromApi();
+    };
+
+    window.addEventListener('gbp_team_updated', handleTeamUpdate);
+    window.addEventListener('storage', handleTeamUpdate);
+    return () => {
+      window.removeEventListener('gbp_team_updated', handleTeamUpdate);
+      window.removeEventListener('storage', handleTeamUpdate);
+    };
+  }, [membersStorageKey]);
 
   // Helper to generate initial 7 days
   const initNewPlan = (targetTotal: number, currentMembers: TargetMember[]) => {
@@ -338,6 +408,8 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
     setMembers(updated);
     try {
       localStorage.setItem(membersStorageKey, JSON.stringify(updated));
+      localStorage.setItem('gbp_global_target_members', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('gbp_team_updated', { detail: updated }));
     } catch {}
   };
 
@@ -346,14 +418,43 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
     e.preventDefault();
     const name = newMemberName.trim();
     if (!name) return;
+
+    let cleanPhone = newMemberPhone.trim();
+    if (cleanPhone && !cleanPhone.startsWith('+') && !cleanPhone.startsWith('91')) {
+      const digits = cleanPhone.replace(/\D/g, '');
+      if (digits.length === 10) cleanPhone = '+91 ' + digits;
+    }
+
     const newM: TargetMember = {
       id: 'm_' + Date.now(),
       name,
-      phone: newMemberPhone.trim() || undefined,
+      phone: cleanPhone || undefined,
       role: newMemberRole.trim() || 'Team Member'
     };
     const updated = [...members, newM];
     saveMembersList(updated);
+
+    // Save to SQL database in background
+    fetch('/api/team/members', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        name: newM.name,
+        phone: newM.phone,
+        role: 'member',
+        status: 'active'
+      })
+    }).then(async res => {
+      const data = await res.json();
+      if (res.ok && data.success && data.member?.id) {
+        setMembers(prev => prev.map(m => m.id === newM.id ? { ...m, id: 'u_' + data.member.id } : m));
+      }
+    }).catch(err => console.error('Failed to sync new member to SQL DB', err));
+
     setNewMemberName('');
     setNewMemberPhone('');
     setNewMemberRole('');
@@ -510,6 +611,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
     if (!messageDay) return '';
 
     const businessTitle = currentLocation?.title || 'Google Business Profile';
+    const staffBracket = getAssignedStaffBracket(businessTitle);
     const placeId = currentLocation?.metadata?.placeId;
     const reviewLink = placeId 
       ? `https://search.google.com/local/writereview?placeid=${placeId}`
@@ -517,7 +619,11 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
 
     let lines: string[] = [];
     lines.push('🎯 *DAILY GOOGLE REVIEW TARGET*');
-    lines.push(`🏢 *Location:* ${businessTitle}`);
+    lines.push(`🏢 *Location:* ${businessTitle}${staffBracket ? ` ${staffBracket}` : ''}`);
+    const staffPhone = getAssignedStaffPhone(businessTitle);
+    if (staffPhone) {
+      lines.push(`📞 *Phone:* ${staffPhone}`);
+    }
     lines.push(`📅 *Day:* ${messageDay.dayNameEn} (${messageDay.dayNameHi}) | ${messageDay.dateDisplay}`);
     lines.push('------------------------------------');
     lines.push(`🎯 *Today\'s Branch Target:* ${messageDay.targetReviews} Reviews`);
@@ -708,7 +814,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
 
         <div class="header">
           <div>
-            <h1 class="brand-title">${businessTitle}</h1>
+            <h1 class="brand-title">${businessTitle} ${getAssignedStaffBracket(businessTitle)}</h1>
             <div class="brand-sub">${address ? `${address} | ` : ''}Google Business Profile Target Report</div>
           </div>
           <div class="report-tag">

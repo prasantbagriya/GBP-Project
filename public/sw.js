@@ -1,6 +1,7 @@
-const CACHE_NAME = 'gbp-sync-v2';
+const CACHE_NAME = 'gbp-sync-v3';
 const PRECACHE_URLS = [
   '/',
+  '/login',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png'

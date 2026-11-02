@@ -41,8 +41,16 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { Location, ProfileReportItem, MultiProfileReportData } from '../types';
+import { Location, ProfileReportItem, MultiProfileReportData, PanelUser } from '../types';
 import { getBusinessShiftedDate } from '../utils/dateUtils';
+import { isItemAllowedForMember } from '../utils/profileIsolation';
+import { 
+  OFFICIAL_REVIEW_TEAM, 
+  getAssignedStaffBracket, 
+  getAssignedStaffMembersForProfile,
+  getAssignedStaffPhone,
+  formatPhoneWithPlus91
+} from '../utils/reviewTeam';
 
 export interface TargetMember {
   id: string;
@@ -68,6 +76,7 @@ export interface ProfileTargetConfig {
 
 interface DailyReviewTargetPageProps {
   userEmail?: string | null;
+  currentUser?: PanelUser | null;
   onSelectLocation?: (locationName: string) => void;
 }
 
@@ -83,6 +92,7 @@ const DAY_NAMES = [
 
 export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   userEmail,
+  currentUser,
   onSelectLocation
 }) => {
   const [loading, setLoading] = useState(true);
@@ -124,17 +134,24 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
 
   const [activeViewDayIdx, setActiveViewDayIdx] = useState<number>(currentDayIndex);
 
-  // Group Members
+  // Group Members (Permanently assigned to wings)
   const [members, setMembers] = useState<TargetMember[]>(() => {
     try {
       const stored = localStorage.getItem('gbp_global_target_members');
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const isOld = parsed.some((m: any) => m.name === 'Rahul Sharma' || m.name === 'Amit Verma' || m.id === 'm1');
+          if (!isOld) {
+            return parsed;
+          }
+        }
+      }
     } catch {}
-    return [
-      { id: 'm1', name: 'Rahul Sharma', role: 'Senior Counselor', phone: '+91 9610447938' },
-      { id: 'm2', name: 'Amit Verma', role: 'Front Desk Lead', phone: '+91 9024031003' },
-      { id: 'm3', name: 'Pooja Singh', role: 'Operations & Admissions', phone: '' },
-    ];
+    try {
+      localStorage.setItem('gbp_global_target_members', JSON.stringify(OFFICIAL_REVIEW_TEAM));
+    } catch {}
+    return OFFICIAL_REVIEW_TEAM;
   });
 
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
@@ -192,6 +209,67 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     fetchData();
   }, []);
 
+  // Load and sync team members from SQL database
+  useEffect(() => {
+    const loadTeamFromApi = async () => {
+      try {
+        const res = await fetch('/api/team/members', {
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.members)) {
+          setMembers(prev => {
+            const merged = [...prev];
+            data.members.forEach((dbM: any) => {
+              if (dbM.status === 'inactive') return;
+              const cleanDbName = dbM.name.toLowerCase().trim();
+              const existingIdx = merged.findIndex(m => 
+                m.id === ('u_' + dbM.id) || 
+                m.id === String(dbM.id) ||
+                m.name.toLowerCase().trim() === cleanDbName
+              );
+              if (existingIdx >= 0) {
+                if (dbM.phone) {
+                  merged[existingIdx] = {
+                    ...merged[existingIdx],
+                    phone: dbM.phone,
+                    role: dbM.role === 'admin' ? 'Admin' : (merged[existingIdx].role || 'Team Member')
+                  };
+                }
+              } else {
+                merged.push({
+                  id: 'u_' + dbM.id,
+                  name: dbM.name,
+                  phone: dbM.phone || undefined,
+                  role: dbM.role === 'admin' ? 'Admin' : 'Team Member',
+                });
+              }
+            });
+            try {
+              localStorage.setItem('gbp_global_target_members', JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load team from API', err);
+      }
+    };
+
+    loadTeamFromApi();
+
+    const handleTeamUpdate = () => {
+      loadTeamFromApi();
+    };
+
+    window.addEventListener('gbp_team_updated', handleTeamUpdate);
+    window.addEventListener('storage', handleTeamUpdate);
+    return () => {
+      window.removeEventListener('gbp_team_updated', handleTeamUpdate);
+      window.removeEventListener('storage', handleTeamUpdate);
+    };
+  }, []);
+
   const fetchData = async (forceRefresh: boolean = false) => {
     setLoading(true);
     setErrorMessage(null);
@@ -200,6 +278,11 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       if (res.ok) {
         const data: MultiProfileReportData = await res.json();
         if (data.locations) {
+          // Strict Profile Isolation: Non-admin members ONLY see their assigned profile
+          if (currentUser && currentUser.role !== 'admin') {
+            data.locations = data.locations.filter(l => isItemAllowedForMember(l.title || '', l.id || l.name || '', currentUser));
+          }
+
           // Sort strictly lowest rating first (Ascending order)
           data.locations.sort((a, b) => {
             const ratingA = Number(a.averageRating) || 0;
@@ -207,7 +290,21 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
             if (ratingA !== ratingB) return ratingA - ratingB;
             return (Number(a.totalReviews) || 0) - (Number(b.totalReviews) || 0);
           });
-          setSelectedProfileIds(data.locations.map(l => l.id));
+          // Retain only profiles that are NOT deselected
+          let deselectedList: string[] = [];
+          try {
+            const raw = localStorage.getItem('gbp_whatsapp_deselected_profiles');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) deselectedList = parsed;
+            }
+          } catch {}
+          const isDeselected = (l: ProfileReportItem) => {
+            return deselectedList.includes(l.id) || 
+                   Boolean(l.name && deselectedList.includes(l.name)) || 
+                   Boolean(l.title && deselectedList.includes(l.title));
+          };
+          setSelectedProfileIds(data.locations.filter(l => !isDeselected(l)).map(l => l.id));
         }
         setReportData(data);
         loadTargetConfigs(data.locations || []);
@@ -239,19 +336,29 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
 
     const newMap: { [id: string]: ProfileTargetConfig } = { ...savedMap };
 
-    locs.forEach((loc, idx) => {
+    locs.forEach((loc) => {
+      const permanentMembers = getAssignedStaffMembersForProfile(loc.title || loc.name || loc.id);
+      const permanentIds = permanentMembers.map(m => m.id);
+
       if (!newMap[loc.id]) {
         const weekly = 35;
         const daily = generateRandom1to10Targets(weekly);
-        const defaultMember = members[idx % Math.max(1, members.length)];
         newMap[loc.id] = {
           weeklyTarget: weekly,
           dailyTargets: daily,
           verifiedReviews: [0, 0, 0, 0, 0, 0, 0],
           isVerified: [false, false, false, false, false, false, false],
-          assignedMemberIds: defaultMember ? [defaultMember.id] : [],
+          assignedMemberIds: permanentIds.length > 0 ? permanentIds : [],
           memberAssignments: {}
         };
+      } else {
+        // Automatically ensure permanent assignments are locked in for existing map
+        const existing = newMap[loc.id];
+        const hasLegacy = !existing.assignedMemberIds || existing.assignedMemberIds.length === 0 || 
+          existing.assignedMemberIds.some(id => id === 'm1' || id === 'm2' || id === 'm3');
+        if (hasLegacy && permanentIds.length > 0) {
+          existing.assignedMemberIds = permanentIds;
+        }
       }
     });
 
@@ -601,17 +708,47 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   const handleAddMember = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMemberName.trim()) return;
+
+    let cleanPhone = newMemberPhone.trim();
+    if (cleanPhone && !cleanPhone.startsWith('+') && !cleanPhone.startsWith('91')) {
+      const digits = cleanPhone.replace(/\D/g, '');
+      if (digits.length === 10) cleanPhone = '+91 ' + digits;
+    }
+
     const newM: TargetMember = {
       id: 'm_' + Date.now(),
       name: newMemberName.trim(),
-      phone: newMemberPhone.trim() || undefined,
+      phone: cleanPhone || undefined,
       role: newMemberRole.trim() || 'Team Member'
     };
     const updated = [...members, newM];
     setMembers(updated);
     try {
       localStorage.setItem('gbp_global_target_members', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('gbp_team_updated', { detail: updated }));
     } catch {}
+
+    // Persist to SQL database
+    fetch('/api/team/members', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        name: newM.name,
+        phone: newM.phone,
+        role: 'member',
+        status: 'active'
+      })
+    }).then(async res => {
+      const data = await res.json();
+      if (res.ok && data.success && data.member?.id) {
+        setMembers(prev => prev.map(m => m.id === newM.id ? { ...m, id: 'u_' + data.member.id } : m));
+      }
+    }).catch(err => console.error('Failed to sync new member to SQL DB', err));
+
     setNewMemberName('');
     setNewMemberPhone('');
     setNewMemberRole('');
@@ -729,11 +866,25 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     return fallbackMember ? `@${fallbackMember.name}` : '@All Branch Staff';
   };
 
+  // Helper to format staff phone numbers with +91 for a profile
+  const getStaffPhoneForProfile = (profileId: string, profileTitle: string): string => {
+    const conf = targetsMap[profileId];
+    if (conf?.assignedMemberIds && conf.assignedMemberIds.length > 0) {
+      const assigned = members.filter(m => conf.assignedMemberIds!.includes(m.id));
+      const phones = assigned.map(m => formatPhoneWithPlus91(m.phone)).filter(Boolean);
+      if (phones.length > 0) {
+        return phones.join(', ');
+      }
+    }
+    return getAssignedStaffPhone(profileTitle);
+  };
+
   // ================= 1. SUBAH (MORNING) TARGET KICKOFF REPORT =================
   // Strict format:
   // - Headline
   // - Business Name
   // - Member Name
+  // - Phone (+91)
   // - Review Target aaj ka
   // - NO review link, NO extra text paragraphs
   const morningWhatsAppMessage = useMemo(() => {
@@ -755,9 +906,14 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       const conf = targetsMap[p.id];
       const targetForDay = conf?.dailyTargets[activeViewDayIdx] ?? 5;
       const staffTag = getStaffTagForProfile(p.id, idx);
+      const staffBracket = getAssignedStaffBracket(p.title);
+      const staffPhone = getStaffPhoneForProfile(p.id, p.title);
 
-      lines.push(`📍 ${idx + 1}. *${p.title}*`);
+      lines.push(`📍 ${idx + 1}. *${p.title}*${staffBracket ? ` ${staffBracket}` : ''}`);
       lines.push(`👤 Staff: ${staffTag}`);
+      if (staffPhone) {
+        lines.push(`📞 Phone: ${staffPhone}`);
+      }
       lines.push(`🎯 Today\'s Target: ${targetForDay} Reviews`);
       lines.push('');
     });
@@ -812,6 +968,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
         : effectiveToday;
       const diff = deliveredToday - targetForDay;
       const staffTag = getStaffTagForProfile(p.id, idx);
+      const staffBracket = getAssignedStaffBracket(p.title);
 
       let statusLine = '';
       if (diff === 0) {
@@ -822,8 +979,12 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
         statusLine = `📊 Status: ⚠️ Incomplete (${Math.abs(diff)} Short)`;
       }
 
-      lines.push(`📍 ${idx + 1}. *${p.title}*`);
+      lines.push(`📍 ${idx + 1}. *${p.title}*${staffBracket ? ` ${staffBracket}` : ''}`);
       lines.push(`👤 Staff: ${staffTag}`);
+      const staffPhone = getStaffPhoneForProfile(p.id, p.title);
+      if (staffPhone) {
+        lines.push(`📞 Phone: ${staffPhone}`);
+      }
       lines.push(`🎯 Target: ${targetForDay} Reviews | Delivered: ${deliveredToday} Reviews`);
       lines.push(statusLine);
       lines.push(`📈 Total Reviews: ${p.beforeTodayReviews} ➔ ${p.totalReviews}`);
@@ -993,7 +1154,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
               return `
                 <tr>
                   <td>${idx + 1}</td>
-                  <td><strong>${p.title}</strong></td>
+                  <td><strong>${p.title}</strong> ${getAssignedStaffBracket(p.title)}</td>
                   <td>${p.averageRating} ★</td>
                   <td><strong>${weeklyTarget}</strong></td>
                   ${dailyT.map((t, dIdx) => {
@@ -1337,28 +1498,45 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                       </td>
 
                       <td className="p-3">
-                        <div className="font-bold text-slate-800 text-xs sm:text-sm">
-                          {p.title}
+                        <div className="font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-1.5 flex-wrap">
+                          <span>{p.title}</span>
+                          {getAssignedStaffBracket(p.title) && (
+                            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                              {getAssignedStaffBracket(p.title)}
+                            </span>
+                          )}
                         </div>
                         {p.address && (
                           <div className="text-[11px] text-slate-400 truncate max-w-xs">{p.address}</div>
                         )}
-                        {/* Assigned Staff Member Dropdown */}
-                        <div className="flex items-center gap-1.5 mt-1.5">
+                        {/* Assigned Staff Member Display / Selector */}
+                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                           <Users className="w-3 h-3 text-slate-400 shrink-0" />
-                          <select
-                            value={conf.assignedMemberIds?.[0] || ''}
-                            onChange={(e) => handleAssignMemberToProfile(p.id, e.target.value)}
-                            className="text-[10px] bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700 font-semibold cursor-pointer outline-none max-w-[150px] truncate"
-                            title="Assign staff member to this branch"
-                          >
-                            <option value="">All Branch Staff</option>
-                            {members.map(m => (
-                              <option key={m.id} value={m.id}>
-                                {m.name} ({m.role || 'Staff'})
-                              </option>
-                            ))}
-                          </select>
+                          {conf.assignedMemberIds && conf.assignedMemberIds.length > 1 ? (
+                            <span className="text-[10px] bg-emerald-100/70 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 rounded font-bold">
+                              {members.filter(m => conf.assignedMemberIds!.includes(m.id)).map(m => m.name).join(' & ')}
+                            </span>
+                          ) : (
+                            <select
+                              value={conf.assignedMemberIds?.[0] || ''}
+                              onChange={(e) => handleAssignMemberToProfile(p.id, e.target.value)}
+                              className="text-[10px] bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700 font-semibold cursor-pointer outline-none max-w-[150px] truncate"
+                              title="Assign staff member to this branch"
+                            >
+                              <option value="">All Branch Staff</option>
+                              {members.map(m => (
+                                <option key={m.id} value={m.id}>
+                                  {m.name} ({m.role || 'Staff'})
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {getStaffPhoneForProfile(p.id, p.title) && (
+                            <span className="text-[10px] text-blue-700 font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 flex items-center gap-1">
+                              <Phone className="w-2.5 h-2.5 text-blue-600" />
+                              {getStaffPhoneForProfile(p.id, p.title)}
+                            </span>
+                          )}
                         </div>
                       </td>
 

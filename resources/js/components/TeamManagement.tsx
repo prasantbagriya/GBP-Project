@@ -30,21 +30,78 @@ import {
   UserCheck,
   UserX,
   ShieldAlert,
-  Loader2
+  Loader2,
+  Phone,
+  Building2
 } from 'lucide-react';
 import { PanelUser, TeamMember } from '../types';
 
+const WING_PRESETS = [
+  'Prince Hospital',
+  'Prince NDA Academy - NDA (UPSC + SSB)',
+  'PCP Sikar (Prime Branch)',
+  'Floreto World School, Sikar',
+  'Prince College Sikar',
+  'Prince Academy of Higher Education',
+  'Prince RBSE School - Palwas Road Campus',
+  'Prince Defence Academy',
+  'Prince Sainik School',
+  'Prince RBSE School - Piprali Road Campus',
+  'Prince Lotus Valley School - Palwas Road Campus',
+  'PCP Piprali Road',
+  'PCP Jaipur',
+  'Prince School - Palwas Road',
+  'Prince Academy - Palwas Road',
+  'Prince Eduhub - Palwas Road',
+  'Prince School - Piprali Road',
+  'Prince College - Palwas Road',
+  'Prince IIT & NEET - Piprali Road',
+  'Prince Hospital & Emergency - Palwas Road',
+];
+
 interface TeamManagementProps {
   currentUser: PanelUser | null;
+  availableLocations?: Array<{ title: string; name?: string; v4Name?: string }>;
 }
 
-export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) => {
+export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, availableLocations }) => {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'member'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+
+  const profileOptions = useMemo(() => {
+    const list: string[] = [];
+    const seen = new Set<string>();
+
+    if (availableLocations && availableLocations.length > 0) {
+      availableLocations.forEach((loc) => {
+        const t = loc.title?.trim();
+        if (t && !seen.has(t.toLowerCase())) {
+          seen.add(t.toLowerCase());
+          list.push(t);
+        }
+      });
+    }
+
+    WING_PRESETS.forEach((preset) => {
+      if (!seen.has(preset.toLowerCase())) {
+        seen.add(preset.toLowerCase());
+        list.push(preset);
+      }
+    });
+
+    members.forEach((m) => {
+      if (m.assigned_wing?.trim() && !seen.has(m.assigned_wing.trim().toLowerCase())) {
+        seen.add(m.assigned_wing.trim().toLowerCase());
+        list.push(m.assigned_wing.trim());
+      }
+    });
+
+    return list;
+  }, [availableLocations, members]);
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -55,6 +112,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
   // Form states for Add Member
   const [addName, setAddName] = useState('');
   const [addEmail, setAddEmail] = useState('');
+  const [addPhone, setAddPhone] = useState('');
+  const [addAssignedWing, setAddAssignedWing] = useState('');
   const [addPassword, setAddPassword] = useState('');
   const [addRole, setAddRole] = useState<'admin' | 'member'>('member');
   const [addStatus, setAddStatus] = useState<'active' | 'inactive'>('active');
@@ -64,6 +123,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
   // Form states for Edit Member
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editAssignedWing, setEditAssignedWing] = useState('');
   const [editRole, setEditRole] = useState<'admin' | 'member'>('member');
   const [editStatus, setEditStatus] = useState<'active' | 'inactive'>('active');
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
@@ -89,6 +150,22 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
     }, 4500);
   };
 
+  const syncToPlanner = (membersList: TeamMember[]) => {
+    try {
+      const activeOnly = membersList.filter(m => m.status === 'active');
+      const targetMembers = activeOnly.map(m => ({
+        id: 'u_' + m.id,
+        name: m.name,
+        phone: m.phone || undefined,
+        role: m.role === 'admin' ? 'Admin' : 'Team Member',
+      }));
+      localStorage.setItem('gbp_global_target_members', JSON.stringify(targetMembers));
+      window.dispatchEvent(new CustomEvent('gbp_team_updated', { detail: targetMembers }));
+    } catch (e) {
+      console.error('Failed to sync team to planner', e);
+    }
+  };
+
   const fetchMembers = async (isManualRefresh = false) => {
     if (isManualRefresh) setRefreshing(true);
     else setLoading(true);
@@ -103,7 +180,9 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setMembers(data.members || []);
+        const fetched = data.members || [];
+        setMembers(fetched);
+        syncToPlanner(fetched);
       } else {
         showToast('error', data.error || 'Failed to load team members');
       }
@@ -131,6 +210,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
   const handleOpenAddModal = () => {
     setAddName('');
     setAddEmail('');
+    setAddPhone('');
+    setAddAssignedWing('');
     setAddPassword(generateRandomPassword());
     setAddRole('member');
     setAddStatus('active');
@@ -157,6 +238,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
         body: JSON.stringify({
           name: addName.trim(),
           email: addEmail.trim(),
+          phone: addPhone.trim() || undefined,
+          assigned_wing: addRole === 'admin' ? '*' : (addAssignedWing.trim() || undefined),
           password: addPassword,
           role: addRole,
           status: addStatus
@@ -182,6 +265,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
     setEditingMember(member);
     setEditName(member.name);
     setEditEmail(member.email);
+    setEditPhone(member.phone || '');
+    setEditAssignedWing(member.assigned_wing || '');
     setEditRole(member.role);
     setEditStatus(member.status);
   };
@@ -202,6 +287,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
         body: JSON.stringify({
           name: editName.trim(),
           email: editEmail.trim(),
+          phone: editPhone.trim() || undefined,
+          assigned_wing: editRole === 'admin' ? '*' : (editAssignedWing.trim() || undefined),
           role: editRole,
           status: editStatus
         })
@@ -530,6 +617,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600">
                   <th className="py-3.5 px-4 sm:px-6">User</th>
                   <th className="py-3.5 px-4">Role</th>
+                  <th className="py-3.5 px-4">Assigned Profile</th>
                   <th className="py-3.5 px-4">Status</th>
                   <th className="py-3.5 px-4 hidden md:table-cell">Last Login</th>
                   <th className="py-3.5 px-4 text-right">Actions</th>
@@ -568,9 +656,17 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
-                              <Mail className="w-3 h-3 text-slate-400" />
-                              {member.email}
+                            <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-2 flex-wrap">
+                              <span className="flex items-center gap-1">
+                                <Mail className="w-3 h-3 text-slate-400" />
+                                {member.email}
+                              </span>
+                              {member.phone && (
+                                <span className="inline-flex items-center gap-1 text-emerald-700 font-medium">
+                                  <Phone className="w-3 h-3 text-emerald-600" />
+                                  {member.phone}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -587,6 +683,21 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                             <User className="w-3 h-3 text-blue-600" />
                             Member
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Assigned Profile / Wing */}
+                      <td className="py-4 px-4">
+                        {isAdminMember ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                            <Sparkles className="w-3 h-3 text-purple-600" />
+                            All Profiles (*)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 max-w-[200px] truncate" title={member.assigned_wing || 'Not Assigned'}>
+                            <Building2 className="w-3 h-3 text-blue-600 shrink-0" />
+                            <span className="truncate">{member.assigned_wing || 'Not Assigned'}</span>
                           </span>
                         )}
                       </td>
@@ -732,6 +843,26 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
                 />
               </div>
 
+              {/* Phone / WhatsApp Number */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Phone / WhatsApp Number (with +91)
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Phone className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={addPhone}
+                    onChange={(e) => setAddPhone(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">Used for WhatsApp daily review reports (+91).</p>
+              </div>
+
               {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -806,6 +937,34 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
                   </button>
                 </div>
               </div>
+
+              {/* Assigned Profile (Strict Isolation) */}
+              {addRole === 'member' ? (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Assigned Profile / Wing</span>
+                    <span className="text-[10px] text-blue-600 font-medium">Strict Access Isolation</span>
+                  </label>
+                  <select
+                    value={addAssignedWing}
+                    onChange={(e) => setAddAssignedWing(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm focus:outline-none focus:border-blue-600 cursor-pointer shadow-2xs"
+                  >
+                    <option value="">Select profile to assign...</option>
+                    {profileOptions.map((wing) => (
+                      <option key={wing} value={wing}>{wing}</option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Member will strictly access ONLY this profile. All other branch data remains hidden.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-md bg-purple-50 border border-purple-200 text-xs text-purple-800 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span>Super Admin automatically has full control over all profiles (*).</span>
+                </div>
+              )}
 
               {/* Status */}
               <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-50 border border-slate-200">
@@ -903,6 +1062,24 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Phone / WhatsApp Number (with +91)
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Phone className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-600 shadow-2xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Role
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -937,6 +1114,34 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser }) =
                   </button>
                 </div>
               </div>
+
+              {/* Assigned Profile (Strict Isolation) */}
+              {editRole === 'member' ? (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Assigned Profile / Wing</span>
+                    <span className="text-[10px] text-blue-600 font-medium">Strict Access Isolation</span>
+                  </label>
+                  <select
+                    value={editAssignedWing}
+                    onChange={(e) => setEditAssignedWing(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm focus:outline-none focus:border-blue-600 cursor-pointer shadow-2xs"
+                  >
+                    <option value="">Select profile to assign...</option>
+                    {profileOptions.map((wing) => (
+                      <option key={wing} value={wing}>{wing}</option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Member will strictly access ONLY this profile. All other branch data remains hidden.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-md bg-purple-50 border border-purple-200 text-xs text-purple-800 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span>Super Admin automatically has full control over all profiles (*).</span>
+                </div>
+              )}
 
               <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-50 border border-slate-200">
                 <span className="text-xs font-semibold text-slate-700">Account Status</span>

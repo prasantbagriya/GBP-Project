@@ -6,7 +6,11 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class AuthController extends Controller
 {
@@ -15,25 +19,57 @@ class AuthController extends Controller
      */
     public static function ensureDefaultAdmin(): User
     {
-        $existingAdmin = User::where('role', 'admin')->first();
-        if ($existingAdmin) {
-            return $existingAdmin;
+        // Self-heal: ensure users table has required role, status, and assigned_wing columns
+        try {
+            if (! Schema::hasColumn('users', 'status') || ! Schema::hasColumn('users', 'assigned_wing')) {
+                Schema::table('users', function ($table) {
+                    if (! Schema::hasColumn('users', 'role')) {
+                        $table->string('role')->default('member');
+                    }
+                    if (! Schema::hasColumn('users', 'status')) {
+                        $table->string('status')->default('active');
+                    }
+                    if (! Schema::hasColumn('users', 'phone')) {
+                        $table->string('phone')->nullable();
+                    }
+                    if (! Schema::hasColumn('users', 'assigned_wing')) {
+                        $table->string('assigned_wing')->nullable();
+                    }
+                    if (! Schema::hasColumn('users', 'last_login_at')) {
+                        $table->timestamp('last_login_at')->nullable();
+                    }
+                });
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Auto-migration for users columns skipped: '.$e->getMessage());
         }
 
-        $anyUser = User::first();
-        if ($anyUser) {
-            $anyUser->update(['role' => 'admin']);
-
-            return $anyUser;
+        try {
+            $existingAdmin = User::where('email', 'admin@gmb.princeeduhub.com')->first();
+            if ($existingAdmin) {
+                return $existingAdmin;
+            }
+        } catch (\Throwable $e) {
         }
 
-        return User::create([
-            'name' => 'Admin',
-            'email' => 'admin@coachingsinsikar.com',
-            'password' => Hash::make('Admin@123456'),
-            'role' => 'admin',
-            'status' => 'active',
-        ]);
+        $userData = [
+            'name' => 'Prince Super Admin',
+            'password' => Hash::make('?=.6B#%{!E$?'),
+        ];
+        if (Schema::hasColumn('users', 'role')) {
+            $userData['role'] = 'admin';
+        }
+        if (Schema::hasColumn('users', 'status')) {
+            $userData['status'] = 'active';
+        }
+        if (Schema::hasColumn('users', 'assigned_wing')) {
+            $userData['assigned_wing'] = '*';
+        }
+
+        return User::updateOrCreate(
+            ['email' => 'admin@gmb.princeeduhub.com'],
+            $userData
+        );
     }
 
     /**
@@ -41,8 +77,8 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        // Auto-seed default admin if no users exist
-        if (User::count() === 0) {
+        // Auto-seed default admin if no admin user exists
+        if (User::where('role', 'admin')->count() === 0) {
             self::ensureDefaultAdmin();
         }
 
@@ -75,8 +111,12 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role ?? 'member',
                 'status' => $user->status ?? 'active',
+                'assigned_wing' => $user->assigned_wing,
+                'assigned_wings' => $user->getAssignedWings(),
+                'is_admin' => $user->isAdmin(),
                 'last_login_at' => $user->last_login_at ? $user->last_login_at->toIso8601String() : null,
             ],
         ]);
@@ -88,7 +128,7 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         // Make sure at least default admin exists
-        if (User::count() === 0) {
+        if (User::where('role', 'admin')->count() === 0) {
             self::ensureDefaultAdmin();
         }
 
@@ -118,6 +158,8 @@ class AuthController extends Controller
             ], 403);
         }
 
+        $request->session()->forget(['google_token', 'location_v4_map', 'store_hours']);
+
         // Log the user in
         Auth::login($user, $remember);
         $request->session()->regenerate();
@@ -133,9 +175,118 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role ?? 'member',
                 'status' => $user->status ?? 'active',
+                'assigned_wing' => $user->assigned_wing,
+                'assigned_wings' => $user->getAssignedWings(),
+                'is_admin' => $user->isAdmin(),
                 'last_login_at' => $user->last_login_at ? $user->last_login_at->toIso8601String() : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Send Password Reset OTP to user email.
+     */
+    public function forgotPasswordSendOtp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
+        ]);
+
+        $email = strtolower(trim($validated['email']));
+        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email address.',
+            ], 404);
+        }
+
+        if ($user->status === 'inactive') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This account has been deactivated. Please contact your administrator.',
+            ], 403);
+        }
+
+        $otp = (string) random_int(100000, 999999);
+        Cache::put('pwd_reset_otp_'.$email, $otp, now()->addMinutes(15));
+
+        try {
+            Mail::send('emails.otp', ['otp' => $otp, 'user' => $user], function ($msg) use ($email, $user) {
+                $msg->to($email, $user->name)
+                    ->subject('Prince Eduhub Password Reset OTP: '.$otp);
+            });
+        } catch (\Throwable $e) {
+            Log::warning("Password reset OTP mail failed for {$email}: ".$e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => '6-digit OTP has been sent to your registered email.',
+            'email' => $email,
+            'debug_otp' => app()->environment('local', 'testing') ? $otp : null,
+        ]);
+    }
+
+    /**
+     * Verify OTP and set new password.
+     */
+    public function forgotPasswordVerifyAndReset(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'otp' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6'],
+        ]);
+
+        $email = strtolower(trim($validated['email']));
+        $enteredOtp = trim($validated['otp']);
+        $newPassword = $validated['password'];
+
+        $cachedOtp = Cache::get('pwd_reset_otp_'.$email);
+
+        if (! $cachedOtp || $cachedOtp !== $enteredOtp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired OTP code. Please request a new code.',
+            ], 422);
+        }
+
+        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User account not found.',
+            ], 404);
+        }
+
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        Cache::forget('pwd_reset_otp_'.$email);
+
+        // Auto login user upon successful password reset
+        Auth::login($user, true);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully! You are now logged in.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role ?? 'member',
+                'status' => $user->status ?? 'active',
+                'assigned_wing' => $user->assigned_wing,
+                'assigned_wings' => $user->getAssignedWings(),
+                'is_admin' => $user->isAdmin(),
+                'last_login_at' => now()->toIso8601String(),
             ],
         ]);
     }

@@ -103,4 +103,53 @@ class TeamManagementSecurityTest extends TestCase
         $backupDir = storage_path('app/backups');
         $this->assertTrue(File::isDirectory($backupDir), 'Backup directory should be created.');
     }
+
+    public function test_member_strictly_accesses_only_assigned_location_profile(): void
+    {
+        $member = User::create([
+            'name' => 'Vineet Ji',
+            'email' => 'vineet_test@princeeduhub.com',
+            'password' => Hash::make('password123'),
+            'role' => 'member',
+            'status' => 'active',
+            'assigned_wing' => 'Prince Sainik School',
+        ]);
+
+        $this->assertTrue($member->canAccessLocation('Prince Sainik School'));
+        $this->assertFalse($member->canAccessLocation('Prince Hospital'));
+        $this->assertFalse($member->canAccessLocation('Prince Defence Academy'));
+        $this->assertFalse($member->canAccessLocation('Prince NDA Academy - NDA (UPSC + SSB)'));
+        $this->assertFalse($member->canAccessLocation('Prince Academy of Higher Education'));
+    }
+
+    public function test_nda_and_defence_academy_are_strictly_isolated_without_overlap(): void
+    {
+        $ndaMember = User::create([
+            'name' => 'NDA Officer',
+            'email' => 'nda_test@princeeduhub.com',
+            'password' => Hash::make('password123'),
+            'role' => 'member',
+            'status' => 'active',
+            'assigned_wing' => 'Prince NDA Academy - NDA (UPSC + SSB)',
+        ]);
+
+        $defenceMember = User::create([
+            'name' => 'Defence Officer',
+            'email' => 'defence_test@princeeduhub.com',
+            'password' => Hash::make('password123'),
+            'role' => 'member',
+            'status' => 'active',
+            'assigned_wing' => 'Prince Defence Academy',
+        ]);
+
+        // NDA member can ONLY access NDA, not Defence or General Academy
+        $this->assertTrue($ndaMember->canAccessLocation('Prince NDA Academy - NDA (UPSC + SSB)'));
+        $this->assertFalse($ndaMember->canAccessLocation('Prince Defence Academy'));
+        $this->assertFalse($ndaMember->canAccessLocation('Prince Academy of Higher Education'));
+
+        // Defence member can ONLY access Defence, not NDA or General Academy
+        $this->assertTrue($defenceMember->canAccessLocation('Prince Defence Academy'));
+        $this->assertFalse($defenceMember->canAccessLocation('Prince NDA Academy - NDA (UPSC + SSB)'));
+        $this->assertFalse($defenceMember->canAccessLocation('Prince Academy of Higher Education'));
+    }
 }
