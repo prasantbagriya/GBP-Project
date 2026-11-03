@@ -288,6 +288,16 @@ export default function App() {
   };
 
   const checkPanelAuth = async () => {
+    // If arriving with a password reset link, do not restore previous session
+    try {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('reset_otp') || p.get('otp')) {
+        setPanelUser(null);
+        setIsCheckingPanelAuth(false);
+        return;
+      }
+    } catch {}
+
     try {
       const res = await fetch('/api/auth/me', {
         headers: {
@@ -1974,20 +1984,6 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // If user opened password reset link with OTP from email, show password reset page immediately
-  const isResetOtpUrl = useMemo(() => {
-    try {
-      const p = new URLSearchParams(window.location.search);
-      return Boolean(p.get('reset_otp') || p.get('otp'));
-    } catch {
-      return false;
-    }
-  }, []);
-
-  if (isResetOtpUrl) {
-    return <LoginPage onLoginSuccess={(user) => { setPanelUser(user); fetchLocations(true); }} />;
-  }
-
   if (isCheckingPanelAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
@@ -2000,7 +1996,19 @@ export default function App() {
   }
 
   if (!panelUser) {
-    return <LoginPage onLoginSuccess={(user) => { setPanelUser(user); fetchLocations(true); }} />;
+    return (
+      <LoginPage
+        onLoginSuccess={(user) => {
+          setPanelUser(user);
+          fetchLocations(true);
+          try {
+            if (window.location.search) {
+              window.history.replaceState({}, document.title, '/dashboard');
+            }
+          } catch {}
+        }}
+      />
+    );
   }
 
   if (loading) {
