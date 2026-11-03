@@ -102,50 +102,6 @@ Route::match(['get', 'post'], '/api/admin/setup-db', function (Request $request)
     ]);
 });
 
-// Server Mail Diagnostic Route (Tests live mail delivery and returns exact Brevo / server response)
-Route::get('/api/admin/test-mail', function (Request $request) {
-    if ($request->query('key') !== 'PrinceEduHub@2026Setup') {
-        return response()->json(['error' => 'Unauthorized key.'], 403);
-    }
-
-    $to = $request->query('email', 'prashantbagriya7877@gmail.com');
-    $serverIp = @file_get_contents('https://api.ipify.org');
-
-    $configReport = [
-        'server_outbound_ip' => $serverIp ?: ($_SERVER['SERVER_ADDR'] ?? 'unknown'),
-        'mail_mailer' => config('mail.default'),
-        'mail_host' => config('mail.mailers.smtp.host'),
-        'mail_port' => config('mail.mailers.smtp.port'),
-        'mail_encryption' => config('mail.mailers.smtp.encryption'),
-        'mail_username' => config('mail.mailers.smtp.username'),
-        'has_password' => ! empty(config('mail.mailers.smtp.password')),
-        'from_address' => config('mail.from.address'),
-        'from_name' => config('mail.from.name'),
-    ];
-
-    try {
-        Mail::raw("Server Test Mail from Prince Edu Hub\nServer IP: {$serverIp}\nTime: ".now()->toIso8601String(), function ($m) use ($to) {
-            $m->to($to)->subject('Prince Edu Hub Live Server Mail Test');
-        });
-
-        return response()->json([
-            'success' => true,
-            'message' => "Email sent successfully to {$to}!",
-            'config' => $configReport,
-        ]);
-    } catch (Throwable $e) {
-        return response()->json([
-            'success' => false,
-            'error_message' => $e->getMessage(),
-            'error_class' => get_class($e),
-            'config' => $configReport,
-            'hint' => str_contains($e->getMessage(), '525')
-                ? "Brevo blocked server IP {$serverIp}. Go to Brevo > Security > Authorized IPs and Deactivate 'Blocking unauthorized IP addresses' or authorize IP {$serverIp}."
-                : 'Check mail credentials in server .env or port connectivity.',
-        ], 500);
-    }
-});
-
 // Panel Authentication (Email & Password)
 Route::get('/copy-otp', function (Request $request) {
     $otp = htmlspecialchars((string) $request->query('otp', ''));
