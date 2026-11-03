@@ -3,13 +3,35 @@
 namespace Tests\Feature;
 
 use App\Models\FacebookPage;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class FacebookPageManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $admin = User::firstOrCreate(
+            ['email' => 'fbadmin@test.com'],
+            ['name' => 'FB Admin', 'role' => 'admin', 'password' => 'secret123']
+        );
+        $this->actingAs($admin);
+    }
+
+    /**
+     * Test unauthenticated access is blocked.
+     */
+    public function test_unauthenticated_user_cannot_access_facebook_management(): void
+    {
+        Auth::logout();
+        $response = $this->getJson('/api/fb/status');
+        $response->assertStatus(401);
+    }
 
     /**
      * Test status endpoint returns expected structure.

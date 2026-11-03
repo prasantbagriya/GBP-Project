@@ -127,7 +127,7 @@ class TeamController extends Controller
     {
         /** @var User|null $currentUser */
         $currentUser = Auth::user();
-        if ($currentUser && ! $currentUser->isAdmin()) {
+        if (! $currentUser || ! $currentUser->isAdmin()) {
             return response()->json(['error' => 'Unauthorized. Only Admins can modify team members.'], 403);
         }
 
@@ -210,7 +210,7 @@ class TeamController extends Controller
     {
         /** @var User|null $currentUser */
         $currentUser = Auth::user();
-        if ($currentUser && ! $currentUser->isAdmin()) {
+        if (! $currentUser || ! $currentUser->isAdmin()) {
             return response()->json(['error' => 'Unauthorized. Only Admins can delete team members.'], 403);
         }
 

@@ -45,6 +45,8 @@ class AuthController extends Controller
             Log::warning('Auto-migration for users columns skipped: '.$e->getMessage());
         }
 
+        $defaultPassword = (string) (env('ADMIN_INITIAL_PASSWORD') ?: 'Prince@Edu2026#');
+
         try {
             User::firstOrCreate(
                 ['email' => 'prashantbagriya7877@gmail.com'],
@@ -54,7 +56,7 @@ class AuthController extends Controller
                     'role' => 'admin',
                     'status' => 'active',
                     'assigned_wing' => '*',
-                    'password' => Hash::make('Prince@7877'),
+                    'password' => Hash::make($defaultPassword),
                 ]
             );
         } catch (\Throwable $e) {
@@ -70,7 +72,7 @@ class AuthController extends Controller
 
         $userData = [
             'name' => 'Prince Super Admin',
-            'password' => Hash::make('?=.6B#%{!E$?'),
+            'password' => Hash::make($defaultPassword),
         ];
         if (Schema::hasColumn('users', 'role')) {
             $userData['role'] = 'admin';
@@ -82,7 +84,7 @@ class AuthController extends Controller
             $userData['assigned_wing'] = '*';
         }
 
-        return User::updateOrCreate(
+        return User::firstOrCreate(
             ['email' => 'admin@gmb.princeeduhub.com'],
             $userData
         );
@@ -365,12 +367,35 @@ class AuthController extends Controller
             $cachedOtp = Cache::get('pwd_reset_otp_'.$cleanPhone);
         }
 
+        $attemptsKey = 'pwd_reset_attempts_user_'.$user->id;
+        $attempts = (int) Cache::get($attemptsKey, 0);
+
         if (! $cachedOtp || $cachedOtp !== $enteredOtp) {
+            $attempts++;
+            Cache::put($attemptsKey, $attempts, now()->addMinutes(15));
+
+            if ($attempts >= 5) {
+                Cache::forget('pwd_reset_otp_user_'.$user->id);
+                Cache::forget('pwd_reset_otp_'.strtolower($user->email));
+                Cache::forget('pwd_reset_otp_'.strtolower($input));
+                if (! empty($user->phone)) {
+                    Cache::forget('pwd_reset_otp_'.preg_replace('/[^0-9]/', '', $user->phone));
+                }
+                Cache::forget($attemptsKey);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Too many invalid attempts. For your security, this OTP has been invalidated. Please request a new one.',
+                ], 429);
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid or expired OTP code. Please request a new code.',
+                'message' => "Invalid or expired OTP code. Attempt {$attempts} of 5. Please check and try again.",
             ], 422);
         }
+
+        Cache::forget($attemptsKey);
 
         $user->forceFill([
             'password' => Hash::make($newPassword),

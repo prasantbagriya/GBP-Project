@@ -507,11 +507,29 @@ Draft Suggested Reply (Only the reply text, no extra markdown or quotes):";
      * Server-Sent Events (SSE) Stream for Real-Time Agent Inbox.
      * Pushes new messages, active visitor counts, and typing indicators.
      */
-    public function streamEvents(Request $request): StreamedResponse
+    public function streamEvents(Request $request): StreamedResponse|JsonResponse
     {
+        if (! Auth::check()) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
         $lastCheckedId = (int) $request->query('last_message_id', 0);
 
+        // Immediately close session to prevent blocking concurrent HTTP requests
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
         return response()->stream(function () use ($lastCheckedId) {
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+
+            @set_time_limit(30);
+            while (ob_get_level()) {
+                ob_end_flush();
+            }
+
             $currentLastId = $lastCheckedId;
             $iterations = 0;
 
@@ -545,15 +563,13 @@ Draft Suggested Reply (Only the reply text, no extra markdown or quotes):";
 
                     echo "event: new_messages\n";
                     echo 'data: '.json_encode(['messages' => $payload, 'last_id' => $currentLastId])."\n\n";
-                    ob_flush();
-                    flush();
+                    @flush();
                 }
 
                 // Send heartbeat comment every 5 seconds
                 if ($iterations % 5 === 0) {
                     echo ": heartbeat\n\n";
-                    ob_flush();
-                    flush();
+                    @flush();
                 }
 
                 sleep(1);

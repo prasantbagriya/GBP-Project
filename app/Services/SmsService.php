@@ -61,12 +61,19 @@ class SmsService
                 ]);
 
                 if ($res->successful()) {
-                    Log::info("Brevo SMS sent successfully to {$formattedPhone}: ".$res->body());
+                    $json = $res->json() ?? [];
+                    $remainingCredits = $json['remainingCredits'] ?? null;
+                    if ($remainingCredits !== null && (float) $remainingCredits <= 0) {
+                        Log::warning("Brevo SMS accepted but remaining SMS credits are 0 for {$formattedPhone}. SMS will not be dispatched by carrier until credits are recharged.");
+                    } else {
+                        Log::info("Brevo SMS dispatched to {$formattedPhone}: ".$res->body());
+                    }
 
                     return [
                         'success' => true,
                         'provider' => 'brevo',
-                        'message' => 'SMS sent successfully via Brevo.',
+                        'message' => 'SMS sent via Brevo.',
+                        'remaining_credits' => $remainingCredits,
                     ];
                 }
 

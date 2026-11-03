@@ -129,6 +129,12 @@ class ChatSupportFeatureTest extends TestCase
             ]);
     }
 
+    public function test_unauthenticated_user_cannot_access_chat_admin_endpoints(): void
+    {
+        $response = $this->getJson('/api/chat/admin/conversations');
+        $response->assertStatus(401);
+    }
+
     public function test_agent_can_send_reply_and_private_whisper_note(): void
     {
         $widget = ChatWidget::getDefault();

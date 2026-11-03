@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatWidgetController;
 use App\Http\Controllers\FacebookPageController;
 use App\Http\Controllers\GoogleBusinessController;
 use App\Http\Controllers\TeamController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -49,8 +50,14 @@ Route::view('/terms-of-service', 'legal.terms')->name('legal.terms');
 Route::view('/terms', 'legal.terms')->name('legal.terms.alias');
 Route::view('/data-deletion', 'legal.data_deletion')->name('legal.data_deletion');
 
-// Server DB Setup Route (Runs migrations & seeders via code on the server)
+// Server DB Setup Route (Runs migrations & seeders via code on the server - Super Admin Only)
 Route::match(['get', 'post'], '/api/admin/setup-db', function (Request $request) {
+    /** @var User|null $currentUser */
+    $currentUser = Auth::user();
+    if (! $currentUser || ! $currentUser->isAdmin()) {
+        return response()->json(['error' => 'Forbidden. Super Admin session required.'], 403);
+    }
+
     if ($request->input('key', $request->query('key')) !== 'PrinceEduHub@2026Setup') {
         return response()->json(['error' => 'Unauthorized key.'], 403);
     }
@@ -140,17 +147,19 @@ Route::get('/copy-otp', function (Request $request) {
 </html>')->header('Content-Type', 'text/html');
 });
 
-Route::post('/api/auth/login', [AuthController::class, 'login']);
+Route::post('/api/auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 Route::get('/api/auth/me', [AuthController::class, 'me']);
 Route::post('/api/auth/logout', [AuthController::class, 'logout']);
-Route::post('/api/auth/forgot-password/send-otp', [AuthController::class, 'forgotPasswordSendOtp']);
-Route::post('/api/auth/forgot-password/verify-reset', [AuthController::class, 'forgotPasswordVerifyAndReset']);
+Route::post('/api/auth/forgot-password/send-otp', [AuthController::class, 'forgotPasswordSendOtp'])->middleware('throttle:4,1');
+Route::post('/api/auth/forgot-password/verify-reset', [AuthController::class, 'forgotPasswordVerifyAndReset'])->middleware('throttle:6,1');
 
-// Team Management
-Route::get('/api/team/members', [TeamController::class, 'index']);
-Route::post('/api/team/members', [TeamController::class, 'store']);
-Route::put('/api/team/members/{id}', [TeamController::class, 'update']);
-Route::delete('/api/team/members/{id}', [TeamController::class, 'destroy']);
+// Team Management (Protected by Auth)
+Route::middleware('auth')->prefix('api/team')->group(function () {
+    Route::get('/members', [TeamController::class, 'index']);
+    Route::post('/members', [TeamController::class, 'store']);
+    Route::put('/members/{id}', [TeamController::class, 'update']);
+    Route::delete('/members/{id}', [TeamController::class, 'destroy']);
+});
 
 // User & Auth endpoints aliases used by React frontend (Google OAuth)
 Route::get('/api/user/status', [GoogleBusinessController::class, 'status']);
@@ -208,11 +217,13 @@ Route::get('/api/widget/reviews', [GoogleBusinessController::class, 'getWidgetRe
 Route::match(['get', 'post'], '/auth/callback', [GoogleBusinessController::class, 'handleCallback']);
 Route::match(['get', 'post'], '/api/auth/callback', [GoogleBusinessController::class, 'handleCallback']);
 
-// Facebook Page Management Routes
-Route::prefix('api/fb')->group(function () {
+// Facebook Page OAuth Callback (Public - Meta Redirect Target)
+Route::match(['get', 'post'], '/api/fb/callback', [FacebookPageController::class, 'handleCallback']);
+
+// Facebook Page Management Routes (Protected by Auth)
+Route::middleware('auth')->prefix('api/fb')->group(function () {
     Route::get('/status', [FacebookPageController::class, 'status']);
     Route::get('/auth-url', [FacebookPageController::class, 'getAuthUrl']);
-    Route::match(['get', 'post'], '/callback', [FacebookPageController::class, 'handleCallback']);
     Route::post('/manual-token', [FacebookPageController::class, 'connectManualToken']);
     Route::delete('/pages/{id}', [FacebookPageController::class, 'disconnectPage']);
     Route::get('/pages/{id}', [FacebookPageController::class, 'getPageDetails']);
@@ -252,8 +263,8 @@ Route::prefix('api/chat/public')->group(function () {
 Route::get('/embed/chat.js', [ChatWidgetController::class, 'embedScript'])->name('chat.embed');
 Route::get('/chat/preview', [ChatWidgetController::class, 'renderPreview'])->name('chat.preview');
 
-// Admin & Live Agent Management Endpoints
-Route::prefix('api/chat/admin')->group(function () {
+// Admin & Live Agent Management Endpoints (Protected by Auth)
+Route::middleware('auth')->prefix('api/chat/admin')->group(function () {
     Route::get('/conversations', [ChatAgentController::class, 'getConversations']);
     Route::get('/conversations/{uuid}', [ChatAgentController::class, 'getConversationDetails']);
     Route::post('/conversations/{uuid}/messages', [ChatAgentController::class, 'sendMessage']);

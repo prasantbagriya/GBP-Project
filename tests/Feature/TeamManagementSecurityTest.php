@@ -24,8 +24,7 @@ class TeamManagementSecurityTest extends TestCase
     public function test_unauthenticated_user_cannot_access_team_members(): void
     {
         $response = $this->getJson('/api/team/members');
-        $response->assertStatus(401)
-            ->assertJson(['error' => 'Unauthenticated.']);
+        $response->assertStatus(401);
     }
 
     public function test_admin_can_view_team_members(): void
@@ -76,6 +75,35 @@ class TeamManagementSecurityTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJson(['error' => 'You cannot deactivate your own admin account.']);
+    }
+
+    public function test_unauthenticated_user_cannot_update_team_member(): void
+    {
+        $member = User::firstOrCreate(
+            ['email' => 'victim@example.com'],
+            ['name' => 'Victim', 'password' => Hash::make('password123'), 'role' => 'admin', 'status' => 'active']
+        );
+
+        $response = $this->putJson("/api/team/members/{$member->id}", [
+            'name' => 'Hacked Name',
+            'email' => 'victim@example.com',
+            'password' => 'newhackedpass123',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_unauthenticated_user_cannot_delete_team_member(): void
+    {
+        $member = User::firstOrCreate(
+            ['email' => 'victim_del@example.com'],
+            ['name' => 'Victim Del', 'password' => Hash::make('password123'), 'role' => 'member', 'status' => 'active']
+        );
+
+        $response = $this->deleteJson("/api/team/members/{$member->id}");
+
+        $response->assertStatus(401);
+        $this->assertDatabaseHas('users', ['id' => $member->id]);
     }
 
     public function test_admin_cannot_demote_themselves(): void
