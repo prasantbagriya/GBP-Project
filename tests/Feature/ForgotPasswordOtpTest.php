@@ -128,9 +128,29 @@ class ForgotPasswordOtpTest extends TestCase
         $user->refresh();
         $this->assertTrue(Hash::check('NewSecretPass123!', $user->password));
 
-        // Test user is auto logged in
-        $this->assertTrue(Auth::check());
-        $this->assertEquals($user->id, Auth::id());
+        // Test user can log in with new password
+        Auth::logout();
+        $loginResponse = $this->postJson('/api/auth/login', [
+            'email' => 'resetuser@princeeduhub.com',
+            'password' => 'NewSecretPass123!',
+        ]);
+
+        $loginResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        // Test user can also log in with phone number and new password
+        Auth::logout();
+        $phoneLoginResponse = $this->postJson('/api/auth/login', [
+            'email' => '9123456789',
+            'password' => 'NewSecretPass123!',
+        ]);
+
+        $phoneLoginResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
     }
 
     public function test_verify_otp_fails_with_invalid_otp(): void

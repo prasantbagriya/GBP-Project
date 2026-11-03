@@ -247,10 +247,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         throw new Error(data.message || data.error || 'Password reset failed.');
       }
 
-      setSuccessMsg('Password reset successful! Logging you in...');
-      setTimeout(() => {
-        onLoginSuccess(data.user);
-      }, 1000);
+      // 1. Remove query parameters from browser URL so reset_otp is cleared
+      try {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch {}
+
+      // 2. Clear reset fields & show success message on Login screen
+      setEmail(resetEmail.trim());
+      setPassword('');
+      setResetOtp('');
+      setResetPassword('');
+      setResetConfirmPassword('');
+      setError(null);
+      setSuccessMsg('Password changed successfully! Please sign in with your new password.');
+      setView('login');
     } catch (err: any) {
       setError(err.message || 'Password reset failed. Invalid or expired OTP.');
     } finally {

