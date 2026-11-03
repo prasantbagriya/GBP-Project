@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\SmsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -187,21 +188,44 @@ class AuthController extends Controller
     }
 
     /**
-     * Send Password Reset OTP to user email.
+     * Send Password Reset OTP to user email and/or SMS.
      */
     public function forgotPasswordSendOtp(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'identifier' => ['sometimes', 'string', 'max:150'],
+            'email' => ['sometimes', 'string', 'max:150'],
         ]);
 
-        $email = strtolower(trim($validated['email']));
-        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+        $input = trim((string) ($validated['identifier'] ?? $validated['email'] ?? $request->input('identifier') ?? $request->input('email')));
+
+        if (empty($input)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide your registered email or mobile number.',
+            ], 422);
+        }
+
+        // Look up user by email or mobile number
+        $user = null;
+        if (str_contains($input, '@')) {
+            $user = User::whereRaw('LOWER(email) = ?', [strtolower($input)])->first();
+        } else {
+            $digits = preg_replace('/[^0-9]/', '', $input);
+            $user = User::where(function ($q) use ($input, $digits) {
+                $q->where('phone', $input)
+                    ->orWhere('phone', 'like', '%'.$digits);
+                if (strlen($digits) >= 10) {
+                    $last10 = substr($digits, -10);
+                    $q->orWhere('phone', 'like', '%'.$last10);
+                }
+            })->first();
+        }
 
         if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'No account found with this email address.',
+                'message' => 'No account found with this email or mobile number.',
             ], 404);
         }
 
@@ -213,21 +237,52 @@ class AuthController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
-        Cache::put('pwd_reset_otp_'.$email, $otp, now()->addMinutes(15));
 
-        try {
-            Mail::send('emails.otp', ['otp' => $otp, 'user' => $user], function ($msg) use ($email, $user) {
-                $msg->to($email, $user->name)
-                    ->subject('Prince Eduhub Password Reset OTP: '.$otp);
-            });
-        } catch (\Throwable $e) {
-            Log::warning("Password reset OTP mail failed for {$email}: ".$e->getMessage());
+        // Store OTP in cache for 15 minutes mapped to User ID, Email, and Phone
+        Cache::put('pwd_reset_otp_user_'.$user->id, $otp, now()->addMinutes(15));
+        if (! empty($user->email)) {
+            Cache::put('pwd_reset_otp_'.strtolower($user->email), $otp, now()->addMinutes(15));
+        }
+        if (! empty($user->phone)) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $user->phone);
+            Cache::put('pwd_reset_otp_'.$cleanPhone, $otp, now()->addMinutes(15));
+        }
+        Cache::put('pwd_reset_otp_'.strtolower($input), $otp, now()->addMinutes(15));
+
+        // 1. Dispatch Email OTP
+        $emailSent = false;
+        if (! empty($user->email)) {
+            try {
+                Mail::send('emails.otp', ['otp' => $otp, 'user' => $user], function ($msg) use ($user, $otp) {
+                    $msg->to($user->email, $user->name)
+                        ->subject('Prince Eduhub Password Reset OTP: '.$otp);
+                });
+                $emailSent = true;
+            } catch (\Throwable $e) {
+                Log::warning("Password reset OTP mail failed for {$user->email}: ".$e->getMessage());
+            }
+        }
+
+        // 2. Dispatch SMS OTP
+        $smsSent = false;
+        $targetPhone = ! empty($user->phone) ? $user->phone : (! str_contains($input, '@') ? $input : null);
+        if (! empty($targetPhone)) {
+            try {
+                $smsResult = SmsService::sendOtp($targetPhone, $otp, $user->name);
+                $smsSent = $smsResult['success'] ?? false;
+            } catch (\Throwable $e) {
+                Log::warning("Password reset OTP SMS failed for {$targetPhone}: ".$e->getMessage());
+            }
         }
 
         return response()->json([
             'success' => true,
-            'message' => '6-digit OTP has been sent to your registered email.',
-            'email' => $email,
+            'message' => '6-digit OTP has been sent via Email and SMS.',
+            'identifier' => $input,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'email_sent' => $emailSent,
+            'sms_sent' => $smsSent,
             'debug_otp' => app()->environment('local', 'testing') ? $otp : null,
         ]);
     }
@@ -238,16 +293,48 @@ class AuthController extends Controller
     public function forgotPasswordVerifyAndReset(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'identifier' => ['sometimes', 'string'],
+            'email' => ['sometimes', 'string'],
             'otp' => ['required', 'string'],
             'password' => ['required', 'string', 'min:6'],
         ]);
 
-        $email = strtolower(trim($validated['email']));
+        $input = trim((string) ($validated['identifier'] ?? $validated['email'] ?? $request->input('identifier') ?? $request->input('email')));
         $enteredOtp = trim($validated['otp']);
         $newPassword = $validated['password'];
 
-        $cachedOtp = Cache::get('pwd_reset_otp_'.$email);
+        // Look up user
+        $user = null;
+        if (str_contains($input, '@')) {
+            $user = User::whereRaw('LOWER(email) = ?', [strtolower($input)])->first();
+        } else {
+            $digits = preg_replace('/[^0-9]/', '', $input);
+            $user = User::where(function ($q) use ($input, $digits) {
+                $q->where('phone', $input)
+                    ->orWhere('phone', 'like', '%'.$digits);
+                if (strlen($digits) >= 10) {
+                    $last10 = substr($digits, -10);
+                    $q->orWhere('phone', 'like', '%'.$last10);
+                }
+            })->first();
+        }
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User account not found.',
+            ], 404);
+        }
+
+        // Check OTP from user id cache or identifier cache
+        $cachedOtp = Cache::get('pwd_reset_otp_user_'.$user->id)
+            ?? Cache::get('pwd_reset_otp_'.strtolower($user->email))
+            ?? Cache::get('pwd_reset_otp_'.strtolower($input));
+
+        if (! $cachedOtp && ! empty($user->phone)) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $user->phone);
+            $cachedOtp = Cache::get('pwd_reset_otp_'.$cleanPhone);
+        }
 
         if (! $cachedOtp || $cachedOtp !== $enteredOtp) {
             return response()->json([
@@ -256,18 +343,16 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
-        if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User account not found.',
-            ], 404);
-        }
-
         $user->password = Hash::make($newPassword);
         $user->save();
 
-        Cache::forget('pwd_reset_otp_'.$email);
+        // Clear OTP caches
+        Cache::forget('pwd_reset_otp_user_'.$user->id);
+        Cache::forget('pwd_reset_otp_'.strtolower($user->email));
+        Cache::forget('pwd_reset_otp_'.strtolower($input));
+        if (! empty($user->phone)) {
+            Cache::forget('pwd_reset_otp_'.preg_replace('/[^0-9]/', '', $user->phone));
+        }
 
         // Auto login user upon successful password reset
         Auth::login($user, true);

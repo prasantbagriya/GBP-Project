@@ -54,4 +54,10 @@ return [
         'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v21.0'),
     ],
 
+    'brevo' => [
+        'api_key' => env('BREVO_API_KEY', env('BREVO_KEY')),
+        'smtp_key' => env('BREVO_SMTP_KEY'),
+        'sms_sender' => env('BREVO_SMS_SENDER', 'PrinceEdu'),
+    ],
+
 ];

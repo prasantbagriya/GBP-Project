@@ -14,7 +14,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 // Public Homepage Landing (Complies with Google OAuth Verification: No login barrier, links to Privacy Policy & Terms)
-Route::view('/', 'landing')->name('landing');
+Route::get('/', function (Request $request) {
+    if ($request->has('reset_otp') || $request->has('otp')) {
+        return redirect('/login?'.$request->getQueryString());
+    }
+
+    return view('landing');
+})->name('landing');
 
 // Staff Portal / Dashboard UI
 Route::get('/dashboard', function () {
@@ -23,6 +29,9 @@ Route::get('/dashboard', function () {
 Route::get('/login', function () {
     return view('dashboard');
 })->name('login');
+Route::get('/reset-password', function () {
+    return view('dashboard');
+})->name('reset-password');
 Route::get('/app', function () {
     return view('dashboard');
 })->name('app');
@@ -93,7 +102,88 @@ Route::match(['get', 'post'], '/api/admin/setup-db', function (Request $request)
     ]);
 });
 
+// Server Mail Diagnostic Route (Tests live mail delivery and returns exact Brevo / server response)
+Route::get('/api/admin/test-mail', function (Request $request) {
+    if ($request->query('key') !== 'PrinceEduHub@2026Setup') {
+        return response()->json(['error' => 'Unauthorized key.'], 403);
+    }
+
+    $to = $request->query('email', 'prashantbagriya7877@gmail.com');
+    $serverIp = @file_get_contents('https://api.ipify.org');
+
+    $configReport = [
+        'server_outbound_ip' => $serverIp ?: ($_SERVER['SERVER_ADDR'] ?? 'unknown'),
+        'mail_mailer' => config('mail.default'),
+        'mail_host' => config('mail.mailers.smtp.host'),
+        'mail_port' => config('mail.mailers.smtp.port'),
+        'mail_encryption' => config('mail.mailers.smtp.encryption'),
+        'mail_username' => config('mail.mailers.smtp.username'),
+        'has_password' => ! empty(config('mail.mailers.smtp.password')),
+        'from_address' => config('mail.from.address'),
+        'from_name' => config('mail.from.name'),
+    ];
+
+    try {
+        Mail::raw("Server Test Mail from Prince Edu Hub\nServer IP: {$serverIp}\nTime: ".now()->toIso8601String(), function ($m) use ($to) {
+            $m->to($to)->subject('Prince Edu Hub Live Server Mail Test');
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "Email sent successfully to {$to}!",
+            'config' => $configReport,
+        ]);
+    } catch (Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error_message' => $e->getMessage(),
+            'error_class' => get_class($e),
+            'config' => $configReport,
+            'hint' => str_contains($e->getMessage(), '525')
+                ? "Brevo blocked server IP {$serverIp}. Go to Brevo > Security > Authorized IPs and Deactivate 'Blocking unauthorized IP addresses' or authorize IP {$serverIp}."
+                : 'Check mail credentials in server .env or port connectivity.',
+        ], 500);
+    }
+});
+
 // Panel Authentication (Email & Password)
+Route::get('/copy-otp', function (Request $request) {
+    $otp = htmlspecialchars((string) $request->query('otp', ''));
+    $identifier = htmlspecialchars((string) $request->query('identifier', ''));
+    $targetUrl = url('/?reset_otp='.$otp.'&identifier='.urlencode($identifier));
+
+    return response('<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Copied - Prince Edu Hub</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 16px; color: #1e293b; }
+        .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06); }
+        .icon { font-size: 42px; margin-bottom: 12px; }
+        .title { font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+        .otp { font-family: monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #2563eb; background: #eff6ff; border: 1.5px dashed #93c5fd; padding: 10px 18px; border-radius: 12px; margin: 16px 0; display: inline-block; }
+        .sub { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+        .btn { display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 13.5px; padding: 10px 24px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">✅</div>
+        <div class="title">OTP Copied Successfully!</div>
+        <div class="otp">'.$otp.'</div>
+        <div class="sub">Redirecting to Prince Edu Hub login portal...</div>
+        <a href="'.$targetUrl.'" class="btn">Proceed to Reset Password &rarr;</a>
+    </div>
+    <script>
+        try { navigator.clipboard.writeText("'.$otp.'"); } catch(e) {}
+        setTimeout(function() { window.location.href = "'.$targetUrl.'"; }, 1000);
+    </script>
+</body>
+</html>')->header('Content-Type', 'text/html');
+});
+
 Route::post('/api/auth/login', [AuthController::class, 'login']);
 Route::get('/api/auth/me', [AuthController::class, 'me']);
 Route::post('/api/auth/logout', [AuthController::class, 'logout']);

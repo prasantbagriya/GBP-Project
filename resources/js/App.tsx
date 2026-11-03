@@ -1974,6 +1974,20 @@ export default function App() {
     document.body.removeChild(link);
   };
 
+  // If user opened password reset link with OTP from email, show password reset page immediately
+  const isResetOtpUrl = useMemo(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return Boolean(p.get('reset_otp') || p.get('otp'));
+    } catch {
+      return false;
+    }
+  }, []);
+
+  if (isResetOtpUrl) {
+    return <LoginPage onLoginSuccess={(user) => { setPanelUser(user); fetchLocations(true); }} />;
+  }
+
   if (isCheckingPanelAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">

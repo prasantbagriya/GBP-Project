@@ -27,7 +27,15 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
-  const [view, setView] = useState<'login' | 'forgot_email' | 'forgot_otp'>('login');
+  const [view, setView] = useState<'login' | 'forgot_email' | 'forgot_otp'>(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('reset_otp') || p.get('otp')) {
+        return 'forgot_otp';
+      }
+    } catch {}
+    return 'login';
+  });
   
   // Login State
   const [email, setEmail] = useState('');
@@ -69,12 +77,50 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   };
 
   // Forgot Password State
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetOtp, setResetOtp] = useState('');
+  const [resetEmail, setResetEmail] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('identifier') || p.get('email') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [resetOtp, setResetOtp] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('reset_otp') || p.get('otp') || '';
+    } catch {
+      return '';
+    }
+  });
   const [resetPassword, setResetPassword] = useState('');
   const [resetConfirmPassword, setResetConfirmPassword] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
-  const [otpSentNotice, setOtpSentNotice] = useState<string | null>(null);
+  const [otpSentNotice, setOtpSentNotice] = useState<string | null>(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('reset_otp') || p.get('otp')) {
+        return 'Verification code verified. Please set your new password below.';
+      }
+    } catch {}
+    return null;
+  });
+
+  // Check for OTP and identifier passed in URL parameters
+  useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlOtp = urlParams.get('reset_otp') || urlParams.get('otp');
+      const urlIdentifier = urlParams.get('identifier') || urlParams.get('email');
+
+      if (urlOtp) {
+        if (urlIdentifier) setResetEmail(urlIdentifier);
+        setResetOtp(urlOtp);
+        setOtpSentNotice('Verification code verified. Please set your new password below.');
+        setView('forgot_otp');
+      }
+    } catch {}
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +169,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     setSuccessMsg(null);
 
     if (!resetEmail.trim()) {
-      setError('Please enter your registered email address.');
+      setError('Please enter your registered email or mobile number.');
       return;
     }
 
@@ -138,6 +184,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
+          identifier: resetEmail.trim(),
           email: resetEmail.trim()
         })
       });
@@ -148,10 +195,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         throw new Error(data.message || data.error || 'Failed to send OTP.');
       }
 
-      setOtpSentNotice(data.message || '6-digit OTP has been sent to your email.');
+      setOtpSentNotice(data.message || '6-digit OTP has been sent via Email and SMS.');
       setView('forgot_otp');
     } catch (err: any) {
-      setError(err.message || 'Could not send OTP. Please check your email address.');
+      setError(err.message || 'Could not send OTP. Please check your email or mobile number.');
     } finally {
       setLoading(false);
     }
@@ -186,6 +233,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
+          identifier: resetEmail.trim(),
           email: resetEmail.trim(),
           otp: resetOtp.trim(),
           password: resetPassword,
@@ -413,28 +461,29 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             </form>
           )}
 
-          {/* VIEW: FORGOT PASSWORD - STEP 1 (ENTER EMAIL) */}
+          {/* VIEW: FORGOT PASSWORD - STEP 1 (ENTER EMAIL OR PHONE) */}
           {view === 'forgot_email' && (
             <form onSubmit={handleSendOtp} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Registered Email Address
+                  Registered Email or Mobile Number
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <Mail className="w-4 h-4" />
+                    <Smartphone className="w-4 h-4" />
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     required
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    placeholder="Enter your registered email"
+                    placeholder="e.g. name@princeeduhub.com or +91 9876543210"
                     className="w-full pl-9 pr-3.5 py-2 bg-white hover:bg-slate-50 focus:bg-white border border-slate-300 rounded-md text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-blue-600 transition-colors shadow-2xs"
                   />
                 </div>
-                <p className="text-xs text-slate-500 mt-1.5">
-                  A 6-digit OTP will be securely sent to your email address.
+                <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                  <span>A 6-digit OTP will be dispatched via <strong>Email & SMS</strong>.</span>
                 </p>
               </div>
 
@@ -446,11 +495,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    <span>Sending OTP...</span>
+                    <span>Sending OTP to Email & SMS...</span>
                   </>
                 ) : (
                   <>
-                    <span>Send Verification OTP</span>
+                    <span>Send Verification OTP (Email & SMS)</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -473,6 +522,60 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           {/* VIEW: FORGOT PASSWORD - STEP 2 (ENTER OTP & NEW PASSWORD) */}
           {view === 'forgot_otp' && (
             <form onSubmit={handleVerifyOtpAndReset} className="space-y-3.5">
+              {/* Target Account Badge */}
+              {resetEmail ? (
+                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-blue-600">
+                      <Mail className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                        Resetting Password For
+                      </span>
+                      <span className="text-xs font-semibold text-slate-800 truncate block">
+                        {resetEmail}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError(null);
+                      setView('forgot_email');
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-medium shrink-0 ml-2 cursor-pointer hover:underline"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Registered Email or Mobile Number
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="Enter registered email or mobile"
+                      className="w-full pl-9 pr-3.5 py-2 bg-white hover:bg-slate-50 focus:bg-white border border-slate-300 rounded-md text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-blue-600 transition-colors shadow-2xs"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {otpSentNotice && (
+                <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-800 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>{otpSentNotice}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   6-Digit Verification OTP
@@ -568,7 +671,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                   className="text-xs text-slate-600 hover:text-slate-800 font-medium transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <ArrowLeft className="w-3 h-3" />
-                  <span>Change Email</span>
+                  <span>Change Email / Mobile</span>
                 </button>
                 <button
                   type="button"
