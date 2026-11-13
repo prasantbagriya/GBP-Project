@@ -949,18 +949,18 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
       <div className="bg-white rounded-2xl w-full max-w-5xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto animate-in fade-in zoom-in-95 duration-150">
         
         {/* ================= MODAL HEADER (Fixed Top) ================= */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-blue-50/80 via-indigo-50/50 to-white shrink-0">
+        <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
               <Target className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-slate-800 text-base sm:text-lg">
+                <h3 className="font-semibold text-slate-900 text-base sm:text-lg">
                   Daily Review Target & Team Planner
                 </h3>
-                <span className="text-[11px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
-                  Weekly ➔ Daily Split
+                <span className="text-[11px] bg-slate-100 text-slate-700 border border-slate-200 font-medium px-2 py-0.5 rounded-md">
+                  Weekly Split
                 </span>
               </div>
               <p className="text-xs text-slate-500">
@@ -1072,7 +1072,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
               <button
                 type="button"
                 onClick={handleRandomizeDailyTargets}
-                className="mt-4 sm:mt-0 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-md shadow-blue-500/20 cursor-pointer transition-all"
+                className="mt-4 sm:mt-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-2 shadow-2xs cursor-pointer transition-colors"
                 title="Automatically distribute weekly target across 7 days with realistic 1-10 variations"
               >
                 <Dices className="w-4 h-4" />

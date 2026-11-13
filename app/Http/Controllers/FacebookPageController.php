@@ -125,6 +125,10 @@ class FacebookPageController extends Controller
      */
     public function connectManualToken(Request $request): JsonResponse
     {
+        if (! Auth::user()?->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized. Only Admins can connect Facebook pages.'], 403);
+        }
+
         $validated = $request->validate([
             'access_token' => ['required', 'string'],
             'page_id' => ['nullable', 'string'],
@@ -182,6 +186,10 @@ class FacebookPageController extends Controller
      */
     public function disconnectPage(int $id): JsonResponse
     {
+        if (! Auth::user()?->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized. Only Admins can disconnect Facebook pages.'], 403);
+        }
+
         $page = FacebookPage::findOrFail($id);
         $name = $page->name;
         $page->delete();
@@ -229,6 +237,10 @@ class FacebookPageController extends Controller
      */
     public function updatePageDetails(Request $request, int $id): JsonResponse
     {
+        if (! Auth::user()?->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized. Only Admins can modify Facebook page information.'], 403);
+        }
+
         $page = FacebookPage::findOrFail($id);
 
         $validated = $request->validate([

@@ -153,6 +153,8 @@ class ChatWidgetController extends Controller
             'metadata' => $buttonPayload ? ['button_selected' => $buttonPayload] : null,
         ]);
 
+        $conversation->update(['last_message_at' => now()]);
+
         // Process through engine (only if in bot mode)
         if ($conversation->status === 'bot') {
             $this->engine->processVisitorMessage($conversation, $content, $buttonPayload);

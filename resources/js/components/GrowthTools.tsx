@@ -354,7 +354,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 Google Review QR Code Stand
               </h3>
             </div>
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-md border border-blue-100 shadow-2xs flex-shrink-0">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-md border border-blue-100 shadow-2xs shrink-0">
               <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
@@ -456,7 +456,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
         <div className="flex flex-col gap-6">
           
           {/* WhatsApp Review Requester Card (Proper Fixed Compact Size) */}
-          <div className="card p-5 flex flex-col space-y-3.5 border border-emerald-200/80 bg-gradient-to-br from-emerald-50/20 via-white to-white shadow-xs">
+          <div className="card p-5 flex flex-col space-y-3.5 border border-slate-200 bg-white shadow-xs">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -472,7 +472,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   WhatsApp Review Requester
                 </h3>
               </div>
-              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-md flex-shrink-0 border border-emerald-100 shadow-2xs">
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-md shrink-0 border border-emerald-100 shadow-2xs">
                 <MessageCircle className="w-5 h-5" />
               </div>
             </div>
@@ -581,7 +581,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   }`}
                   title={effectivePlaceUrl}
                 >
-                  <MapPin className="w-3 h-3 text-red-500 flex-shrink-0" />
+                  <MapPin className="w-3 h-3 text-red-500 shrink-0" />
                   <span className="truncate">Maps Profile</span>
                 </button>
 
@@ -595,7 +595,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   }`}
                   title={effectiveWriteUrl}
                 >
-                  <Star className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                  <Star className="w-3 h-3 text-amber-500 shrink-0" />
                   <span className="truncate">Direct Review</span>
                 </button>
 
@@ -609,7 +609,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   }`}
                   title={effectiveSearchUrl}
                 >
-                  <ExternalLink className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                   <span className="truncate">Search Link</span>
                 </button>
               </div>
@@ -630,7 +630,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   type="button"
                   onClick={() => saveReviewUrl(editableUrl)}
                   disabled={savingUrl || !editableUrl || editableUrl === currentUrl}
-                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1 flex-shrink-0 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
+                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1 shrink-0 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
                   title="Save this review link"
                 >
                   <Save className="w-3.5 h-3.5" />
@@ -809,7 +809,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
             {/* AI Actionable Recommendation */}
             {sentiment.actionRecommendation && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                 <div className="text-xs">
                   <span className="font-bold text-blue-900 block mb-0.5">
                     Gemini Operational Recommendation:

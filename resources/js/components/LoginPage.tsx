@@ -295,13 +295,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
         {/* PWA Install App Prompt Banner */}
         {!isStandalone && (
-          <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-white border border-blue-200 rounded-xl flex items-center justify-between gap-3 shadow-2xs">
+          <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-2.5 text-left min-w-0">
               <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Smartphone className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-bold text-slate-800 leading-tight">Install Prince Edu Hub App</div>
+                <div className="text-xs font-semibold text-slate-900 leading-tight">Install Prince Edu Hub App</div>
                 <div className="text-[10px] text-slate-500 truncate">1-Click direct login from your home screen</div>
               </div>
             </div>

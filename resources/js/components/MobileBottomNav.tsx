@@ -32,7 +32,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }`}
         title="Dashboard"
       >
-        <BarChart3 className="w-4.5 h-4.5 flex-shrink-0" />
+        <BarChart3 className="w-4.5 h-4.5 shrink-0" />
         <span className="text-[11px] font-normal mt-0.5 leading-none whitespace-nowrap truncate max-w-full">
           Home
         </span>
@@ -49,7 +49,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }`}
         title="WhatsApp Report"
       >
-        <div className="relative flex-shrink-0">
+        <div className="relative shrink-0">
           <MessageCircle className="w-4.5 h-4.5 text-emerald-600" />
           <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ring-1 ring-white"></span>
         </div>
@@ -69,7 +69,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }`}
         title="Reviews & Replies"
       >
-        <div className="relative flex-shrink-0">
+        <div className="relative shrink-0">
           <MessageSquare className="w-4.5 h-4.5" />
           {pendingReviewsCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-amber-500 ring-1 ring-white"></span>
@@ -91,7 +91,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }`}
         title="Reports"
       >
-        <TrendingUp className="w-4.5 h-4.5 flex-shrink-0" />
+        <TrendingUp className="w-4.5 h-4.5 shrink-0" />
         <span className="text-[11px] font-normal mt-0.5 leading-none whitespace-nowrap truncate max-w-full">
           Reports
         </span>
@@ -108,7 +108,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }`}
         title="Profile Posts"
       >
-        <Megaphone className="w-4.5 h-4.5 flex-shrink-0" />
+        <Megaphone className="w-4.5 h-4.5 shrink-0" />
         <span className="text-[11px] font-normal mt-0.5 leading-none whitespace-nowrap truncate max-w-full">
           Posts
         </span>
@@ -123,7 +123,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         className="flex-1 flex flex-col items-center justify-center h-full py-1 relative transition-colors text-slate-900 hover:text-black font-normal cursor-pointer"
         title="More Menu"
       >
-        <Menu className="w-4.5 h-4.5 flex-shrink-0" />
+        <Menu className="w-4.5 h-4.5 shrink-0" />
         <span className="text-[11px] font-normal mt-0.5 leading-none whitespace-nowrap truncate max-w-full">
           More
         </span>

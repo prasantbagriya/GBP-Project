@@ -113,9 +113,9 @@ export const FacebookAiRules: React.FC<FacebookAiRulesProps> = ({ page }) => {
 
       <form onSubmit={handleSave} className="space-y-5">
         {/* Master AI Toggle */}
-        <div className="card p-5 bg-gradient-to-r from-indigo-50/50 via-white to-blue-50/50 border border-indigo-100 flex items-center justify-between gap-4">
+        <div className="card p-5 bg-slate-50 border border-slate-200 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>

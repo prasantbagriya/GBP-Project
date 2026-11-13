@@ -8,6 +8,7 @@ use App\Models\ChatWidget;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ChatFlowController extends Controller
 {
@@ -54,6 +55,10 @@ class ChatFlowController extends Controller
      */
     public function saveFlow(Request $request): JsonResponse
     {
+        if (! Auth::user()?->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized. Only Admins can modify chat flows.'], 403);
+        }
+
         $validated = $request->validate([
             'id' => ['nullable', 'integer'],
             'name' => ['required', 'string', 'max:255'],
@@ -276,6 +281,10 @@ class ChatFlowController extends Controller
      */
     public function updateWidgetSettings(Request $request): JsonResponse
     {
+        if (! Auth::user()?->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized. Only Admins can modify widget settings.'], 403);
+        }
+
         $widget = ChatWidget::getDefault();
 
         $validated = $request->validate([

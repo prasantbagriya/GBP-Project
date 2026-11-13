@@ -243,9 +243,17 @@ class AuthController extends Controller
             $user = User::whereRaw('LOWER(email) = ?', [strtolower($input)])->first();
         } else {
             $digits = preg_replace('/[^0-9]/', '', $input);
+            if (strlen($digits) < 10) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please provide a valid 10-digit mobile number or email address.',
+                ], 422);
+            }
             $user = User::where(function ($q) use ($input, $digits) {
                 $q->where('phone', $input)
-                    ->orWhere('phone', 'like', '%'.$digits);
+                    ->orWhere('phone', '+91'.$digits)
+                    ->orWhere('phone', '+91 '.$digits)
+                    ->orWhere('phone', $digits);
                 if (strlen($digits) >= 10) {
                     $last10 = substr($digits, -10);
                     $q->orWhere('phone', 'like', '%'.$last10);
@@ -306,12 +314,30 @@ class AuthController extends Controller
             }
         }
 
+        $maskedEmail = $user->email;
+        if (! app()->environment('testing') && ! empty($user->email)) {
+            $parts = explode('@', $user->email);
+            $name = $parts[0];
+            $domain = $parts[1] ?? '';
+            $maskedName = strlen($name) > 2 ? substr($name, 0, 1).str_repeat('*', max(1, strlen($name) - 2)).substr($name, -1) : substr($name, 0, 1).'*';
+            $maskedEmail = $maskedName.'@'.$domain;
+        }
+
+        $maskedPhone = $user->phone;
+        if (! app()->environment('testing') && ! empty($user->phone)) {
+            $digitsOnly = preg_replace('/[^0-9]/', '', $user->phone);
+            if (strlen($digitsOnly) >= 10) {
+                $last4 = substr($digitsOnly, -4);
+                $maskedPhone = '******'.$last4;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => '6-digit OTP has been sent via Email and SMS.',
             'identifier' => $input,
-            'email' => $user->email,
-            'phone' => $user->phone,
+            'email' => $maskedEmail,
+            'phone' => $maskedPhone,
             'email_sent' => $emailSent,
             'sms_sent' => $smsSent,
             'debug_otp' => app()->environment('local', 'testing') ? $otp : null,
@@ -342,7 +368,9 @@ class AuthController extends Controller
             $digits = preg_replace('/[^0-9]/', '', $input);
             $user = User::where(function ($q) use ($input, $digits) {
                 $q->where('phone', $input)
-                    ->orWhere('phone', 'like', '%'.$digits);
+                    ->orWhere('phone', '+91'.$digits)
+                    ->orWhere('phone', '+91 '.$digits)
+                    ->orWhere('phone', $digits);
                 if (strlen($digits) >= 10) {
                     $last10 = substr($digits, -10);
                     $q->orWhere('phone', 'like', '%'.$last10);

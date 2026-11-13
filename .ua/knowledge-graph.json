@@ -1,0 +1,414 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Prince Edu Hub - Google Business Profile & Growth Engine",
+    "languages": [
+      "PHP",
+      "TypeScript",
+      "JavaScript",
+      "Blade",
+      "CSS"
+    ],
+    "frameworks": [
+      "Laravel 12",
+      "React 19",
+      "Tailwind CSS v4",
+      "Inertia / Vite"
+    ],
+    "description": "Multi-location Google Business Profile management, reputation automation, daily WhatsApp growth digests, campus review targets, and embeddable live chat for Prince Edu Hub educational institutions in Sikar, Rajasthan.",
+    "analyzedAt": "2026-11-13T04:11:09.861Z",
+    "gitCommitHash": "2835c20e6fd77dcd06c5a9519286271e793e59b8"
+  },
+  "nodes": [
+    {
+      "id": "file:app/Http/Controllers/GoogleBusinessController.php",
+      "type": "file",
+      "name": "GoogleBusinessController.php",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "summary": "Primary backend controller managing Google OAuth2 lifecycle, location discovery, review fetching and filtering, Gemini AI response drafting, and review reply publishing.",
+      "tags": [
+        "controller",
+        "google-business",
+        "reviews",
+        "oauth"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:app/Http/Controllers/AuthController.php",
+      "type": "file",
+      "name": "AuthController.php",
+      "filePath": "app/Http/Controllers/AuthController.php",
+      "summary": "Manages panel staff authentication, session cookie validation, campus wing assignments, and rate-limited credential checks.",
+      "tags": [
+        "controller",
+        "auth",
+        "security",
+        "wing-isolation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:app/Http/Controllers/ChatAgentController.php",
+      "type": "file",
+      "name": "ChatAgentController.php",
+      "filePath": "app/Http/Controllers/ChatAgentController.php",
+      "summary": "Handles campus counselor chat inbox operations, conversation lifecycle, message dispatch, and internal private staff notes.",
+      "tags": [
+        "controller",
+        "chat",
+        "inbox",
+        "messaging"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:app/Http/Controllers/ChatWidgetController.php",
+      "type": "file",
+      "name": "ChatWidgetController.php",
+      "filePath": "app/Http/Controllers/ChatWidgetController.php",
+      "summary": "Public endpoint serving embeddable website widget initialization, live SSE streaming, and visitor inquiry dispatching.",
+      "tags": [
+        "controller",
+        "widget",
+        "sse",
+        "public-api"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:app/Http/Controllers/FacebookPageController.php",
+      "type": "file",
+      "name": "FacebookPageController.php",
+      "filePath": "app/Http/Controllers/FacebookPageController.php",
+      "summary": "Integrates Meta Graph API v21 for Facebook page status checks, post extraction, and AI rewrite into Google Business posts.",
+      "tags": [
+        "controller",
+        "facebook",
+        "meta-api",
+        "social-sync"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:resources/js/App.tsx",
+      "type": "file",
+      "name": "App.tsx",
+      "filePath": "resources/js/App.tsx",
+      "summary": "Master SPA container hosting the top app bar, collapsible workspace navigation hubs, review audit lists, and Google Sheets sync.",
+      "tags": [
+        "react",
+        "spa",
+        "dashboard",
+        "main-view"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:resources/js/components/DailyWhatsAppReport.tsx",
+      "type": "file",
+      "name": "DailyWhatsAppReport.tsx",
+      "filePath": "resources/js/components/DailyWhatsAppReport.tsx",
+      "summary": "Morning executive review growth cockpit: displays campus leaderboards, today vs historical comparisons, in-charge phone tags, and simulated WhatsApp chat preview.",
+      "tags": [
+        "react",
+        "whatsapp",
+        "growth-report",
+        "leaderboard"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:resources/js/components/DailyReviewTargetPage.tsx",
+      "type": "file",
+      "name": "DailyReviewTargetPage.tsx",
+      "filePath": "resources/js/components/DailyReviewTargetPage.tsx",
+      "summary": "Dedicated target planner view with auto-distribution algorithms across 7 days, progress meters, and printable audit reports.",
+      "tags": [
+        "react",
+        "target-planner",
+        "goals",
+        "split"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:resources/js/components/GrowthTools.tsx",
+      "type": "file",
+      "name": "GrowthTools.tsx",
+      "filePath": "resources/js/components/GrowthTools.tsx",
+      "summary": "Generates printable QR review stand artwork for campus reception desks and sends pre-composed WhatsApp review invitations.",
+      "tags": [
+        "react",
+        "qr-code",
+        "print-stand",
+        "marketing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:resources/js/components/WebsiteWidget.tsx",
+      "type": "file",
+      "name": "WebsiteWidget.tsx",
+      "filePath": "resources/js/components/WebsiteWidget.tsx",
+      "summary": "Configures and previews embeddable website badges and review carousels showing live Google verified ratings.",
+      "tags": [
+        "react",
+        "website-widget",
+        "embed",
+        "badge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:resources/js/components/chat/ChatManager.tsx",
+      "type": "file",
+      "name": "ChatManager.tsx",
+      "filePath": "resources/js/components/chat/ChatManager.tsx",
+      "summary": "Coordinates live support tabs: counselor inbox, visual drag-and-drop auto-reply flow builder, canned responses, and analytics.",
+      "tags": [
+        "react",
+        "chat-manager",
+        "live-support"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:resources/js/components/chat/FlowBuilder.tsx",
+      "type": "file",
+      "name": "FlowBuilder.tsx",
+      "filePath": "resources/js/components/chat/FlowBuilder.tsx",
+      "summary": "Visual node-based canvas for authoring automated interactive conversation trees with simulated live phone preview.",
+      "tags": [
+        "react",
+        "flow-builder",
+        "canvas",
+        "simulator"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:resources/js/utils/profileIsolation.ts",
+      "type": "file",
+      "name": "profileIsolation.ts",
+      "filePath": "resources/js/utils/profileIsolation.ts",
+      "summary": "Client-side tenant isolation logic: enforces campus wing boundaries ensuring staff only interact with assigned locations.",
+      "tags": [
+        "utility",
+        "isolation",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:resources/js/utils/reviewTeam.ts",
+      "type": "file",
+      "name": "reviewTeam.ts",
+      "filePath": "resources/js/utils/reviewTeam.ts",
+      "summary": "Official staff registry mapping campus locations to responsible coordinators, WhatsApp phone numbers, and wing assignments.",
+      "tags": [
+        "utility",
+        "team-registry",
+        "roster"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:resources/js/utils/dateUtils.ts",
+      "type": "file",
+      "name": "dateUtils.ts",
+      "filePath": "resources/js/utils/dateUtils.ts",
+      "summary": "Guarantees Indian Standard Time (Asia/Kolkata) date boundaries for accurate daily review calculations and cut-offs.",
+      "tags": [
+        "utility",
+        "date-handling",
+        "timezone"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:app/Http/Controllers/GoogleBusinessController.php",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Fetches locations, reviews, posts, and publishes AI replies",
+      "weight": 1
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:app/Http/Controllers/AuthController.php",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Authenticates user session and validates permissions",
+      "weight": 0.9
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:resources/js/components/DailyWhatsAppReport.tsx",
+      "type": "contains",
+      "direction": "forward",
+      "description": "Renders WhatsApp growth tab and preview",
+      "weight": 0.9
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:resources/js/components/DailyReviewTargetPage.tsx",
+      "type": "contains",
+      "direction": "forward",
+      "description": "Renders review target planner page",
+      "weight": 0.8
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:resources/js/components/GrowthTools.tsx",
+      "type": "contains",
+      "direction": "forward",
+      "description": "Renders QR stand generator and growth toolkit",
+      "weight": 0.8
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:resources/js/components/WebsiteWidget.tsx",
+      "type": "contains",
+      "direction": "forward",
+      "description": "Renders website widget configurator",
+      "weight": 0.8
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:resources/js/components/chat/ChatManager.tsx",
+      "type": "contains",
+      "direction": "forward",
+      "description": "Hosts website live chat and chatbot builder",
+      "weight": 0.8
+    },
+    {
+      "source": "file:resources/js/App.tsx",
+      "target": "file:resources/js/utils/profileIsolation.ts",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "Filters visible campus tabs by authenticated user wing",
+      "weight": 0.9
+    },
+    {
+      "source": "file:resources/js/components/DailyWhatsAppReport.tsx",
+      "target": "file:resources/js/utils/reviewTeam.ts",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "Looks up in-charge name and phone for each campus",
+      "weight": 0.9
+    },
+    {
+      "source": "file:resources/js/components/DailyWhatsAppReport.tsx",
+      "target": "file:resources/js/utils/dateUtils.ts",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "Normalizes review timestamps to IST",
+      "weight": 0.8
+    },
+    {
+      "source": "file:resources/js/components/DailyWhatsAppReport.tsx",
+      "target": "file:resources/js/utils/profileIsolation.ts",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "Excludes unauthorized campus profiles for members",
+      "weight": 0.9
+    },
+    {
+      "source": "file:resources/js/components/chat/ChatManager.tsx",
+      "target": "file:resources/js/components/chat/FlowBuilder.tsx",
+      "type": "contains",
+      "direction": "forward",
+      "description": "Integrates interactive visual bot flow builder canvas",
+      "weight": 0.9
+    },
+    {
+      "source": "file:resources/js/components/chat/ChatManager.tsx",
+      "target": "file:app/Http/Controllers/ChatAgentController.php",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Syncs counselor messages and conversation statuses",
+      "weight": 1
+    },
+    {
+      "source": "file:resources/js/components/chat/FlowBuilder.tsx",
+      "target": "file:app/Http/Controllers/ChatWidgetController.php",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Saves and publishes live bot flow trees",
+      "weight": 0.9
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:backend-core",
+      "name": "Backend Controllers & Services",
+      "description": "Laravel 12 API controllers, OAuth authentication, Google My Business API integration, and SSE message streaming.",
+      "nodeIds": [
+        "file:app/Http/Controllers/GoogleBusinessController.php",
+        "file:app/Http/Controllers/AuthController.php",
+        "file:app/Http/Controllers/ChatAgentController.php",
+        "file:app/Http/Controllers/ChatWidgetController.php",
+        "file:app/Http/Controllers/FacebookPageController.php"
+      ]
+    },
+    {
+      "id": "layer:frontend-cockpit",
+      "name": "Frontend Cockpit & UI Suite",
+      "description": "React 19 single-page dashboard with Tailwind CSS v4 styling, review feeds, and growth tools.",
+      "nodeIds": [
+        "file:resources/js/App.tsx",
+        "file:resources/js/components/DailyWhatsAppReport.tsx",
+        "file:resources/js/components/DailyReviewTargetPage.tsx",
+        "file:resources/js/components/GrowthTools.tsx",
+        "file:resources/js/components/WebsiteWidget.tsx",
+        "file:resources/js/components/chat/ChatManager.tsx",
+        "file:resources/js/components/chat/FlowBuilder.tsx"
+      ]
+    },
+    {
+      "id": "layer:domain-utilities",
+      "name": "Domain Rules & Roster Utilities",
+      "description": "Campus tenant isolation guards, IST date utilities, and staff coordinator contact directories.",
+      "nodeIds": [
+        "file:resources/js/utils/profileIsolation.ts",
+        "file:resources/js/utils/reviewTeam.ts",
+        "file:resources/js/utils/dateUtils.ts"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Welcome & Google Business Profile Sync",
+      "description": "Everything begins at App.tsx and GoogleBusinessController.php, where OAuth2 connects to Google to discover campus locations and fetch live reviews.",
+      "nodeId": "file:resources/js/App.tsx"
+    },
+    {
+      "order": 2,
+      "title": "Daily WhatsApp Growth & In-Charge Leaderboard",
+      "description": "DailyWhatsAppReport.tsx aggregates today's reviews across all campuses (PCP, Prince School, Prince College, NDA, Hospital) against baseline counts.",
+      "nodeId": "file:resources/js/components/DailyWhatsAppReport.tsx"
+    },
+    {
+      "order": 3,
+      "title": "AI Review Automation via Gemini Flash",
+      "description": "GoogleBusinessController.php utilizes Google Gemini 2.5 Flash to automatically craft high-quality, polite review responses tailored to each campus tone.",
+      "nodeId": "file:app/Http/Controllers/GoogleBusinessController.php"
+    },
+    {
+      "order": 4,
+      "title": "Website Reviews Widget & Counselor Live Chat",
+      "description": "WebsiteWidget.tsx and ChatManager.tsx deliver real-time social proof and live two-way student counselor messaging to institutional websites.",
+      "nodeId": "file:resources/js/components/chat/ChatManager.tsx"
+    },
+    {
+      "order": 5,
+      "title": "Tenant Security & Campus Wing Isolation",
+      "description": "profileIsolation.ts and AuthController.php ensure coordinators strictly see reviews and posts belonging to their assigned campus wing.",
+      "nodeId": "file:resources/js/utils/profileIsolation.ts"
+    }
+  ]
+}

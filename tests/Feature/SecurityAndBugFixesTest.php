@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\GoogleBusinessController;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -453,5 +455,88 @@ class SecurityAndBugFixesTest extends TestCase
         $content = $response->getContent();
         $this->assertStringContainsString('-webkit-line-clamp', $content);
         $this->assertStringContainsString('gbp-widget-resize', $content);
+    }
+
+    public function test_merge_reviews_with_cache_evicts_deleted_reviews(): void
+    {
+        $controller = app(GoogleBusinessController::class);
+
+        $cachedReviews = [
+            [
+                'reviewId' => 'rev-deleted-by-user',
+                'comment' => 'This was deleted on Google',
+                'createTime' => '2026-03-10T12:00:00Z',
+            ],
+            [
+                'reviewId' => 'rev-old-historical',
+                'comment' => 'Very old review',
+                'createTime' => '2025-01-01T10:00:00Z',
+            ],
+        ];
+
+        // Fresh fetch from Google returned reviews spanning 14:00 down to 10:00
+        $freshReviews = [
+            [
+                'reviewId' => 'rev-live-1',
+                'comment' => 'Live review 1',
+                'createTime' => '2026-03-10T14:00:00Z',
+            ],
+            [
+                'reviewId' => 'rev-live-2',
+                'comment' => 'Live review 2',
+                'createTime' => '2026-03-10T10:00:00Z',
+            ],
+        ];
+
+        // When all pages are returned (hasMore = false), only live reviews are kept
+        $merged = $controller->mergeReviewsWithCache($freshReviews, $cachedReviews, false);
+        $reviewIds = array_column($merged, 'reviewId');
+
+        $this->assertContains('rev-live-1', $reviewIds);
+        $this->assertContains('rev-live-2', $reviewIds);
+        $this->assertNotContains('rev-deleted-by-user', $reviewIds);
+        $this->assertNotContains('rev-old-historical', $reviewIds);
+
+        // When Google has more pages (hasMore = true), older historical review is kept, but deleted review within window is pruned
+        $mergedWithMore = $controller->mergeReviewsWithCache($freshReviews, $cachedReviews, true);
+        $reviewIdsWithMore = array_column($mergedWithMore, 'reviewId');
+
+        $this->assertContains('rev-live-1', $reviewIdsWithMore);
+        $this->assertContains('rev-live-2', $reviewIdsWithMore);
+        $this->assertNotContains('rev-deleted-by-user', $reviewIdsWithMore);
+        $this->assertContains('rev-old-historical', $reviewIdsWithMore);
+    }
+
+    public function test_delete_cached_review_endpoint_purges_review_and_blacklists_it(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $locKey = 'gbp_reviews_'.md5('locations/test-purge');
+
+        Cache::forever($locKey, [
+            'reviews' => [
+                [
+                    'reviewId' => 'rev-to-delete',
+                    'comment' => 'To be deleted',
+                ],
+                [
+                    'reviewId' => 'rev-keep',
+                    'comment' => 'To keep',
+                ],
+            ],
+            'totalReviewCount' => 2,
+        ]);
+
+        $response = $this->actingAs($user)->postJson('/api/gbp/reviews/cached', [
+            'reviewId' => 'rev-to-delete',
+            'locationName' => 'locations/test-purge',
+        ]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+
+        $updatedCache = Cache::get($locKey);
+        $cachedIds = array_column($updatedCache['reviews'], 'reviewId');
+        $this->assertNotContains('rev-to-delete', $cachedIds);
+        $this->assertContains('rev-keep', $cachedIds);
+        $this->assertTrue(Cache::has('gbp_deleted_rev_'.md5('rev-to-delete')));
     }
 }

@@ -221,7 +221,7 @@ export const MilestoneForecasterCard: React.FC<MilestoneForecasterCardProps> = (
         </div>
         <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden p-0.5">
           <div
-            className="bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${isNaN(progressPct) ? 0 : progressPct}%` }}
           />
         </div>

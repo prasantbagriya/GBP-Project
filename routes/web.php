@@ -58,7 +58,8 @@ Route::match(['get', 'post'], '/api/admin/setup-db', function (Request $request)
         return response()->json(['error' => 'Forbidden. Super Admin session required.'], 403);
     }
 
-    if ($request->input('key', $request->query('key')) !== 'PrinceEduHub@2026Setup') {
+    $expectedKey = config('app.admin_setup_key') ?: env('ADMIN_SETUP_KEY', 'PrinceEduHub@2026Setup');
+    if ($request->input('key', $request->query('key')) !== $expectedKey) {
         return response()->json(['error' => 'Unauthorized key.'], 403);
     }
 
@@ -164,9 +165,9 @@ Route::middleware('auth')->prefix('api/team')->group(function () {
 // User & Auth endpoints aliases used by React frontend (Google OAuth)
 Route::get('/api/user/status', [GoogleBusinessController::class, 'status']);
 Route::post('/api/logout', [GoogleBusinessController::class, 'logout']);
-Route::post('/api/reviews/ai-reply', [GoogleBusinessController::class, 'generateAiReply']);
-Route::post('/api/reviews/auto-reply-new', [GoogleBusinessController::class, 'autoReplyNewReviews']);
-Route::match(['get', 'post'], '/api/reviews/ai-sentiment', [GoogleBusinessController::class, 'getAiSentiment']);
+Route::post('/api/reviews/ai-reply', [GoogleBusinessController::class, 'generateAiReply'])->middleware('throttle:30,1');
+Route::post('/api/reviews/auto-reply-new', [GoogleBusinessController::class, 'autoReplyNewReviews'])->middleware('throttle:15,1');
+Route::match(['get', 'post'], '/api/reviews/ai-sentiment', [GoogleBusinessController::class, 'getAiSentiment'])->middleware('throttle:30,1');
 Route::post('/api/sync/sheets', [GoogleBusinessController::class, 'syncSheets']);
 Route::match(['get', 'post'], '/api/sync/sheets/info', [GoogleBusinessController::class, 'getSheetInfo']);
 Route::post('/api/sync/sheets/create', [GoogleBusinessController::class, 'createOrLinkSheet']);
@@ -187,6 +188,7 @@ Route::prefix('api/gbp')->group(function () {
     Route::post('/reviews/auto-reply-new', [GoogleBusinessController::class, 'autoReplyNewReviews']);
     Route::post('/reviews/ai-reply', [GoogleBusinessController::class, 'generateAiReply']);
     Route::delete('/reviews/reply', [GoogleBusinessController::class, 'deleteReply']);
+    Route::match(['post', 'delete'], '/reviews/cached', [GoogleBusinessController::class, 'deleteCachedReview']);
     Route::get('/posts', [GoogleBusinessController::class, 'getPosts']);
     Route::post('/posts', [GoogleBusinessController::class, 'createPost']);
     Route::match(['post', 'put', 'patch'], '/posts/update', [GoogleBusinessController::class, 'updatePost']);
@@ -253,10 +255,10 @@ Route::middleware('auth')->prefix('api/fb')->group(function () {
 
 // Public Visitor Endpoints (Used by widget embed script & iframe)
 Route::prefix('api/chat/public')->group(function () {
-    Route::post('/init', [ChatWidgetController::class, 'init']);
-    Route::post('/message', [ChatWidgetController::class, 'sendMessage']);
-    Route::get('/sync', [ChatWidgetController::class, 'sync']);
-    Route::post('/feedback', [ChatWidgetController::class, 'feedback']);
+    Route::post('/init', [ChatWidgetController::class, 'init'])->middleware('throttle:30,1');
+    Route::post('/message', [ChatWidgetController::class, 'sendMessage'])->middleware('throttle:60,1');
+    Route::get('/sync', [ChatWidgetController::class, 'sync'])->middleware('throttle:60,1');
+    Route::post('/feedback', [ChatWidgetController::class, 'feedback'])->middleware('throttle:15,1');
 });
 
 // Embed Script and Standalone Widget Preview

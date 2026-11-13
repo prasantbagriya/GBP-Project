@@ -169,19 +169,19 @@ export const FacebookDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Top Header Banner - Only shown when NO page is connected */}
       {pages.length === 0 && (
-        <div className="card p-5 bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white shadow-sm relative overflow-hidden rounded-lg">
+        <div className="card p-5 sm:p-6 bg-slate-900 text-white border border-slate-800 shadow-xs relative overflow-hidden rounded-xl">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-white/20 text-white text-[11px] font-bold backdrop-blur-xs flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-medium flex items-center gap-1">
                   <Share2 className="w-3 h-3" /> Meta Graph API v21
                 </span>
-                <span className="text-[11px] text-blue-100">Permanent Token Sync</span>
+                <span className="text-[11px] text-slate-400">Token Sync</span>
               </div>
-              <h2 className="text-xl font-black tracking-tight text-white">
+              <h2 className="text-xl font-semibold tracking-tight text-white">
                 Facebook Page Management Suite
               </h2>
-              <p className="text-xs text-blue-100 max-w-xl">
+              <p className="text-xs text-slate-300 max-w-xl">
                 Post updates, moderate comments with Gemini AI, reply to Messenger inquiries, and control page settings live.
               </p>
             </div>

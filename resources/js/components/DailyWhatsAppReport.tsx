@@ -511,7 +511,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           {onNavigateTab ? (
             <button
               onClick={() => onNavigateTab('reviewTargets')}
-              className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
               title="Open Daily Review Targets & Goals Page"
             >
               <Target className="w-3.5 h-3.5 shrink-0" />
@@ -520,10 +520,10 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           ) : (
             <button
               onClick={() => setShowTargetModal(true)}
-              className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
               title="Open Quick Target Planner Popup"
             >
-              <Target className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+              <Target className="w-3.5 h-3.5 text-blue-600 shrink-0" />
               <span className="whitespace-nowrap">Target Planner</span>
             </button>
           )}
@@ -542,14 +542,14 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
       {/* Account Info Pill - Displayed horizontal on mobile exactly like desktop */}
       {Boolean(reportData?.locations?.length) && (
-        <div className="p-3 bg-gradient-to-r from-blue-50/80 via-emerald-50/50 to-white border border-blue-200/80 rounded-xl flex items-center justify-between gap-2.5 text-xs font-medium text-slate-700 w-full min-w-0 shadow-2xs">
+        <div className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-2.5 text-xs font-medium text-slate-700 w-full min-w-0 shadow-2xs">
           <div className="flex items-center gap-2 min-w-0">
-            <Building2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-            <span className="font-bold text-slate-800 text-xs sm:text-sm truncate">
+            <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="font-semibold text-slate-900 text-xs sm:text-sm truncate">
               Google Business Profile
             </span>
           </div>
-          <span className="text-[11px] bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-700 font-bold flex-shrink-0 whitespace-nowrap shadow-2xs">
+          <span className="text-[11px] bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-slate-700 font-semibold shrink-0 whitespace-nowrap">
             {reportData?.locations?.length || 0} Profiles Linked
           </span>
         </div>
@@ -665,13 +665,13 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         <div className="lg:col-span-7 space-y-6">
           
           {/* Quick Target Planner Banner */}
-          <div className="p-3.5 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-emerald-500/10 border border-blue-200/80 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Target className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-800">
+                <h4 className="text-xs font-semibold text-slate-900">
                   Daily Review Target & Member Planner
                 </h4>
                 <p className="text-[11px] text-slate-500">
@@ -689,7 +689,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   setShowTargetModal(true);
                 }
               }}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
             >
               <Target className="w-3.5 h-3.5" />
               <span>Open Target Planner</span>
@@ -732,10 +732,10 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   className="text-xs font-bold bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
                   title="Profile order in report"
                 >
-                  <option value="rating_asc">⭐ Lowest Rating First (Default)</option>
-                  <option value="rating_desc">⭐ Highest Rating First</option>
-                  <option value="growth_desc">📈 Today's Growth (Highest First)</option>
-                  <option value="reviews_desc">📊 Total Reviews (Highest First)</option>
+                  <option value="rating_asc">Lowest Rating First (Default)</option>
+                  <option value="rating_desc">Highest Rating First</option>
+                  <option value="growth_desc">Today's Growth (Highest First)</option>
+                  <option value="reviews_desc">Total Reviews (Highest First)</option>
                 </select>
               </div>
             </div>
@@ -792,7 +792,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSelectProfile(loc.id)}
-                            className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0"
+                            className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -811,20 +811,20 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                 )}
                               </h4>
                               {loc.storeCode && (
-                                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold flex-shrink-0">
+                                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold shrink-0">
                                   {loc.storeCode}
                                 </span>
                               )}
-                              <span className="text-xs text-amber-600 font-bold flex items-center gap-0.5 flex-shrink-0">
+                              <span className="text-xs text-amber-600 font-bold flex items-center gap-0.5 shrink-0">
                                 {loc.averageRating} <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                               </span>
                               {isChecked ? (
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1 flex-shrink-0">
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1 shrink-0">
                                   <Check className="w-2.5 h-2.5 text-emerald-600" />
                                   In Report
                                 </span>
                               ) : (
-                                <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 flex-shrink-0" title="This profile is deselected and will NOT appear in the report until checked">
+                                <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 shrink-0" title="This profile is deselected and will NOT appear in the report until checked">
                                   Deselected (Hidden from report)
                                 </span>
                               )}
@@ -887,29 +887,29 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
                               {/* Growth Tag */}
                               {loc.difference > 0 ? (
-                                <span className="p-1 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold flex items-center gap-1 text-[11px] flex-shrink-0">
+                                <span className="p-1 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
                                   <TrendingUp className="w-3 h-3" /> +{loc.difference} Growth
                                 </span>
                               ) : loc.difference < 0 ? (
-                                <span className="p-1 px-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg font-bold flex items-center gap-1 text-[11px] flex-shrink-0">
+                                <span className="p-1 px-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
                                   <TrendingDown className="w-3 h-3" /> {loc.difference} Drop
                                 </span>
                               ) : (
-                                <span className="p-1 px-2 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[11px] font-medium flex items-center gap-1 flex-shrink-0">
+                                <span className="p-1 px-2 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[11px] font-medium flex items-center gap-1 shrink-0">
                                   <Minus className="w-3 h-3 text-slate-400" />
                                   <span>No change</span>
                                 </span>
                               )}
 
                               {Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0)) > 0 && (
-                                <span className="p-1 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 flex-shrink-0">
+                                <span className="p-1 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0">
                                 <MessageSquare className="w-3 h-3 text-blue-600" />
                                 <span>+{Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0))} today</span>
                               </span>
                               )}
 
                               {loc.pendingCount > 0 && (
-                                <span className="p-1 px-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[11px] font-bold flex items-center gap-1 flex-shrink-0">
+                                <span className="p-1 px-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0">
                                   <Clock className="w-3 h-3 text-amber-600" />
                                   <span>{loc.pendingCount} pending</span>
                                 </span>
@@ -924,7 +924,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                               onSelectLocation(loc.v4Name || loc.name || loc.id);
                               onNavigateTab?.('reviews');
                             }}
-                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 flex-shrink-0 cursor-pointer"
+                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 shrink-0 cursor-pointer"
                             title={`Open ${loc.title} reviews`}
                           >
                             Open ↗
@@ -1225,9 +1225,9 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           {/* WhatsApp Chat Device Frame Mockup */}
           <div className="rounded-2xl border border-slate-300 shadow-md overflow-hidden bg-[#efeae2] flex flex-col max-h-[640px] w-full max-w-full">
             {/* WhatsApp Top Bar */}
-            <div className="bg-[#008069] text-white p-3 px-4 flex items-center justify-between flex-shrink-0 shadow-xs">
+            <div className="bg-[#008069] text-white p-3 px-4 flex items-center justify-between shrink-0 shadow-xs">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-emerald-800 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-emerald-800 text-white font-bold flex items-center justify-center text-xs shrink-0">
                   G
                 </div>
                 <div className="min-w-0">
@@ -1237,7 +1237,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] text-emerald-100 flex-shrink-0">
+              <span className="text-[10px] text-emerald-100 shrink-0">
                 {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
@@ -1254,7 +1254,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             </div>
 
             {/* WhatsApp Bottom Quick Action Toolbar */}
-            <div className="p-2.5 sm:p-3 bg-[#f0f2f5] border-t border-slate-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 flex-shrink-0 w-full">
+            <div className="p-2.5 sm:p-3 bg-[#f0f2f5] border-t border-slate-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shrink-0 w-full">
               <button
                 onClick={handleCopy}
                 className="flex-1 min-w-[100px] py-2 px-2.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-md text-xs font-medium text-slate-700 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all whitespace-nowrap shrink-0"

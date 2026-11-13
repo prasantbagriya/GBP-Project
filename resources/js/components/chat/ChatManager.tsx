@@ -28,20 +28,20 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ panelUser }) => {
     <div className="space-y-5 w-full max-w-full min-w-0 overflow-x-hidden">
       
       {/* Header Banner */}
-      <div className="card p-4 sm:p-6 bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-800 text-white rounded-2xl shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+      <div className="card p-4 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
         <div className="space-y-1.5 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="p-2 bg-white/20 rounded-xl text-white shrink-0 shadow-xs">
+            <span className="p-2 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-xl shrink-0 shadow-xs">
               <MessageSquare className="w-5 h-5" />
             </span>
-            <h2 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight">
               Website Live Support & Drag-and-Drop Chatbot
             </h2>
-            <span className="bg-emerald-500/90 text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shadow-2xs">
+            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-semibold text-[10px] uppercase px-2 py-0.5 rounded-full">
               Real-time Active
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-indigo-100 max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
             Real-time live visitor inbox, team member routing, visual drag-and-drop auto-reply builder, and embeddable website widget.
           </p>
         </div>

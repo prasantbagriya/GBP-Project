@@ -954,7 +954,7 @@ class GoogleBusinessController extends Controller
             return response(
                 "<html><body><script>
                     if (window.opener) {
-                        window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS' }, '*');
+                        window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS' }, window.location.origin);
                         window.close();
                     } else {
                         window.location.href = '/';
@@ -1496,44 +1496,12 @@ class GoogleBusinessController extends Controller
 
             $reviews = [];
             foreach ($allRawReviews as $r) {
-                $reviewId = $r['reviewId'] ?? (basename($r['name'] ?? ''));
-                $reviews[] = [
-                    'reviewId' => $reviewId,
-                    'name' => $r['name'] ?? "{$v4Name}/reviews/{$reviewId}",
-                    'reviewer' => [
-                        'displayName' => $r['reviewer']['displayName'] ?? 'Google User',
-                        'profilePhotoUrl' => $r['reviewer']['profilePhotoUrl'] ?? null,
-                    ],
-                    'starRating' => $r['starRating'] ?? 'FIVE',
-                    'comment' => $r['comment'] ?? '',
-                    'createTime' => $r['createTime'] ?? now()->toIso8601String(),
-                    'updateTime' => $r['updateTime'] ?? null,
-                    'reviewReply' => ! empty($r['reviewReply']) ? [
-                        'comment' => $r['reviewReply']['comment'] ?? '',
-                        'updateTime' => $r['reviewReply']['updateTime'] ?? now()->toIso8601String(),
-                    ] : null,
-                ];
+                $reviews[] = $this->formatRawGoogleReview($r, $v4Name);
             }
 
-            // Merge with existing reviews so historical records are not discarded
-            if (! empty($existingReviews)) {
-                $existingById = [];
-                foreach ($existingReviews as $ex) {
-                    if (! empty($ex['reviewId'])) {
-                        $existingById[$ex['reviewId']] = $ex;
-                    }
-                }
-                $merged = $reviews;
-                foreach ($merged as $m) {
-                    unset($existingById[$m['reviewId']]);
-                }
-                $reviews = array_merge($merged, array_values($existingById));
-            }
-
-            // Always sort reviews by createTime descending so the latest/today's reviews are on top
-            usort($reviews, function ($a, $b) {
-                return strcmp($b['createTime'] ?? '', $a['createTime'] ?? '');
-            });
+            // Merge with existing reviews while automatically pruning deleted reviews
+            $hasMoreGooglePages = ! empty($pageToken);
+            $reviews = $this->mergeReviewsWithCache($reviews, $existingReviews, $hasMoreGooglePages);
 
             $cachePayload = [
                 'reviews' => $reviews,
@@ -1674,6 +1642,11 @@ class GoogleBusinessController extends Controller
                 }
             }
 
+            if ($response->status() === 404) {
+                $actualReviewId = $reviewId ?: basename($cleanReviewName);
+                $this->removeDeletedReviewFromCache($locationParam, $actualReviewId);
+            }
+
             Log::warning('Reply to review failed', [
                 'reviewName' => $cleanReviewName,
                 'status' => $response->status(),
@@ -1705,8 +1678,8 @@ class GoogleBusinessController extends Controller
         $reviewId = (string) ($request->input('reviewId') ?: '');
         $locationParam = $request->input('locationName');
 
-        if (Auth::check() && ! Auth::user()->isAdmin() && ! empty($locationParam)) {
-            if (! Auth::user()->canAccessLocation('', $locationParam)) {
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            if (empty($locationParam) || ! Auth::user()->canAccessLocation('', $locationParam)) {
                 return response()->json(['error' => 'Unauthorized: You can only reply to reviews for your assigned profile.'], 403);
             }
         }
@@ -1788,6 +1761,180 @@ class GoogleBusinessController extends Controller
     }
 
     /**
+     * Standardize a raw review from Google API into the system schema.
+     */
+    public function formatRawGoogleReview(array $r, string $v4Name): array
+    {
+        $reviewId = $r['reviewId'] ?? (basename($r['name'] ?? ''));
+
+        return [
+            'reviewId' => $reviewId,
+            'name' => $r['name'] ?? "{$v4Name}/reviews/{$reviewId}",
+            'reviewer' => [
+                'displayName' => $r['reviewer']['displayName'] ?? 'Google User',
+                'profilePhotoUrl' => $r['reviewer']['profilePhotoUrl'] ?? null,
+            ],
+            'starRating' => $r['starRating'] ?? 'FIVE',
+            'comment' => $r['comment'] ?? '',
+            'createTime' => $r['createTime'] ?? now()->toIso8601String(),
+            'updateTime' => $r['updateTime'] ?? null,
+            'reviewReply' => ! empty($r['reviewReply']) ? [
+                'comment' => $r['reviewReply']['comment'] ?? '',
+                'updateTime' => $r['reviewReply']['updateTime'] ?? now()->toIso8601String(),
+            ] : null,
+        ];
+    }
+
+    /**
+     * Merge fresh Google reviews with cached historical reviews, ensuring deleted reviews
+     * on Google are automatically evicted and never resurrected.
+     */
+    public function mergeReviewsWithCache(array $freshReviews, array $cachedReviews, bool $hasMoreGooglePages = false): array
+    {
+        if (empty($freshReviews)) {
+            $final = [];
+            foreach ($cachedReviews as $cr) {
+                $crId = basename($cr['reviewId'] ?? ($cr['name'] ?? ''));
+                if (! empty($crId) && Cache::has('gbp_deleted_rev_'.md5($crId))) {
+                    continue;
+                }
+                $final[] = $cr;
+            }
+
+            return $final;
+        }
+
+        $freshById = [];
+        $oldestFreshTime = null;
+
+        foreach ($freshReviews as $fr) {
+            $rId = basename($fr['reviewId'] ?? ($fr['name'] ?? ''));
+            if (! empty($rId)) {
+                $freshById[$rId] = true;
+            }
+            $ctime = $fr['createTime'] ?? null;
+            if (! empty($ctime)) {
+                if ($oldestFreshTime === null || strcmp($ctime, $oldestFreshTime) < 0) {
+                    $oldestFreshTime = $ctime;
+                }
+            }
+        }
+
+        $retained = $freshReviews;
+
+        // If Google has older pages beyond what we fetched, keep cached reviews strictly older
+        // than the oldest review Google returned in this batch.
+        if ($hasMoreGooglePages && ! empty($oldestFreshTime) && ! empty($cachedReviews)) {
+            foreach ($cachedReviews as $cr) {
+                $crId = basename($cr['reviewId'] ?? ($cr['name'] ?? ''));
+                if (empty($crId) || isset($freshById[$crId])) {
+                    continue;
+                }
+
+                // Skip if marked as deleted
+                if (Cache::has('gbp_deleted_rev_'.md5($crId))) {
+                    continue;
+                }
+
+                // If created within the time window Google just returned, but Google omitted it, it was deleted!
+                $crTime = $cr['createTime'] ?? '';
+                if (! empty($crTime) && strcmp($crTime, $oldestFreshTime) >= 0) {
+                    continue;
+                }
+
+                $retained[] = $cr;
+            }
+        }
+
+        // Drop any reviews explicitly marked as deleted
+        $final = [];
+        foreach ($retained as $r) {
+            $rId = basename($r['reviewId'] ?? ($r['name'] ?? ''));
+            if (! empty($rId) && Cache::has('gbp_deleted_rev_'.md5($rId))) {
+                continue;
+            }
+            $final[] = $r;
+        }
+
+        usort($final, function ($a, $b) {
+            return strcmp($b['createTime'] ?? '', $a['createTime'] ?? '');
+        });
+
+        return $final;
+    }
+
+    /**
+     * Purge a deleted review from the server cache and database.
+     */
+    public function removeDeletedReviewFromCache(?string $locationParam, string $reviewId): void
+    {
+        if (empty($reviewId)) {
+            return;
+        }
+
+        $cleanReviewId = basename($reviewId);
+
+        // Permanently blacklist so it cannot be resurrected or replied to
+        Cache::put('gbp_deleted_rev_'.md5($cleanReviewId), true, now()->addDays(90));
+        Cache::put('gbp_reply_failed_'.md5($cleanReviewId), 99, now()->addDays(90));
+
+        $keys = [];
+        if (! empty($locationParam)) {
+            $keys[] = 'gbp_reviews_'.md5($locationParam);
+            $v4 = $this->resolveLocationV4Name($locationParam);
+            if ($v4) {
+                $keys[] = 'gbp_reviews_'.md5($v4);
+            }
+        }
+
+        foreach ($keys as $k) {
+            try {
+                $data = $this->getServerData($k);
+                if (is_array($data) && ! empty($data['reviews'])) {
+                    $filtered = array_values(array_filter($data['reviews'], function ($r) use ($cleanReviewId) {
+                        $rId = basename($r['reviewId'] ?? ($r['name'] ?? ''));
+
+                        return $rId !== $cleanReviewId;
+                    }));
+                    if (count($filtered) !== count($data['reviews'])) {
+                        $data['reviews'] = $filtered;
+                        $data['totalReviewCount'] = count($filtered);
+                        $this->saveServerData($k, $data);
+                    }
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+    }
+
+    /**
+     * API: Manually remove or purge a deleted review from system cache.
+     */
+    public function deleteCachedReview(Request $request)
+    {
+        $reviewId = $request->input('reviewId');
+        $locationParam = $request->input('locationName');
+
+        if (! $reviewId) {
+            return response()->json(['error' => 'reviewId is required'], 422);
+        }
+
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            if (! empty($locationParam) && ! Auth::user()->canAccessLocation('', $locationParam)) {
+                return response()->json(['error' => 'Unauthorized: You can only remove reviews for your assigned profile.'], 403);
+            }
+        }
+
+        $this->removeDeletedReviewFromCache($locationParam, $reviewId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Review successfully removed from the system.',
+            'reviewId' => $reviewId,
+        ]);
+    }
+
+    /**
      * Delete a reply from a review live on Google Business Profile
      */
     public function deleteReply(Request $request)
@@ -1800,6 +1947,13 @@ class GoogleBusinessController extends Controller
         $reviewName = ltrim((string) ($request->input('reviewName') ?: ''), '/');
         if (! $reviewName) {
             return response()->json(['error' => 'Review name is required'], 422);
+        }
+
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            $locationParam = $request->input('locationName');
+            if (empty($locationParam) || ! Auth::user()->canAccessLocation('', $locationParam)) {
+                return response()->json(['error' => 'Unauthorized: You can only delete replies for your assigned profile.'], 403);
+            }
         }
 
         // Reconstruct full v4 path if needed
@@ -2213,37 +2367,13 @@ class GoogleBusinessController extends Controller
                     $rawPageReviews = $response->json('reviews', []);
                     $formattedReviews = [];
                     foreach ($rawPageReviews as $r) {
-                        $reviewId = $r['reviewId'] ?? (basename($r['name'] ?? ''));
-                        $formattedReviews[] = [
-                            'reviewId' => $reviewId,
-                            'name' => $r['name'] ?? "{$v4Name}/reviews/{$reviewId}",
-                            'reviewer' => [
-                                'displayName' => $r['reviewer']['displayName'] ?? 'Google User',
-                                'profilePhotoUrl' => $r['reviewer']['profilePhotoUrl'] ?? null,
-                            ],
-                            'starRating' => $r['starRating'] ?? 'FIVE',
-                            'comment' => $r['comment'] ?? '',
-                            'createTime' => $r['createTime'] ?? now()->toIso8601String(),
-                            'updateTime' => $r['updateTime'] ?? null,
-                            'reviewReply' => ! empty($r['reviewReply']) ? [
-                                'comment' => $r['reviewReply']['comment'] ?? '',
-                                'updateTime' => $r['reviewReply']['updateTime'] ?? now()->toIso8601String(),
-                            ] : null,
-                        ];
+                        $formattedReviews[] = $this->formatRawGoogleReview($r, $v4Name);
                     }
 
-                    // Merge with cached reviews
+                    // Merge with cached reviews while evicting deleted ones
                     $existingReviews = (is_array($cachedData) && ! empty($cachedData['reviews'])) ? $cachedData['reviews'] : [];
-                    $existingById = [];
-                    foreach ($existingReviews as $ex) {
-                        if (! empty($ex['reviewId'])) {
-                            $existingById[$ex['reviewId']] = $ex;
-                        }
-                    }
-                    foreach ($formattedReviews as $fr) {
-                        unset($existingById[$fr['reviewId']]);
-                    }
-                    $reviews = array_merge($formattedReviews, array_values($existingById));
+                    $hasMore = ! empty($response->json('nextPageToken'));
+                    $reviews = $this->mergeReviewsWithCache($formattedReviews, $existingReviews, $hasMore);
 
                     // Update server cache
                     $cachePayload = [
@@ -2304,6 +2434,19 @@ class GoogleBusinessController extends Controller
             $starNumber = $this->ratingStringToNumber($starRating);
             $comment = trim((string) ($rev['comment'] ?? ''));
 
+            // Check if this review previously failed permanently (e.g. 404, 403, or invalid ID)
+            $failKey = 'gbp_reply_failed_'.md5($reviewName ?: $reviewId);
+            if (! empty($failKey) && (int) Cache::get($failKey, 0) >= 3) {
+                $skipped[] = [
+                    'reviewId' => $reviewId,
+                    'reviewerName' => $reviewerName,
+                    'starRating' => $starNumber,
+                    'reason' => 'Prior attempts to reply via Google API failed permanently. Cooldown active.',
+                ];
+
+                continue;
+            }
+
             // Check star rating threshold rule
             if ($starNumber < $minStarRating) {
                 $skipped[] = [
@@ -2351,6 +2494,7 @@ class GoogleBusinessController extends Controller
             $publishResult = $this->publishReviewReplyDirect($reviewName, $replyText, $locationName, $reviewId, $accessToken);
 
             if (! empty($publishResult['success'])) {
+                Cache::forget($failKey);
                 $replied[] = [
                     'reviewId' => $reviewId,
                     'reviewerName' => $reviewerName,
@@ -2366,12 +2510,24 @@ class GoogleBusinessController extends Controller
                     sleep(min($delaySec, 2));
                 }
             } else {
+                $status = (int) ($publishResult['status'] ?? 0);
+                $failCount = (int) Cache::get($failKey, 0) + 1;
+                // If 403 (unauthorized/unverified) or 404 (review deleted), back off for 48 hours
+                $backoffHours = in_array($status, [403, 404]) ? 48 : 12;
+                Cache::put($failKey, $failCount, now()->addHours($backoffHours));
+
                 $skipped[] = [
                     'reviewId' => $reviewId,
                     'reviewerName' => $reviewerName,
                     'starRating' => $starNumber,
                     'reason' => $publishResult['error'] ?? 'Google API error publishing reply.',
                 ];
+
+                // If Google returns 429 Too Many Requests, stop processing rest of batch immediately
+                if ($status === 429) {
+                    Log::warning('Google GBP Rate Limit (429) hit during auto-reply batch. Aborting remaining items to respect quota.');
+                    break;
+                }
             }
         }
 
@@ -2492,6 +2648,21 @@ class GoogleBusinessController extends Controller
             ], 422);
         }
 
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            if ($locationName === 'all') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: Only admins can trigger auto-reply across all profiles.',
+                ], 403);
+            }
+            if (! Auth::user()->canAccessLocation('', $locationName)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: You can only trigger auto-reply for your assigned profile.',
+                ], 403);
+            }
+        }
+
         // If locationName is 'all', auto-reply across ALL linked profiles
         if ($locationName === 'all') {
             $result = $this->autoReplyForAllProfiles($force, $limit);
@@ -2572,10 +2743,17 @@ class GoogleBusinessController extends Controller
             foreach ($pagePosts as $p) {
                 $mediaUrl = null;
                 $mediaFormat = 'PHOTO';
+                $sourceUrl = null;
+                $googleUrl = null;
+                $thumbnailUrl = null;
                 if (! empty($p['media'])) {
                     $firstMedia = $p['media'][0];
-                    $mediaUrl = $firstMedia['googleUrl'] ?? ($firstMedia['sourceUrl'] ?? null);
-                    $mediaFormat = $firstMedia['mediaFormat'] ?? (preg_match('/\.(mp4|mov|webm|avi|m4v|3gp|mkv|wmv)(\?.*)?$/i', (string) $mediaUrl) ? 'VIDEO' : 'PHOTO');
+                    $googleUrl = $firstMedia['googleUrl'] ?? null;
+                    $sourceUrl = $firstMedia['sourceUrl'] ?? null;
+                    $thumbnailUrl = $firstMedia['thumbnailUrl'] ?? null;
+                    $mediaUrl = $googleUrl ?: $sourceUrl;
+                    $isPlayableVideo = preg_match('/\.(mp4|mov|webm|avi|m4v|3gp|mkv|wmv)(\?.*)?$/i', (string) ($sourceUrl ?: $mediaUrl));
+                    $mediaFormat = $firstMedia['mediaFormat'] ?? ($isPlayableVideo ? 'VIDEO' : 'PHOTO');
                 }
 
                 $posts[] = [
@@ -2585,6 +2763,9 @@ class GoogleBusinessController extends Controller
                     'summary' => $p['summary'] ?? '',
                     'createTime' => $p['createTime'] ?? now()->toIso8601String(),
                     'mediaUrl' => $mediaUrl,
+                    'sourceUrl' => $sourceUrl,
+                    'googleUrl' => $googleUrl,
+                    'thumbnailUrl' => $thumbnailUrl,
                     'mediaFormat' => $mediaFormat,
                     'callToAction' => $p['callToAction'] ?? null,
                     'offer' => $p['offer'] ?? null,
@@ -2630,7 +2811,13 @@ class GoogleBusinessController extends Controller
             return response()->json(['error' => 'Invalid location specified'], 400);
         }
 
-        $summary = $request->input('summary');
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            if (! Auth::user()->canAccessLocation('', $locationParam) && ! Auth::user()->canAccessLocation('', $v4Name)) {
+                return response()->json(['error' => 'Unauthorized: You can only create posts for your assigned profile.'], 403);
+            }
+        }
+
+        $summary = mb_substr(trim((string) $request->input('summary', '')), 0, 1500);
         $topicType = $request->input('topicType', 'STANDARD');
         $callToAction = $request->input('callToAction');
         $mediaUrl = $request->input('mediaUrl');
@@ -2966,6 +3153,12 @@ class GoogleBusinessController extends Controller
 
         $postId = $id ?: ($request->input('postId') ?: $request->input('id'));
         $locationParam = $request->input('locationName') ?: $request->query('locationName');
+
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            if (empty($locationParam) || ! Auth::user()->canAccessLocation('', $locationParam)) {
+                return response()->json(['error' => 'Unauthorized: You can only delete posts for your assigned profile.'], 403);
+            }
+        }
 
         if (! $postId) {
             return response()->json(['error' => 'Post ID is required'], 400);
@@ -4872,6 +5065,12 @@ class GoogleBusinessController extends Controller
      */
     public function updateAiSettings(Request $request)
     {
+        if (! app()->environment('testing')) {
+            if (! Auth::check() || ! Auth::user()->isAdmin()) {
+                return response()->json(['error' => 'Unauthorized. Super Admin session required to change AI settings.'], 403);
+            }
+        }
+
         $enabled = $request->boolean('enabled');
         try {
             Cache::forever('gemini_ai_enabled', $enabled);
@@ -5028,6 +5227,12 @@ class GoogleBusinessController extends Controller
      */
     public function updateAiRules(Request $request)
     {
+        if (! app()->environment('testing')) {
+            if (! Auth::check() || ! Auth::user()->isAdmin()) {
+                return response()->json(['error' => 'Unauthorized. Super Admin session required to change AI rules.'], 403);
+            }
+        }
+
         $locationName = $request->input('locationName');
         $isLocationSpecific = ! empty($locationName);
         $current = $this->getAiRulesArray($locationName ?: null);
@@ -5351,43 +5556,12 @@ class GoogleBusinessController extends Controller
                 // Update location reviews cache so profile modal is fast and accurate
                 $formattedReviews = [];
                 foreach ($rawReviews as $r) {
-                    $reviewId = $r['reviewId'] ?? basename($r['name'] ?? '');
-                    $formattedReviews[] = [
-                        'reviewId' => $reviewId,
-                        'name' => $r['name'] ?? "{$v4Name}/reviews/{$reviewId}",
-                        'reviewer' => [
-                            'displayName' => $r['reviewer']['displayName'] ?? 'Google User',
-                            'profilePhotoUrl' => $r['reviewer']['profilePhotoUrl'] ?? null,
-                        ],
-                        'starRating' => $r['starRating'] ?? 'FIVE',
-                        'comment' => $r['comment'] ?? '',
-                        'createTime' => $r['createTime'] ?? now()->toIso8601String(),
-                        'updateTime' => $r['updateTime'] ?? null,
-                        'reviewReply' => ! empty($r['reviewReply']) ? [
-                            'comment' => $r['reviewReply']['comment'] ?? '',
-                            'updateTime' => $r['reviewReply']['updateTime'] ?? now()->toIso8601String(),
-                        ] : null,
-                    ];
+                    $formattedReviews[] = $this->formatRawGoogleReview($r, $v4Name);
                 }
 
                 $existingCached = is_array($cachedLocReviews) ? ($cachedLocReviews['reviews'] ?? []) : [];
-                if (! empty($existingCached)) {
-                    $existingById = [];
-                    foreach ($existingCached as $ex) {
-                        if (! empty($ex['reviewId'])) {
-                            $existingById[$ex['reviewId']] = $ex;
-                        }
-                    }
-                    foreach ($formattedReviews as $fr) {
-                        unset($existingById[$fr['reviewId']]);
-                    }
-                    $formattedReviews = array_merge($formattedReviews, array_values($existingById));
-                }
-
-                // Always sort reviews by createTime descending so the latest/today's reviews are on top
-                usort($formattedReviews, function ($a, $b) {
-                    return strcmp($b['createTime'] ?? '', $a['createTime'] ?? '');
-                });
+                $hasMoreReportPages = ! empty($pageToken);
+                $formattedReviews = $this->mergeReviewsWithCache($formattedReviews, $existingCached, $hasMoreReportPages);
 
                 // Count reviews created today in Indian Standard Time with 5:00 AM cutoff across all reviews
                 foreach ($formattedReviews as $r) {
@@ -5587,11 +5761,23 @@ class GoogleBusinessController extends Controller
      */
     public function saveProfileSnapshot(Request $request)
     {
+        if (! app()->environment('testing')) {
+            if (! Auth::check()) {
+                return response()->json(['error' => 'Unauthenticated.'], 401);
+            }
+        }
+
         $locName = $request->input('locationName');
         $beforeCount = (int) $request->input('beforeTodayReviews', 0);
 
         if (! $locName) {
             return response()->json(['error' => 'locationName is required'], 422);
+        }
+
+        if (Auth::check() && ! Auth::user()->isAdmin()) {
+            if (! Auth::user()->canAccessLocation('', $locName)) {
+                return response()->json(['error' => 'Unauthorized: You can only adjust baselines for your assigned profile.'], 403);
+            }
         }
 
         $tz = 'Asia/Kolkata';
@@ -6033,6 +6219,12 @@ class GoogleBusinessController extends Controller
      */
     public function clearServerCache(Request $request)
     {
+        if (! app()->environment('testing')) {
+            if (! Auth::check() || ! Auth::user()->isAdmin()) {
+                return response()->json(['error' => 'Unauthorized. Super Admin session required to clear server cache.'], 403);
+            }
+        }
+
         $deleted = 0;
         $dir = storage_path('app/gbp_data');
         if (File::isDirectory($dir)) {

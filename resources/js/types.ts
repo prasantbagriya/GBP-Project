@@ -1,4 +1,5 @@
 export interface Location {
+  id?: string;
   name: string;
   v4Name?: string;
   title: string;
@@ -34,6 +35,9 @@ export interface Post {
     url?: string;
   };
   mediaUrl?: string;
+  sourceUrl?: string;
+  googleUrl?: string;
+  thumbnailUrl?: string;
   mediaFormat?: 'PHOTO' | 'VIDEO';
   createTime: string;
   offer?: {
@@ -109,6 +113,7 @@ export interface TeamMember {
 export interface ProfileReportItem {
   id: string;
   name: string;
+  v4Name?: string;
   title: string;
   address?: string;
   storeCode?: string;
@@ -129,6 +134,7 @@ export interface ProfileReportItem {
 export interface MultiProfileReportData {
   success: boolean;
   hasReport?: boolean;
+  isToday?: boolean;
   cached?: boolean;
   userEmail?: string;
   generatedAt: string;

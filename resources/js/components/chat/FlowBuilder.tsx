@@ -1244,7 +1244,7 @@ export const FlowBuilder: React.FC = () => {
           {/* Live Simulator Button */}
           <button
             onClick={startSimulator}
-            className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span className="hidden md:inline">Test Flow</span>
@@ -2067,15 +2067,19 @@ export const FlowBuilder: React.FC = () => {
                               type="text"
                               value={btn.text}
                               onChange={e => {
-                                const updated = [...selectedNode.data.buttons];
-                                updated[idx].text = e.target.value;
+                                const currentButtons = selectedNode.data.buttons || [];
+                                const updated = [...currentButtons];
+                                if (updated[idx]) {
+                                  updated[idx].text = e.target.value;
+                                }
                                 handleUpdateSelectedNode('buttons', updated);
                               }}
                               className="flex-1 p-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs outline-none focus:border-indigo-500"
                             />
                             <button
                               onClick={() => {
-                                const updated = selectedNode.data.buttons.filter((_: any, i: number) => i !== idx);
+                                const currentButtons = selectedNode.data.buttons || [];
+                                const updated = currentButtons.filter((_: any, i: number) => i !== idx);
                                 handleUpdateSelectedNode('buttons', updated);
                                 setEdges(prev => prev.filter(e => !(e.source === selectedNode.id && e.sourceHandle === btn.id)));
                               }}
@@ -2385,7 +2389,7 @@ export const FlowBuilder: React.FC = () => {
       {/* ======================================================== */}
       {simulatorOpen && (
         <div className="absolute inset-y-0 right-0 w-80 md:w-96 bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
-          <div className="p-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between">
+          <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="w-5 h-5" />
               <div>

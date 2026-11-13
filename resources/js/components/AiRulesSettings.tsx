@@ -580,17 +580,17 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       </div>
 
       {/* 7. AI Model Engine, Speed & Response Control */}
-      <div className="p-3 sm:p-3.5 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-white border border-indigo-200 rounded-md space-y-2.5 shadow-2xs">
+      <div className="p-3 sm:p-3.5 bg-slate-50 border border-slate-200 rounded-md space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2 text-indigo-950 font-bold text-xs sm:text-sm">
-            <Cpu className="w-4 h-4 text-indigo-600" />
+          <div className="flex items-center gap-2 text-slate-900 font-semibold text-xs sm:text-sm">
+            <Cpu className="w-4 h-4 text-blue-600" />
             <span>7. AI Engine, Speed & Reply Length Controls</span>
             <InfoTooltip
               title="AI Engine Controller"
               content="Directly controls Google Gemini parameters: active model, response speed (thinking budget), output verbosity, and creative temperature."
             />
           </div>
-          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+          <span className="text-[10px] bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider">
             Active Controller
           </span>
         </div>

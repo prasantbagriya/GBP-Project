@@ -407,7 +407,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     const maxCap = weeklyTarget > 70 ? Math.ceil(weeklyTarget / 5) : 10;
     const minCap = weeklyTarget >= 7 ? 1 : 0;
 
-    let counts = Array.from({ length: 7 }, () => minCap);
+    let counts: number[] = Array.from({ length: 7 }, () => minCap);
     let remaining = weeklyTarget - (minCap * 7);
 
     if (remaining < 0) {
@@ -469,7 +469,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       : 10;
     const minCap = remainingTarget >= numUnlocked ? 1 : 0;
 
-    let counts = Array.from({ length: numUnlocked }, () => minCap);
+    let counts: number[] = Array.from({ length: numUnlocked }, () => minCap);
     let remaining = remainingTarget - (minCap * numUnlocked);
 
     if (remaining < 0) {
@@ -1577,7 +1577,11 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                       <td className="p-3 text-center font-bold text-blue-700 text-sm">
                         <span className="flex items-center justify-center gap-1">
                           {todayTarget}
-                          {isDayLocked && <Lock className="w-2.5 h-2.5 text-slate-400" title="Day is completed / locked" />}
+                          {isDayLocked && (
+                            <span title="Day is completed / locked">
+                              <Lock className="w-2.5 h-2.5 text-slate-400" />
+                            </span>
+                          )}
                         </span>
                       </td>
 

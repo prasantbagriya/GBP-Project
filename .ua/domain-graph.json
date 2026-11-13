@@ -1,0 +1,608 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Prince Edu Hub GBP & Growth Automation Suite",
+    "languages": [
+      "PHP",
+      "TypeScript",
+      "JavaScript",
+      "Blade",
+      "CSS"
+    ],
+    "frameworks": [
+      "Laravel 12",
+      "React 19",
+      "Tailwind CSS v4",
+      "Inertia / Vite"
+    ],
+    "description": "Multi-location Google Business Profile management, AI-driven review replies, daily WhatsApp growth digest, campus target planning, and visitor chatbot for Prince Edu Hub educational institutions.",
+    "analyzedAt": "2026-11-13T04:09:53.802Z",
+    "gitCommitHash": "2835c20e6fd77dcd06c5a9519286271e793e59b8"
+  },
+  "nodes": [
+    {
+      "id": "domain:gbp-management",
+      "type": "domain",
+      "name": "Google Business Profile Sync & Operations",
+      "summary": "Handles Google OAuth2 authentication, multi-location discovery, bidirectional review syncing, post publishing, and educational program catalog maintenance across all Prince Edu Hub campuses.",
+      "tags": [
+        "gbp",
+        "google-api",
+        "reviews",
+        "locations",
+        "oauth2"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "GoogleBusinessProfile",
+          "LocationReview",
+          "ReviewReply",
+          "BusinessPost",
+          "BusinessService"
+        ],
+        "businessRules": [
+          "Campus staff can only view profiles assigned to their campus wing unless authenticated as system admin.",
+          "Deleted or flagged Google reviews must not be displayed in active reporting once purged upstream.",
+          "Rate limits on Google API calls must be respected with token refresh throttling."
+        ],
+        "crossDomainInteractions": [
+          "Supplies real-time review stream to the AI Reply Automation engine.",
+          "Feeds daily rating counters to the Daily WhatsApp Growth and Target Planner.",
+          "Streams verified 5-star testimonials to the Website Widget."
+        ]
+      }
+    },
+    {
+      "id": "flow:sync-gbp-reviews",
+      "type": "flow",
+      "name": "Live Review Sync Pipeline",
+      "summary": "Fetches updated reviews from Google Business Profile API v4, computes rating averages and response rates, and syncs records into MySQL.",
+      "tags": [
+        "sync",
+        "reviews",
+        "api"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /api/gbp/reviews",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:sync-gbp-reviews:auth-token",
+      "type": "step",
+      "name": "Validate & Refresh OAuth Token",
+      "summary": "Verifies Google access token freshness; requests new token from refresh credentials if expired.",
+      "tags": [
+        "oauth",
+        "google"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "lineRange": [
+        45,
+        95
+      ]
+    },
+    {
+      "id": "step:sync-gbp-reviews:fetch-remote",
+      "type": "step",
+      "name": "Query Google Business API",
+      "summary": "Calls Google My Business v4 endpoint to retrieve recent reviews with author avatars, star ratings, and comment text.",
+      "tags": [
+        "api-fetch",
+        "google-my-business"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "lineRange": [
+        150,
+        240
+      ]
+    },
+    {
+      "id": "step:sync-gbp-reviews:persist-mysql",
+      "type": "step",
+      "name": "Store & Update Database Records",
+      "summary": "Upserts reviews in MySQL, sanitizes reviewer names, updates local cache, and computes campus rating velocity.",
+      "tags": [
+        "mysql",
+        "upsert",
+        "cache"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "lineRange": [
+        250,
+        340
+      ]
+    },
+    {
+      "id": "domain:ai-reply-engine",
+      "type": "domain",
+      "name": "Gemini AI Review Reply Engine",
+      "summary": "Automates respectful, personalized responses to campus Google reviews using Google Gemini 2.5 Flash, following customized institutional tone rules.",
+      "tags": [
+        "gemini-ai",
+        "automation",
+        "reputation",
+        "prompts"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "AiReplyRule",
+          "ReviewDraft",
+          "ToneConfig",
+          "KeywordExclusion"
+        ],
+        "businessRules": [
+          "5-star reviews receive polite gratitude with campus highlight points.",
+          "Negative reviews (1-2 stars) trigger courteous grievance redressal with verified office contact numbers.",
+          "Negative keywords must prevent auto-posting until human verification."
+        ],
+        "crossDomainInteractions": [
+          "Reads incoming unreplied reviews from GBP Operations domain.",
+          "Sends generated reply payloads back to Google API for public publishing."
+        ]
+      }
+    },
+    {
+      "id": "flow:auto-reply-pipeline",
+      "type": "flow",
+      "name": "AI Reply Generation & Publishing",
+      "summary": "Evaluates star rating, constructs prompt with campus tone rules, queries Gemini Flash, and publishes the reply to Google.",
+      "tags": [
+        "ai",
+        "gemini",
+        "reply"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/gbp/ai-reply",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:auto-reply-pipeline:evaluate-rules",
+      "type": "step",
+      "name": "Evaluate Rating & Keyword Rules",
+      "summary": "Checks star filter, negative blacklist triggers, and applies campus-specific instructions.",
+      "tags": [
+        "rules",
+        "filtering"
+      ],
+      "complexity": "simple",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "lineRange": [
+        450,
+        520
+      ]
+    },
+    {
+      "id": "step:auto-reply-pipeline:gemini-generate",
+      "type": "step",
+      "name": "Generate Draft with Gemini AI",
+      "summary": "Calls Google Gemini 2.5 Flash API with institutional context to generate polite, natural response in Hindi or English.",
+      "tags": [
+        "gemini-api",
+        "inference"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "lineRange": [
+        530,
+        610
+      ]
+    },
+    {
+      "id": "step:auto-reply-pipeline:publish-google",
+      "type": "step",
+      "name": "Publish Reply to Google Profile",
+      "summary": "Calls Google reviews/reply endpoint to publish the approved text live onto Google Maps and Search.",
+      "tags": [
+        "publish",
+        "google-maps"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/GoogleBusinessController.php",
+      "lineRange": [
+        620,
+        680
+      ]
+    },
+    {
+      "id": "domain:growth-and-reporting",
+      "type": "domain",
+      "name": "WhatsApp Growth Reports & Member Targets",
+      "summary": "Aggregates day-over-day review growth across all Prince Edu Hub institutions (PCP, Prince School, Prince College, NDA Academy, Prince Hospital), generates morning executive WhatsApp digests, and tracks daily staff targets.",
+      "tags": [
+        "whatsapp",
+        "growth",
+        "leaderboard",
+        "targets",
+        "pdf-reports"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "DailyReportDigest",
+          "ReviewTarget",
+          "CampusWingInCharge",
+          "WeeklyPdfExport"
+        ],
+        "businessRules": [
+          "Report operates strictly on Indian Standard Time (Asia/Kolkata).",
+          "Calculates net review change (today count minus historical baseline).",
+          "Automated target distribution must balance remaining weekly quota across 7 days realistically."
+        ],
+        "crossDomainInteractions": [
+          "Consumes live rating counters from GBP Operations.",
+          "Provides printable PDF audit summaries for campus executive meetings."
+        ]
+      }
+    },
+    {
+      "id": "flow:daily-whatsapp-report",
+      "type": "flow",
+      "name": "Morning WhatsApp Growth Digest Generation",
+      "summary": "Aggregates all campus ratings, compares against yesterday, groups by campus in-charge, and formats a clean WhatsApp message.",
+      "tags": [
+        "whatsapp",
+        "aggregation",
+        "digest"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /api/reports/daily-whatsapp",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:daily-whatsapp-report:aggregate-campuses",
+      "type": "step",
+      "name": "Aggregate Campus Ratings & Growth",
+      "summary": "Loops through all active campus Google Business Profiles, calculating net increase and baseline delta.",
+      "tags": [
+        "aggregation",
+        "metrics"
+      ],
+      "complexity": "moderate",
+      "filePath": "resources/js/components/DailyWhatsAppReport.tsx",
+      "lineRange": [
+        250,
+        360
+      ]
+    },
+    {
+      "id": "step:daily-whatsapp-report:format-whatsapp",
+      "type": "step",
+      "name": "Compose WhatsApp Formatted Markdown",
+      "summary": "Applies bold profile names, star ratings, campus in-charge phone numbers, and summary totals formatted for WhatsApp.",
+      "tags": [
+        "markdown",
+        "whatsapp-syntax"
+      ],
+      "complexity": "simple",
+      "filePath": "resources/js/components/DailyWhatsAppReport.tsx",
+      "lineRange": [
+        370,
+        480
+      ]
+    },
+    {
+      "id": "domain:website-live-chat",
+      "type": "domain",
+      "name": "Website Widget & Visitor Live Chatbot",
+      "summary": "Powers the embeddable Google review badge on institution websites and delivers real-time two-way messaging between campus counselors and prospective students.",
+      "tags": [
+        "chat",
+        "widget",
+        "live-support",
+        "bot-flow",
+        "sse"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "ChatConversation",
+          "ChatMessage",
+          "ChatFlow",
+          "VisitorSession"
+        ],
+        "businessRules": [
+          "Visitors can engage with automated flow trees or transfer to live campus counselor.",
+          "Counselor internal notes must never be exposed to public visitor session.",
+          "All live chat sessions auto-sync via Server-Sent Events (SSE) or polling."
+        ],
+        "crossDomainInteractions": [
+          "Pulls verified 5-star Google review snippets for social proof inside the widget.",
+          "Feeds lead contact numbers to WhatsApp admissions outreach."
+        ]
+      }
+    },
+    {
+      "id": "flow:visitor-live-inbox",
+      "type": "flow",
+      "name": "Live Visitor Messaging & Counselor Inbox",
+      "summary": "Manages visitor conversations, counselor assignment, real-time message streaming, and internal private staff notes.",
+      "tags": [
+        "messaging",
+        "counselor",
+        "inbox"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/chat/messages",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:visitor-live-inbox:receive-message",
+      "type": "step",
+      "name": "Store & Route Visitor Message",
+      "summary": "Ingests visitor inquiry, validates session, updates conversation status, and triggers staff notifications.",
+      "tags": [
+        "inbox",
+        "routing"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/ChatAgentController.php",
+      "lineRange": [
+        80,
+        160
+      ]
+    },
+    {
+      "id": "step:visitor-live-inbox:stream-sse",
+      "type": "step",
+      "name": "Stream Real-Time Updates",
+      "summary": "Dispatches Server-Sent Events to connected counselor dashboard and visitor iframe.",
+      "tags": [
+        "sse",
+        "realtime"
+      ],
+      "complexity": "moderate",
+      "filePath": "app/Http/Controllers/ChatWidgetController.php",
+      "lineRange": [
+        120,
+        210
+      ]
+    },
+    {
+      "id": "domain:security-and-access",
+      "type": "domain",
+      "name": "Campus Security & Wing Isolation",
+      "summary": "Enforces role-based permissions, OTP verification, and strict campus wing data isolation so designated coordinators only access their own institution.",
+      "tags": [
+        "auth",
+        "security",
+        "wing-isolation",
+        "rbac",
+        "rate-limiting"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "PanelUser",
+          "CampusWing",
+          "UserSession",
+          "AuditLog"
+        ],
+        "businessRules": [
+          "Admin users have global visibility across all 12+ Prince Edu Hub branches.",
+          "Member users are restricted strictly to reviews and posts of their designated campus wing.",
+          "Authentication endpoints are strictly rate-limited against brute force."
+        ],
+        "crossDomainInteractions": [
+          "Secures all API endpoints across GBP, WhatsApp Reporting, and Live Chat.",
+          "Filters data models globally before serialization to frontend components."
+        ]
+      }
+    },
+    {
+      "id": "flow:campus-wing-isolation",
+      "type": "flow",
+      "name": "Campus Data Isolation Barrier",
+      "summary": "Inspects session user role and assigned wing; filters database queries to only return authorized locations and reviews.",
+      "tags": [
+        "isolation",
+        "guard",
+        "tenant"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Middleware & ProfileIsolationService",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:campus-wing-isolation:validate-user",
+      "type": "step",
+      "name": "Inspect Session & Assigned Wing",
+      "summary": "Determines whether requesting user has admin privileges or restricted campus coordinator role.",
+      "tags": [
+        "auth",
+        "role-check"
+      ],
+      "complexity": "simple",
+      "filePath": "app/Http/Controllers/AuthController.php",
+      "lineRange": [
+        40,
+        110
+      ]
+    },
+    {
+      "id": "step:campus-wing-isolation:filter-records",
+      "type": "step",
+      "name": "Filter Query Records by Campus Wing",
+      "summary": "Applies wing whitelist filter to locations, reviews, posts, and daily target records before rendering.",
+      "tags": [
+        "filtering",
+        "privacy"
+      ],
+      "complexity": "moderate",
+      "filePath": "resources/js/utils/profileIsolation.ts",
+      "lineRange": [
+        15,
+        85
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "domain:gbp-management",
+      "target": "flow:sync-gbp-reviews",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:sync-gbp-reviews",
+      "target": "step:sync-gbp-reviews:auth-token",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:sync-gbp-reviews",
+      "target": "step:sync-gbp-reviews:fetch-remote",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:sync-gbp-reviews",
+      "target": "step:sync-gbp-reviews:persist-mysql",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:ai-reply-engine",
+      "target": "flow:auto-reply-pipeline",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:auto-reply-pipeline",
+      "target": "step:auto-reply-pipeline:evaluate-rules",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:auto-reply-pipeline",
+      "target": "step:auto-reply-pipeline:gemini-generate",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:auto-reply-pipeline",
+      "target": "step:auto-reply-pipeline:publish-google",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:growth-and-reporting",
+      "target": "flow:daily-whatsapp-report",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:daily-whatsapp-report",
+      "target": "step:daily-whatsapp-report:aggregate-campuses",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:daily-whatsapp-report",
+      "target": "step:daily-whatsapp-report:format-whatsapp",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:website-live-chat",
+      "target": "flow:visitor-live-inbox",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:visitor-live-inbox",
+      "target": "step:visitor-live-inbox:receive-message",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:visitor-live-inbox",
+      "target": "step:visitor-live-inbox:stream-sse",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:security-and-access",
+      "target": "flow:campus-wing-isolation",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:campus-wing-isolation",
+      "target": "step:campus-wing-isolation:validate-user",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:campus-wing-isolation",
+      "target": "step:campus-wing-isolation:filter-records",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:gbp-management",
+      "target": "domain:ai-reply-engine",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Streams unreplied Google reviews into Gemini AI reply pipeline",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:gbp-management",
+      "target": "domain:growth-and-reporting",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Provides review count and rating baseline for WhatsApp digests and target tracking",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:gbp-management",
+      "target": "domain:website-live-chat",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Streams verified 5-star testimonials into the live website review carousel",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:security-and-access",
+      "target": "domain:gbp-management",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Guards campus profiles by authenticated coordinator wing",
+      "weight": 1
+    }
+  ],
+  "layers": [],
+  "tour": []
+}

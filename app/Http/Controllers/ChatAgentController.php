@@ -227,6 +227,8 @@ class ChatAgentController extends Controller
             'is_read' => true,
         ]);
 
+        $conversation->update(['last_message_at' => now()]);
+
         return response()->json([
             'success' => true,
             'message' => [

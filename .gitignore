@@ -29,3 +29,6 @@ Thumbs.db
 *.tar.gz
 *.rar
 *.7z
+.ua/intermediate/
+.ua/tmp/
+

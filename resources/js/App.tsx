@@ -14,12 +14,10 @@ import {
   Users, 
   TrendingUp, 
   ExternalLink, 
-  CheckCircle2, 
   AlertCircle,
   MessageSquare,
   Send,
   Sparkles,
-  Calendar,
   Tag,
   Plus,
   Trash2,
@@ -27,12 +25,10 @@ import {
   Download,
   BarChart3,
   Bot,
-  Sliders,
   Check,
   Clock,
   Megaphone,
   Briefcase,
-  DollarSign,
   Filter,
   ChevronLeft,
   ChevronRight,
@@ -47,11 +43,11 @@ import {
   Power,
   MessageCircle,
   Code,
-  Globe,
   Upload,
   Smartphone,
-  Image as ImageIcon,
-  Target
+  Target,
+  Play,
+  Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Location, Review, Post, BusinessService, TabType, HubType, AiAutomationRules, PanelUser } from './types';
@@ -71,7 +67,7 @@ import { AiSentimentTopicsCard } from './components/reports/AiSentimentTopicsCar
 import { InfoTooltip } from './components/InfoTooltip';
 import { FacebookDashboard } from './components/facebook/FacebookDashboard';
 import { ChatManager } from './components/chat/ChatManager';
-import { getBusinessDateStr, getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp } from './utils/dateUtils';
+import { getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp } from './utils/dateUtils';
 import { isItemAllowedForMember } from './utils/profileIsolation';
 
 export default function App() {
@@ -1204,6 +1200,25 @@ export default function App() {
     }
   };
 
+  const handlePurgeReview = async (reviewId: string) => {
+    if (!confirm('क्या आप इस रिव्यू को सिस्टम से हटाना चाहते हैं? (अगर यह रिव्यू Google पर डिलीट हो चुका है तो यह सिस्टम से तुरंत हट जाएगा)')) return;
+    try {
+      const res = await fetch('/api/gbp/reviews/cached', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+        },
+        body: JSON.stringify({ reviewId, locationName: activeLoc?.v4Name || activeLoc?.name })
+      });
+      if (res.ok) {
+        setReviews(prev => prev.filter(r => r.reviewId !== reviewId));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleAutoReplyNewReviews = async () => {
     if (!activeLoc) {
       alert('Please select a business profile first.');
@@ -1406,10 +1421,15 @@ export default function App() {
     });
   };
 
+  const isPlayableVideoUrl = (url?: string): boolean => {
+    if (!url) return false;
+    return /\.(mp4|mov|webm|avi|m4v|3gp|mkv|wmv)(\?.*)?$/i.test(url) || url.startsWith('blob:') || url.startsWith('data:video/');
+  };
+
   const isVideoMedia = (url?: string, format?: string): boolean => {
     if (format === 'VIDEO') return true;
     if (!url) return false;
-    return /\.(mp4|mov|webm|avi|m4v|3gp|mkv|wmv)(\?.*)?$/i.test(url);
+    return isPlayableVideoUrl(url);
   };
 
   const uploadMediaToServer = async (file: File): Promise<string> => {
@@ -2235,7 +2255,7 @@ export default function App() {
                   setActiveTab('team');
                 }
               }}
-              className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center cursor-pointer shadow-sm ring-2 ring-slate-800 hover:scale-105 transition"
+              className="w-9 h-9 rounded-lg bg-blue-600 text-white font-semibold text-xs flex items-center justify-center cursor-pointer shadow-xs hover:bg-blue-700 transition-colors"
               title={`${panelUser.name} (${panelUser.role})${panelUser.assigned_wing ? ` • Wing: ${panelUser.assigned_wing}` : ''}`}
             >
               {(panelUser.name || 'U').charAt(0).toUpperCase()}
@@ -2449,7 +2469,7 @@ export default function App() {
 
               {/* Install App Banner in Mobile Drawer */}
               {!isAppInstalled && (
-                <div className="mb-4 p-3 bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
+                <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                       <Smartphone className="w-4 h-4" />
@@ -2561,7 +2581,7 @@ export default function App() {
       {/* Main Content Area */}
       <main onScroll={handleMainScroll} className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto sidebar-scroll pb-20 md:pb-8">
         {/* Sticky Header with Hamburger - Smoothly auto-hides on scroll down */}
-        <header className={`h-13 sm:h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-8 text-sm flex-shrink-0 sticky top-0 z-30 shadow-2xs flex-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
+        <header className={`h-13 sm:h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-8 text-sm shrink-0 sticky top-0 z-30 shadow-2xs flex-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
           headerVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
         }`}>
           {/* Left section: Hamburger menu & Profile info (Strictly Single Line) */}
@@ -2569,7 +2589,7 @@ export default function App() {
             {/* Hamburger on Mobile */}
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden w-8 h-8 flex items-center justify-center -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-lg focus:outline-none transition-colors cursor-pointer flex-shrink-0"
+              className="md:hidden w-8 h-8 flex items-center justify-center -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-lg focus:outline-none transition-colors cursor-pointer shrink-0"
               aria-label="Open Navigation Menu"
             >
               <Menu className="w-5 h-5" />
@@ -2597,7 +2617,7 @@ export default function App() {
               className="flex items-center gap-1.5 sm:gap-2 min-w-0 cursor-pointer md:cursor-default group p-1 -m-1 rounded-lg hover:bg-slate-50 md:hover:bg-transparent transition-colors flex-nowrap"
               title={'Tap to switch location'}
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600 shadow-2xs">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600 shadow-2xs">
                 <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
 
@@ -2608,18 +2628,18 @@ export default function App() {
                 
                 {/* Live pulsing dot right next to title */}
                 {activeLoc && (
-                  <span className="relative flex h-2 w-2 flex-shrink-0" title="Profile Live">
+                  <span className="relative flex h-2 w-2 shrink-0" title="Profile Live">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                 )}
 
                 {/* Subtle chevron on mobile */}
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 md:hidden flex-shrink-0" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 md:hidden shrink-0" />
                 
                 {/* Live Status badge on desktop */}
                 {activeLoc && (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex-shrink-0">
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live
                   </span>
                 )}
@@ -2628,12 +2648,12 @@ export default function App() {
           </div>
 
           {/* Right section: Header action buttons (Single Line & Uniform Height) */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 flex-nowrap">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0 flex-nowrap">
             {/* Gemini AI Enable / Disable Header Toggle Button */}
             <button
               onClick={toggleGeminiAi}
               disabled={togglingAi}
-              className={`h-8 sm:h-9 px-2 sm:px-2.5 border rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`h-8 sm:h-9 px-2 sm:px-2.5 border rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0 ${
                 geminiEnabled
                   ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-800'
                   : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-600'
@@ -2666,7 +2686,7 @@ export default function App() {
                 }
               }}
               disabled={isRefreshing}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-slate-500 hover:text-blue-600 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 text-slate-500 hover:text-blue-600 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer"
               title={'Live Refresh from Google API'}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
@@ -2722,21 +2742,25 @@ export default function App() {
         {/* Content Container - Compact on Mobile, Spacious on Desktop */}
         <div className="p-2.5 sm:p-5 lg:p-6 space-y-3.5 sm:space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
           {!authStatus && (
-            <div className="card p-4 sm:p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-              <div className="space-y-1">
-                <h3 className="text-base font-bold flex items-center gap-2">
-                  <Building2 className="w-5 h-5" />
+            <div className="card p-5 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                  Google Business Profile
+                </div>
+                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-blue-400" />
                   {'Connect Your Google Business Profile'}
                 </h3>
-                <p className="text-xs text-blue-100 max-w-xl">
+                <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
                   {'Connect your official Google account to sync live reviews, replies, posts, operating hours, and services in real-time.'}
                 </p>
               </div>
               <button
                 onClick={handleConnect}
-                className="px-5 py-2.5 bg-white text-blue-700 hover:bg-blue-50 font-bold text-xs rounded-lg shadow-md transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                className="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-medium text-xs rounded-lg shadow-xs transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
               >
-                <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" />
+                <img src="https://www.google.com/favicon.ico" className="w-4 h-4 shrink-0" alt="" />
                 {'Connect with Google'}
               </button>
             </div>
@@ -2831,17 +2855,17 @@ export default function App() {
               </div>
 
               {/* Daily WhatsApp Growth Banner */}
-              <div className="card p-3.5 sm:p-5 bg-gradient-to-r from-emerald-50/70 via-teal-50/30 to-white border-emerald-200 border-l-4 border-l-emerald-600 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
+              <div className="card p-4 sm:p-5 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-sm shadow-emerald-600/20">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <MessageCircle className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-bold text-slate-800 text-sm">
+                      <h4 className="font-semibold text-slate-900 text-sm">
                         {'Daily WhatsApp Growth Report'}
                       </h4>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 font-medium px-2 py-0.5 rounded-md">
                         {locations.length} {locations.length === 1 ? 'Profile' : 'Profiles'}
                       </span>
                     </div>
@@ -2853,14 +2877,14 @@ export default function App() {
                 <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto shrink-0">
                   <button 
                     onClick={() => setActiveTab('reviewTargets')}
-                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <Target className="w-4 h-4 shrink-0" />
                     <span>Daily Targets</span>
                   </button>
                   <button 
                     onClick={() => setActiveTab('whatsappReport')}
-                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <MessageCircle className="w-4 h-4 shrink-0" />
                     <span>WhatsApp Report</span>
@@ -2950,13 +2974,13 @@ export default function App() {
                                 {/* Animated Vertical Bar */}
                                 <div className="w-full max-w-[28px] bg-slate-100 rounded-t-md overflow-hidden flex items-end h-full">
                                   <div
-                                    className={`w-full rounded-t-md transition-all duration-500 shadow-2xs ${
+                                    className={`w-full rounded-t-md transition-all duration-300 ${
                                       isToday
-                                        ? 'bg-gradient-to-t from-blue-600 via-indigo-600 to-indigo-400 group-hover:brightness-110'
+                                        ? 'bg-blue-600'
                                         : isPeak
-                                        ? 'bg-gradient-to-t from-blue-500 to-sky-400 group-hover:brightness-110'
+                                        ? 'bg-blue-500'
                                         : item.total > 0
-                                        ? 'bg-gradient-to-t from-slate-400 to-slate-300 group-hover:from-blue-400 group-hover:to-blue-300'
+                                        ? 'bg-slate-400 group-hover:bg-blue-400'
                                         : 'bg-slate-200'
                                     }`}
                                     style={{ height: `${heightPct}%` }}
@@ -3094,7 +3118,7 @@ export default function App() {
                                     referrerPolicy="no-referrer"
                                   />
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs flex items-center justify-center shrink-0">
                                     {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
                                   </div>
                                 )}
@@ -3120,15 +3144,15 @@ export default function App() {
                               </div>
 
                             {hasReply ? (
-                              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
+                              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1 shrink-0 whitespace-nowrap">
                                 <CheckCheck className="w-3 h-3" /> {'Replied'}
                               </span>
                             ) : (
-                              <div className="flex items-center gap-1 flex-shrink-0">
+                              <div className="flex items-center gap-1 shrink-0">
                                 <button
                                   type="button"
                                   onClick={() => handleOpenReplyModal(rev, true)}
-                                  className="px-2 py-1 text-[11px] font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded transition-all flex items-center gap-1 shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
+                                  className="px-2.5 py-1 text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                   title="Draft instant personalized response with Gemini AI"
                                 >
                                   <Sparkles className="w-3 h-3 shrink-0" /> <span className="whitespace-nowrap">AI Reply</span>
@@ -3136,7 +3160,7 @@ export default function App() {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenReplyModal(rev, false)}
-                                  className="px-2 py-1 text-[11px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                                  className="px-2.5 py-1 text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                   title="Open reply modal"
                                 >
                                   <MessageSquare className="w-3 h-3 shrink-0" /> <span className="whitespace-nowrap">Reply</span>
@@ -3295,12 +3319,12 @@ export default function App() {
                             {rev.reviewer.profilePhotoUrl ? (
                               <img 
                                 src={rev.reviewer.profilePhotoUrl} 
-                                className="w-10 h-10 rounded-full border border-slate-200 mt-0.5 flex-shrink-0"
+                                className="w-10 h-10 rounded-full border border-slate-200 mt-0.5 shrink-0"
                                 alt=""
                                 referrerPolicy="no-referrer"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium text-sm flex items-center justify-center mt-0.5 flex-shrink-0">
+                              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium text-sm flex items-center justify-center mt-0.5 shrink-0">
                                 {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -3342,7 +3366,7 @@ export default function App() {
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, true)}
-                                className="px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md shadow-2xs transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                                className="px-2.5 py-1 text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                 title="Draft instant response with Gemini AI"
                               >
                                 <Sparkles className="w-3.5 h-3.5 shrink-0" />
@@ -3351,7 +3375,7 @@ export default function App() {
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, false)}
-                                className="px-2.5 py-1 text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-blue-200 whitespace-nowrap shrink-0"
+                                className="px-2.5 py-1 text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-slate-200 whitespace-nowrap shrink-0"
                                 title="Open reply modal"
                               >
                                 <Edit3 className="w-3.5 h-3.5 shrink-0" />
@@ -3368,6 +3392,15 @@ export default function App() {
                               <span className="whitespace-nowrap">{'Edit'}</span>
                             </button>
                           )}
+
+                          <button
+                            type="button"
+                            onClick={() => handlePurgeReview(rev.reviewId)}
+                            className="p-1 text-slate-300 hover:text-red-500 rounded transition-colors ml-0.5"
+                            title="अगर यह रिव्यू Google पर डिलीट हो चुका है तो सिस्टम से हटाएं"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
 
@@ -3431,8 +3464,8 @@ export default function App() {
               {/* Gemini AI Global Enable/Disable Compact Bar */}
               <div className={`card p-2.5 sm:p-3 border flex items-center justify-between gap-2.5 transition-all ${
                 geminiEnabled 
-                  ? 'bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white border-blue-200' 
-                  : 'bg-slate-50 border-slate-300'
+                  ? 'bg-blue-50/50 border-blue-200' 
+                  : 'bg-slate-50 border-slate-200'
               }`}>
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className={`p-1.5 rounded-md flex items-center justify-center shrink-0 ${
@@ -3638,22 +3671,43 @@ export default function App() {
                   {posts.map((post) => (
                   <div key={post.id} className="card overflow-hidden flex flex-col hover:shadow-md transition-shadow">
                     {post.mediaUrl && (
-                      <div className="h-44 w-full overflow-hidden bg-slate-100 relative">
-                        {isVideoMedia(post.mediaUrl, post.mediaFormat) ? (
+                      <div className="h-44 w-full overflow-hidden bg-slate-900 relative group">
+                        {isPlayableVideoUrl(post.sourceUrl || post.mediaUrl) ? (
                           <video 
-                            src={post.mediaUrl} 
+                            src={post.sourceUrl && isPlayableVideoUrl(post.sourceUrl) ? post.sourceUrl : post.mediaUrl} 
                             controls 
                             className="w-full h-full object-cover bg-black" 
+                            onError={(e) => {
+                              const videoEl = e.currentTarget;
+                              videoEl.style.display = 'none';
+                              const imgEl = videoEl.nextElementSibling as HTMLElement;
+                              if (imgEl) imgEl.style.display = 'block';
+                            }}
                           />
-                        ) : (
-                          <img src={post.mediaUrl} className="w-full h-full object-cover" alt="" />
+                        ) : null}
+
+                        <img 
+                          src={post.mediaUrl} 
+                          className="w-full h-full object-cover" 
+                          alt="Post media" 
+                          style={{ display: isPlayableVideoUrl(post.sourceUrl || post.mediaUrl) ? 'none' : 'block' }}
+                        />
+
+                        {post.mediaFormat === 'VIDEO' && !isPlayableVideoUrl(post.sourceUrl || post.mediaUrl) && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/35 transition-colors pointer-events-none">
+                            <div className="w-10 h-10 rounded-full bg-slate-900/80 text-white flex items-center justify-center shadow-lg backdrop-blur-xs">
+                              <Play className="w-5 h-5 fill-white ml-0.5" />
+                            </div>
+                          </div>
                         )}
+
                         <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded shadow bg-slate-900/80 text-white uppercase tracking-wider backdrop-blur-sm">
                           {post.topicType}
                         </span>
-                        {isVideoMedia(post.mediaUrl, post.mediaFormat) && (
-                          <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded shadow bg-blue-600/90 text-white uppercase tracking-wider backdrop-blur-sm">
-                            Video
+
+                        {post.mediaFormat === 'VIDEO' && (
+                          <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded shadow bg-blue-600/90 text-white uppercase tracking-wider backdrop-blur-sm flex items-center gap-1">
+                            <Video className="w-3 h-3" /> Video
                           </span>
                         )}
                       </div>
@@ -3872,10 +3926,10 @@ export default function App() {
               ) : linkedSheet ? (
                 /* Connected State: Sheet is already created and remembered permanently! */
                 <div className="space-y-6">
-                  <div className="card p-6 bg-gradient-to-r from-emerald-50/70 via-white to-white border-emerald-200 rounded-xl space-y-4 shadow-2xs">
+                  <div className="card p-5 sm:p-6 bg-white border border-slate-200 rounded-xl space-y-4 shadow-2xs">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-start gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-md shadow-emerald-600/20">
+                        <div className="w-10 h-10 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-emerald-600/20">
                           <FileSpreadsheet className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
@@ -3915,9 +3969,9 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="p-3 bg-white/80 border border-emerald-100 rounded-md text-xs text-slate-600 flex items-center justify-between gap-2">
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-600 flex items-center justify-between gap-2">
                       <span className="text-[11px] text-slate-600 leading-relaxed">
-                        ⚡ <strong>Permanently Linked:</strong> All updated reviews and analytics automatically sync into this sheet whenever you click export below.
+                        <strong className="text-slate-900 font-semibold">Live Sync Active:</strong> Updated reviews and analytics sync to this sheet whenever you run export below.
                       </span>
                     </div>
                   </div>
@@ -3961,7 +4015,7 @@ export default function App() {
 
                   {syncFeedback && (
                     <div className={`p-3.5 rounded-md text-xs font-semibold flex items-center gap-2 ${syncStatus === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
-                      {syncStatus === 'error' ? <AlertCircle className="w-4 h-4 flex-shrink-0" /> : <Check className="w-4 h-4 flex-shrink-0 text-emerald-600" />}
+                      {syncStatus === 'error' ? <AlertCircle className="w-4 h-4 shrink-0" /> : <Check className="w-4 h-4 shrink-0 text-emerald-600" />}
                       <span>{syncFeedback}</span>
                     </div>
                   )}
@@ -3970,7 +4024,7 @@ export default function App() {
                 /* Not Connected State: Offer 1-Click Auto Create or Manual Link */
                 <div className="card p-4 sm:p-6 space-y-5 sm:space-y-6">
                   {/* Option 1: 1-Click Auto Generate */}
-                  <div className="p-4 sm:p-5 bg-gradient-to-br from-blue-50/80 via-indigo-50/30 to-white border border-blue-200 rounded-xl shadow-2xs">
+                  <div className="p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-xl shadow-2xs">
                     <div className="flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -4044,7 +4098,7 @@ export default function App() {
                             type="button"
                             onClick={() => handleLinkExistingSheet(manualSheetInput)}
                             disabled={!manualSheetInput.trim()}
-                            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-black disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex-shrink-0 cursor-pointer whitespace-nowrap shadow-2xs text-center"
+                            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-black disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all shrink-0 cursor-pointer whitespace-nowrap shadow-2xs text-center"
                           >
                             Link Sheet
                           </button>
@@ -4055,7 +4109,7 @@ export default function App() {
 
                   {syncFeedback && (
                     <div className={`p-3.5 rounded-md text-xs font-semibold flex items-center gap-2 ${syncStatus === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
-                      {syncStatus === 'error' ? <AlertCircle className="w-4 h-4 flex-shrink-0" /> : <Check className="w-4 h-4 flex-shrink-0 text-emerald-600" />}
+                      {syncStatus === 'error' ? <AlertCircle className="w-4 h-4 shrink-0" /> : <Check className="w-4 h-4 shrink-0 text-emerald-600" />}
                       <span>{syncFeedback}</span>
                     </div>
                   )}
@@ -4368,7 +4422,7 @@ export default function App() {
                             <span>Extracting...</span>
                           </>
                         ) : (
-                          <span>⚡ Extract Caption & Photo</span>
+                          <span>Extract Caption & Photo</span>
                         )}
                       </button>
                       <button
@@ -4381,7 +4435,7 @@ export default function App() {
                             handleAiPostAction(false);
                           }
                         }}
-                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold text-[11px] rounded shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1"
                         title="Extracts post and rewrites Google post based specifically on this post's content"
                       >
                         {extractingFbPost ? (
@@ -4427,7 +4481,7 @@ export default function App() {
                         type="button"
                         onClick={() => handleAiPostAction(false)}
                         disabled={generatingAiPost}
-                        className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md text-[10px] sm:text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[10px] sm:text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
                         title={newPostSummary.trim() ? "AI Rewrite & Polish this post with CTA" : "Auto-generate a new post draft with Gemini AI"}
                       >
                         <Sparkles className={`w-3 h-3 ${generatingAiPost ? 'animate-spin' : ''}`} />
@@ -4846,7 +4900,7 @@ export default function App() {
                             <span>Extracting...</span>
                           </>
                         ) : (
-                          <span>⚡ Extract Caption & Photo</span>
+                          <span>Extract Caption & Photo</span>
                         )}
                       </button>
                       <button
@@ -4859,7 +4913,7 @@ export default function App() {
                             handleAiPostAction(true);
                           }
                         }}
-                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold text-[11px] rounded shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1"
                         title="Extracts post and rewrites Google post based specifically on this post's content"
                       >
                         {extractingFbPost ? (
@@ -4905,7 +4959,7 @@ export default function App() {
                         type="button"
                         onClick={() => handleAiPostAction(true)}
                         disabled={generatingAiPost}
-                        className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-md text-[10px] sm:text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[10px] sm:text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
                         title={editPostSummary.trim() ? "AI Rewrite & Polish this post with CTA" : "Auto-generate a new post draft with Gemini AI"}
                       >
                         <Sparkles className={`w-3 h-3 ${generatingAiPost ? 'animate-spin' : ''}`} />
@@ -5232,7 +5286,7 @@ export default function App() {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
+              <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>

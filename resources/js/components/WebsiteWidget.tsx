@@ -90,25 +90,25 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
   return (
     <div className="space-y-4 sm:space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* Header Banner */}
-      <div className="card p-4 sm:p-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-900 text-white rounded-2xl shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-full min-w-0 overflow-hidden">
+      <div className="card p-4 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-full min-w-0 overflow-hidden">
         <div className="space-y-1.5 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 min-w-0">
-            <span className="p-1.5 bg-white/20 rounded-lg text-white shrink-0">
+            <span className="p-1.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-lg shrink-0">
               <Globe className="w-5 h-5" />
             </span>
-            <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight truncate max-w-full">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight truncate max-w-full">
               Website Google Reviews Widget
             </h2>
-            <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-2 py-0.5 rounded-full uppercase shrink-0">
+            <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-semibold px-2 py-0.5 rounded-full uppercase shrink-0">
               Auto-Sync
             </span>
           </div>
-          <p className="text-xs text-blue-100 max-w-2xl leading-relaxed break-words">
+          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed break-words">
             Embed real-time Google Reviews on your official website. New reviews sync automatically directly from your Google Business Profile.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <a
             href={widgetUrl}
             target="_blank"
