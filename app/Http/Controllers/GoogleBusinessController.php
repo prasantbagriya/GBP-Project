@@ -6237,7 +6237,7 @@ class GoogleBusinessController extends Controller
 
         $weekStartParam = $request->input('week');
         if ($weekStartParam && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $weekStartParam)) {
-            $weekStart = Carbon::createFromFormat('Y-m-d', (string) $weekStartParam, $tz)->startOfDay();
+            $weekStart = Carbon::createFromFormat('Y-m-d', (string) $weekStartParam, $tz)->startOfWeek(Carbon::MONDAY)->startOfDay();
         } else {
             $now = Carbon::now($tz);
             $weekStart = $now->copy()->startOfWeek(Carbon::MONDAY)->startOfDay();

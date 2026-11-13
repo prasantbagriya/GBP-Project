@@ -90,6 +90,13 @@ const DAY_NAMES = [
   { en: 'Sunday', hi: 'रविवार' },
 ];
 
+const formatLocalDate = (d: Date): string => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   userEmail,
   currentUser,
@@ -103,7 +110,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   // Week Selector (Monday to Sunday)
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const weekInfo = useMemo(() => {
-    const now = new Date();
+    const now = getBusinessShiftedDate();
     now.setDate(now.getDate() + (weekOffset * 7));
     
     const currentDay = now.getDay();
@@ -116,14 +123,23 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
 
+    const startDateStr = formatLocalDate(monday);
+    const endDateStr = formatLocalDate(sunday);
+
     return {
       monday,
       sunday,
-      startDateStr: monday.toISOString().slice(0, 10),
-      endDateStr: sunday.toISOString().slice(0, 10),
+      startDateStr,
+      endDateStr,
       formattedRange: `${monday.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${sunday.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
     };
   }, [weekOffset]);
+
+  const getDayDate = (dayIdx: number): Date => {
+    const d = new Date(weekInfo.monday);
+    d.setDate(d.getDate() + dayIdx);
+    return d;
+  };
 
   const currentDayIndex = useMemo(() => {
     // 5:00 AM daily cutoff: shift current time so day rolls over at 5:00 AM IST
@@ -942,21 +958,16 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   };
 
   // ================= 1. SUBAH (MORNING) TARGET KICKOFF REPORT =================
-  // Strict format:
-  // - Headline
-  // - Business Name
-  // - Member Name
-  // - Phone (+91)
-  // - Review Target aaj ka
-  // - NO review link, NO extra text paragraphs
   const morningWhatsAppMessage = useMemo(() => {
-    const dayObj = DAY_NAMES[activeViewDayIdx];
-    const now = new Date();
-    const dateFormatted = now.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+    const selectedDayDate = getDayDate(activeViewDayIdx);
+    const dateFormatted = selectedDayDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+    const dayName = DAY_NAMES[activeViewDayIdx].en;
+    const isToday = activeViewDayIdx === currentDayIndex && weekOffset === 0;
 
     let lines: string[] = [];
-    lines.push('🎯 *DAILY GOOGLE REVIEWS TARGET — MORNING ASSIGNMENT*');
-    lines.push(`📅 *Date:* ${dateFormatted} | *Day:* ${dayObj.en}`);
+    lines.push('*Daily Google Business Profile Report — Morning Targets*');
+    lines.push(`Date: ${dateFormatted} | Day: ${dayName}${isToday ? ' (Today)' : ''}`);
+    lines.push(`🎯 Total Target: ${todayAggregateStats.combinedTarget} Reviews`);
     lines.push('------------------------------------');
     lines.push('');
 
@@ -972,17 +983,28 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       const staffPhone = getStaffPhoneForProfile(p.id, p.title);
 
       lines.push(`📍 ${idx + 1}. *${p.title}*${staffBracket ? ` ${staffBracket}` : ''}`);
-      lines.push(`👤 Staff: ${staffTag}`);
+      if (staffTag) {
+        lines.push(`👤 Staff: ${staffTag}`);
+      }
       if (staffPhone) {
         lines.push(`📞 Phone: ${staffPhone}`);
       }
-      lines.push(`🎯 Today\'s Target: ${targetForDay} Reviews`);
+      lines.push(`🎯 Target: ${targetForDay} Reviews`);
+      lines.push(`Average Rating: ${p.averageRating}`);
+      lines.push(`Current Total: ${p.totalReviews} Reviews`);
       lines.push('');
     });
 
-    lines.push('------------------------------------');
+    if (activeProfiles.length > 0) {
+      lines.push('------------------------------------');
+      lines.push('*Overall Summary:*');
+      lines.push(`Total Profiles: ${todayAggregateStats.totalProfiles}`);
+      lines.push(`Total Target: ${todayAggregateStats.combinedTarget} Reviews`);
+      lines.push('');
+    }
+
     if (customMorningNote.trim()) {
-      lines.push(`💬 *Note:* ${customMorningNote.trim()}`);
+      lines.push(`*Note:* ${customMorningNote.trim()}`);
       lines.push('');
     }
 
@@ -993,27 +1015,22 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     targetsMap,
     todayAggregateStats,
     members,
-    customMorningNote
+    customMorningNote,
+    weekInfo,
+    currentDayIndex,
+    weekOffset
   ]);
 
   // ================= 2. SHAAM (EVENING) TARGET EOD REPORT =================
-  // Strict format:
-  // - Headline
-  // - Business Name
-  // - Member Name
-  // - Target & Delivered Reviews
-  // - Complete hua ya nahi (Status: Completed / Incomplete)
-  // - Review count growth
-  // - NO review link
   const eveningWhatsAppMessage = useMemo(() => {
-    const dayObj = DAY_NAMES[activeViewDayIdx];
-    const now = new Date();
-    const dateFormatted = now.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+    const selectedDayDate = getDayDate(activeViewDayIdx);
+    const dateFormatted = selectedDayDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+    const dayName = DAY_NAMES[activeViewDayIdx].en;
+    const isToday = activeViewDayIdx === currentDayIndex && weekOffset === 0;
 
     let lines: string[] = [];
-    lines.push('🎯 *DAILY GOOGLE REVIEWS TARGET — EVENING REPORT*');
-    lines.push(`📅 *Date:* ${dateFormatted} | *Day:* ${dayObj.en}`);
-    lines.push(`🎯 *Total Target:* ${todayAggregateStats.combinedTarget} | *Delivered:* ${todayAggregateStats.combinedDelivered} (${todayAggregateStats.successPct}% Target Met)`);
+    lines.push('*Daily Google Business Profile Report*');
+    lines.push(`Date: ${dateFormatted} | Day: ${dayName}${isToday ? ' (Today)' : ''}`);
     lines.push('------------------------------------');
     lines.push('');
 
@@ -1025,37 +1042,45 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       const conf = targetsMap[p.id];
       const targetForDay = conf?.dailyTargets[activeViewDayIdx] ?? 5;
       const effectiveToday = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
-      const deliveredToday = conf?.isVerified[activeViewDayIdx] 
-        ? conf.verifiedReviews[activeViewDayIdx] 
-        : effectiveToday;
-      const diff = deliveredToday - targetForDay;
+      const deliveredCount = conf?.isVerified[activeViewDayIdx] 
+        ? (conf.verifiedReviews[activeViewDayIdx] ?? 0) 
+        : (isToday ? (conf?.verifiedReviews?.[activeViewDayIdx] || effectiveToday) : (conf?.verifiedReviews?.[activeViewDayIdx] ?? 0));
+      const diff = deliveredCount - targetForDay;
       const staffTag = getStaffTagForProfile(p.id, idx);
       const staffBracket = getAssignedStaffBracket(p.title);
-
-      let statusLine = '';
-      if (diff === 0) {
-        statusLine = '📊 Status: ✅ Completed (Exact Target Hit)';
-      } else if (diff > 0) {
-        statusLine = `📊 Status: ✅ Completed (+${diff} Extra)`;
-      } else {
-        statusLine = `📊 Status: ⚠️ Incomplete (${Math.abs(diff)} Short)`;
-      }
+      const staffPhone = getStaffPhoneForProfile(p.id, p.title);
 
       lines.push(`📍 ${idx + 1}. *${p.title}*${staffBracket ? ` ${staffBracket}` : ''}`);
-      lines.push(`👤 Staff: ${staffTag}`);
-      const staffPhone = getStaffPhoneForProfile(p.id, p.title);
       if (staffPhone) {
         lines.push(`📞 Phone: ${staffPhone}`);
       }
-      lines.push(`🎯 Target: ${targetForDay} Reviews | Delivered: ${deliveredToday} Reviews`);
-      lines.push(statusLine);
-      lines.push(`📈 Total Reviews: ${p.beforeTodayReviews} ➔ ${p.totalReviews}`);
+      lines.push(`🎯 Target: ${targetForDay} Reviews | Delivered: ${deliveredCount} Reviews`);
+      lines.push(`New Reviews ${isToday ? 'Today' : `(${dayName})`}: ${deliveredCount}`);
+      lines.push(`Average Rating: ${p.averageRating}`);
+      if (isToday) {
+        lines.push(`Yesterday: ${p.beforeTodayReviews} ➔ Today: ${p.totalReviews}`);
+      } else {
+        lines.push(`Total Reviews: ${p.totalReviews}`);
+      }
       lines.push('');
     });
 
-    lines.push('------------------------------------');
+    if (activeProfiles.length > 0) {
+      lines.push('------------------------------------');
+      lines.push('*Overall Summary:*');
+      lines.push(`Total Profiles: ${todayAggregateStats.totalProfiles}`);
+      lines.push(`🎯 Target Reviews: ${todayAggregateStats.combinedTarget} | Delivered: ${todayAggregateStats.combinedDelivered} (${todayAggregateStats.successPct}% Target Met)`);
+      lines.push(`New Reviews ${isToday ? 'Today' : `(${dayName})`}: +${todayAggregateStats.combinedDelivered}`);
+      const combinedTotal = activeProfiles.reduce((sum, p) => sum + (Number(p.totalReviews) || 0), 0);
+      lines.push(`Combined Total Reviews: ${combinedTotal}`);
+      const ratingSum = activeProfiles.reduce((sum, p) => sum + (Number(p.averageRating) || 0), 0);
+      const avgRating = activeProfiles.length > 0 ? (ratingSum / activeProfiles.length).toFixed(1) : '5.0';
+      lines.push(`Average Rating: ${avgRating}`);
+      lines.push('');
+    }
+
     if (customEveningNote.trim()) {
-      lines.push(`💬 *Note:* ${customEveningNote.trim()}`);
+      lines.push(`*Note:* ${customEveningNote.trim()}`);
       lines.push('');
     }
 
@@ -1066,7 +1091,10 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     targetsMap,
     todayAggregateStats,
     members,
-    customEveningNote
+    customEveningNote,
+    weekInfo,
+    currentDayIndex,
+    weekOffset
   ]);
 
   const activeWhatsAppMessage = reportMode === 'morning' ? morningWhatsAppMessage : eveningWhatsAppMessage;
@@ -1374,29 +1402,36 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
           <div>
             <div className="text-[11px] font-semibold text-slate-600 mb-1 flex items-center justify-between">
               <span>Select Day:</span>
-              <span className="text-[10px] text-slate-400 font-normal">{DAY_NAMES[activeViewDayIdx].en}</span>
+              <span className="text-[10px] text-blue-700 font-bold">
+                {DAY_NAMES[activeViewDayIdx].en} ({getDayDate(activeViewDayIdx).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })})
+                {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? ' — Today' : ''}
+              </span>
             </div>
             <div className="grid grid-cols-7 gap-1">
               {DAY_NAMES.map((d, i) => {
                 const isSelected = activeViewDayIdx === i;
                 const isToday = i === currentDayIndex && weekOffset === 0;
                 const isLockedDay = (weekOffset === 0 && i < currentDayIndex) || weekOffset < 0;
+                const dayDate = getDayDate(i);
 
                 return (
                   <button
                     key={d.en}
                     onClick={() => setActiveViewDayIdx(i)}
-                    className={`py-1.5 rounded text-[11px] font-semibold text-center cursor-pointer transition-all border flex items-center justify-center gap-0.5 ${
+                    className={`py-1.5 rounded text-[11px] font-semibold text-center cursor-pointer transition-all border flex flex-col items-center justify-center gap-0.5 ${
                       isSelected
                         ? 'bg-blue-600 text-white border-blue-600 shadow-2xs font-bold'
                         : isToday
-                          ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                          ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 font-bold'
                           : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                     }`}
-                    title={`${d.en}${isLockedDay ? ' — Completed & Locked' : ''}`}
+                    title={`${d.en} (${dayDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })})${isToday ? ' — Today' : ''}${isLockedDay ? ' — Completed & Locked' : ''}`}
                   >
-                    <span>{d.en.slice(0, 3)}</span>
-                    {isLockedDay && <Lock className="w-2.5 h-2.5 text-slate-400 shrink-0" />}
+                    <span className="leading-tight">{d.en.slice(0, 3)}</span>
+                    <span className={`text-[9px] leading-none ${isSelected ? 'text-blue-100' : isToday ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>
+                      {dayDate.getDate()}
+                    </span>
+                    {isLockedDay && <Lock className={`w-2.5 h-2.5 mt-0.5 ${isSelected ? 'text-white' : 'text-slate-400'} shrink-0`} />}
                   </button>
                 );
               })}
