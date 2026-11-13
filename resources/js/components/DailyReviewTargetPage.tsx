@@ -326,7 +326,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   };
 
   // Helper to load or generate default targets map for loaded locations
-  const loadTargetConfigs = (locs: ProfileReportItem[]) => {
+  const loadTargetConfigs = async (locs: ProfileReportItem[]) => {
     const storageKey = `gbp_review_targets_map_${weekInfo.startDateStr}`;
     let savedMap: { [id: string]: ProfileTargetConfig } = {};
     try {
@@ -334,19 +334,40 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       if (stored) savedMap = JSON.parse(stored);
     } catch {}
 
-    const newMap: { [id: string]: ProfileTargetConfig } = { ...savedMap };
+    // Fetch server targets and server delivery data
+    let serverTargets: { [id: string]: ProfileTargetConfig } = {};
+    let serverWeeklyDelivery: { [id: string]: number[] } = {};
+    try {
+      const res = await fetch(`/api/gbp/review-targets?week=${weekInfo.startDateStr}`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.targets && typeof json.targets === 'object') {
+          serverTargets = json.targets;
+        }
+        if (json.weeklyDelivery && typeof json.weeklyDelivery === 'object') {
+          serverWeeklyDelivery = json.weeklyDelivery;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch server review targets:', e);
+    }
+
+    const newMap: { [id: string]: ProfileTargetConfig } = { ...serverTargets, ...savedMap };
 
     locs.forEach((loc) => {
       const permanentMembers = getAssignedStaffMembersForProfile(loc.title || loc.name || loc.id);
       const permanentIds = permanentMembers.map(m => m.id);
+      const serverDeliv = serverWeeklyDelivery[loc.id] || [0, 0, 0, 0, 0, 0, 0];
 
       if (!newMap[loc.id]) {
         const weekly = 35;
-        const daily = generateRandom1to10Targets(weekly);
+        const daily = [5, 5, 5, 5, 5, 5, 5];
         newMap[loc.id] = {
           weeklyTarget: weekly,
           dailyTargets: daily,
-          verifiedReviews: [0, 0, 0, 0, 0, 0, 0],
+          verifiedReviews: [...serverDeliv],
           isVerified: [false, false, false, false, false, false, false],
           assignedMemberIds: permanentIds.length > 0 ? permanentIds : [],
           memberAssignments: {}
@@ -359,6 +380,18 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
         if (hasLegacy && permanentIds.length > 0) {
           existing.assignedMemberIds = permanentIds;
         }
+
+        // If verifiedReviews are all 0 or empty, populate with real serverDeliv
+        if (!existing.verifiedReviews || existing.verifiedReviews.every(v => v === 0)) {
+          existing.verifiedReviews = [...serverDeliv];
+        } else {
+          // Merge server delivery for any day that was 0 or unverified
+          for (let d = 0; d < 7; d++) {
+            if ((existing.verifiedReviews[d] === 0 || !existing.isVerified?.[d]) && serverDeliv[d] > 0) {
+              existing.verifiedReviews[d] = serverDeliv[d];
+            }
+          }
+        }
       }
     });
 
@@ -368,10 +401,15 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       if (!conf) return;
       for (let d = 0; d < 7; d++) {
         const isPast = (weekOffset === 0 && d < currentDayIndex) || weekOffset < 0;
-        if (isPast && !conf.isVerified[d]) {
+        if (isPast) {
           conf.isVerified[d] = true;
-          if (conf.verifiedReviews[d] === 0 && (loc.todayNewReviews || 0) > 0 && d === currentDayIndex - 1) {
-            conf.verifiedReviews[d] = loc.todayNewReviews;
+          if (conf.verifiedReviews[d] === 0) {
+            const sDeliv = serverWeeklyDelivery[loc.id]?.[d] || 0;
+            if (sDeliv > 0) {
+              conf.verifiedReviews[d] = sDeliv;
+            } else if ((loc.todayNewReviews || 0) > 0 && d === currentDayIndex - 1 && weekOffset === 0) {
+              conf.verifiedReviews[d] = loc.todayNewReviews;
+            }
           }
         }
       }
@@ -380,7 +418,14 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     setTargetsMap(newMap);
   };
 
-  const saveTargetConfigs = (updatedMap: { [id: string]: ProfileTargetConfig }) => {
+  // Re-load targets whenever the selected week changes
+  useEffect(() => {
+    if (reportData?.locations && reportData.locations.length > 0) {
+      loadTargetConfigs(reportData.locations);
+    }
+  }, [weekOffset]);
+
+  const saveTargetConfigs = async (updatedMap: { [id: string]: ProfileTargetConfig }) => {
     setTargetsMap(updatedMap);
     try {
       const storageKey = `gbp_review_targets_map_${weekInfo.startDateStr}`;
@@ -395,6 +440,22 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       } catch {}
       historyMap[weekInfo.startDateStr] = updatedMap;
       localStorage.setItem(historyKey, JSON.stringify(historyMap));
+
+      // Save to server backend
+      const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+      await fetch('/api/gbp/review-targets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrfToken || '',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          week: weekInfo.startDateStr,
+          targets: updatedMap
+        })
+      });
     } catch (e) {
       console.error('Failed to save targets map:', e);
     }
@@ -831,10 +892,11 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
     activeProfiles.forEach(p => {
       const conf = targetsMap[p.id];
       const targetForDay = conf?.dailyTargets[activeViewDayIdx] ?? 5;
+      const isToday = activeViewDayIdx === currentDayIndex && weekOffset === 0;
       const effectiveToday = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
       const deliveredToday = conf?.isVerified[activeViewDayIdx] 
-        ? conf.verifiedReviews[activeViewDayIdx] 
-        : effectiveToday;
+        ? (conf.verifiedReviews[activeViewDayIdx] ?? 0)
+        : (isToday ? (conf?.verifiedReviews?.[activeViewDayIdx] || effectiveToday) : (conf?.verifiedReviews?.[activeViewDayIdx] ?? 0));
 
       combinedTarget += targetForDay;
       combinedDelivered += deliveredToday;
@@ -851,7 +913,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       profilesMet,
       successPct
     };
-  }, [activeProfiles, targetsMap, activeViewDayIdx]);
+  }, [activeProfiles, targetsMap, activeViewDayIdx, currentDayIndex, weekOffset]);
 
   // Helper to format staff names for a profile
   const getStaffTagForProfile = (profileId: string, idx: number): string => {
@@ -1365,7 +1427,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
             <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               <span className="flex items-center gap-1.5 truncate">
                 <Target className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                Target Today
+                {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? 'Target Today' : `${DAY_NAMES[activeViewDayIdx].en}'s Target`}
               </span>
             </div>
             <div className="my-1">
@@ -1381,7 +1443,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
             <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               <span className="flex items-center gap-1.5 truncate">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                Delivered Today
+                {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? 'Delivered Today' : `Delivered (${DAY_NAMES[activeViewDayIdx].en})`}
               </span>
             </div>
             <div className="my-1">
@@ -1464,10 +1526,16 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                   <th className="p-3">Branch / Location Profile</th>
                   <th className="p-3 text-center">Average Rating</th>
                   <th className="p-3 text-center">Weekly Target</th>
-                  <th className="p-3 text-center">Today's Target</th>
-                  <th className="p-3 text-center">Delivered Today</th>
+                  <th className="p-3 text-center">
+                    {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? "Today's Target" : `${DAY_NAMES[activeViewDayIdx].en}'s Target`}
+                  </th>
+                  <th className="p-3 text-center">
+                    {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? "Delivered Today" : `Delivered (${DAY_NAMES[activeViewDayIdx].en})`}
+                  </th>
                   <th className="p-3 text-center">Target Met?</th>
-                  <th className="p-3 text-center">Progress (Before ➔ Total)</th>
+                  <th className="p-3 text-center">
+                    {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? "Progress (Before ➔ Total)" : "Delivery Progress"}
+                  </th>
                   <th className="p-3 text-right pr-4">Direct Link</th>
                 </tr>
               </thead>
@@ -1484,8 +1552,11 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
 
                   const todayTarget = conf.dailyTargets[activeViewDayIdx] ?? 5;
                   const isVerified = conf.isVerified[activeViewDayIdx];
+                  const isToday = activeViewDayIdx === currentDayIndex && weekOffset === 0;
                   const effectiveToday = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
-                  const deliveredCount = isVerified ? conf.verifiedReviews[activeViewDayIdx] : effectiveToday;
+                  const deliveredCount = isVerified 
+                    ? (conf.verifiedReviews[activeViewDayIdx] ?? 0) 
+                    : (isToday ? (conf.verifiedReviews[activeViewDayIdx] || effectiveToday) : (conf.verifiedReviews[activeViewDayIdx] ?? 0));
                   const diff = deliveredCount - todayTarget;
                   const isMet = deliveredCount >= todayTarget;
                   const ratingNum = Number(p.averageRating) || 0;
@@ -1642,15 +1713,30 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                         </span>
                       </td>
 
-                      {/* Before ➔ Total Comparison */}
+                      {/* Before ➔ Total Comparison / Progress */}
                       <td className="p-3 text-center text-xs">
-                        <span className="text-slate-500">{p.beforeTodayReviews}</span>
-                        <span className="text-slate-300 mx-1">➔</span>
-                        <strong className="text-blue-700 font-bold">{p.totalReviews}</strong>
-                        {Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0)) > 0 && (
-                          <span className="text-[10px] text-emerald-600 font-bold ml-1">
-                            (+{Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0))} new)
-                          </span>
+                        {isToday ? (
+                          <>
+                            <span className="text-slate-500">{p.beforeTodayReviews}</span>
+                            <span className="text-slate-300 mx-1">➔</span>
+                            <strong className="text-blue-700 font-bold">{p.totalReviews}</strong>
+                            {deliveredCount > 0 && (
+                              <span className="text-[10px] text-emerald-600 font-bold ml-1">
+                                (+{deliveredCount} new)
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <span className="font-semibold text-slate-700">
+                              {deliveredCount > 0 ? (
+                                <span className="text-emerald-700 font-bold">+{deliveredCount} delivered</span>
+                              ) : (
+                                <span className="text-slate-400">0 delivered</span>
+                              )}
+                            </span>
+                            <span className="text-[10px] text-slate-400">Total: {p.totalReviews}</span>
+                          </div>
                         )}
                       </td>
 

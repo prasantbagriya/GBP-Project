@@ -6224,6 +6224,175 @@ class GoogleBusinessController extends Controller
     }
 
     /**
+     * Manage and retrieve weekly review targets and real daily deliveries for all profiles.
+     */
+    public function handleReviewTargets(Request $request)
+    {
+        $user = Auth::user();
+        $token = $this->getPersistentToken() ?? [];
+        $userEmail = $token['user_email'] ?? ($user ? $user->email : 'default');
+
+        $tz = 'Asia/Kolkata';
+        $todayDate = $this->getBusinessDate();
+
+        $weekStartParam = $request->input('week');
+        if ($weekStartParam && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $weekStartParam)) {
+            $weekStart = Carbon::createFromFormat('Y-m-d', (string) $weekStartParam, $tz)->startOfDay();
+        } else {
+            $now = Carbon::now($tz);
+            $weekStart = $now->copy()->startOfWeek(Carbon::MONDAY)->startOfDay();
+        }
+
+        $weekStartStr = $weekStart->toDateString();
+        $storageKey = 'gbp_review_targets_'.$weekStartStr;
+
+        if ($request->isMethod('POST')) {
+            $targets = $request->input('targets');
+            if (is_array($targets)) {
+                $this->saveServerData($storageKey, $targets);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Review targets saved successfully',
+                    'weekStart' => $weekStartStr,
+                    'targets' => $targets,
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid targets data provided',
+            ], 422);
+        }
+
+        // GET request: load saved targets and compute real delivery per profile for each day
+        $savedTargets = $this->getServerData($storageKey);
+        if (! is_array($savedTargets)) {
+            $savedTargets = [];
+        }
+
+        // Construct dates for Monday (0) through Sunday (6)
+        $weekDates = [];
+        for ($d = 0; $d < 7; $d++) {
+            $weekDates[$d] = $weekStart->copy()->addDays($d)->toDateString();
+        }
+
+        // Load multi-profile report to get all active locations
+        $reportKey = 'gbp_multi_report_'.md5($userEmail);
+        $currentSavedReport = $this->getServerData($reportKey);
+        $locations = (is_array($currentSavedReport) && ! empty($currentSavedReport['locations']))
+            ? $currentSavedReport['locations']
+            : [];
+
+        // Preload archived reports for the days of the week that are in the past
+        $archivedReportsByDate = [];
+        foreach ($weekDates as $d => $dateStr) {
+            if ($dateStr < $todayDate) {
+                $archived = $this->getServerData("{$reportKey}_{$dateStr}")
+                    ?: $this->getServerData("gbp_multi_report_daily_{$dateStr}");
+                if (is_array($archived) && ! empty($archived['locations'])) {
+                    $archivedReportsByDate[$dateStr] = $archived['locations'];
+                }
+            }
+        }
+
+        $weeklyDelivery = [];
+
+        foreach ($locations as $loc) {
+            $locId = $loc['id'] ?? ($loc['name'] ?? '');
+            if (empty($locId)) {
+                continue;
+            }
+
+            $locIdHash = md5($locId);
+            $v4Name = $loc['name'] ?? null;
+            $locTitle = $loc['title'] ?? '';
+
+            // Retrieve reviews for this location
+            $cachedReviewsData = $this->getServerData('gbp_reviews_'.$locIdHash)
+                ?? ($v4Name ? $this->getServerData('gbp_reviews_'.md5($v4Name)) : null)
+                ?? ($locTitle ? $this->getServerData('gbp_reviews_'.md5($locTitle)) : null);
+
+            $reviews = is_array($cachedReviewsData)
+                ? ($cachedReviewsData['reviews'] ?? $cachedReviewsData)
+                : [];
+            if (! is_array($reviews)) {
+                $reviews = [];
+            }
+
+            // Map reviews count by business date
+            $reviewsCountByDate = [];
+            foreach ($reviews as $rev) {
+                $cTime = $rev['createTime'] ?? ($rev['updateTime'] ?? null);
+                if ($cTime) {
+                    try {
+                        $revDate = $this->getBusinessDate(Carbon::parse($cTime));
+                        $reviewsCountByDate[$revDate] = ($reviewsCountByDate[$revDate] ?? 0) + 1;
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            $locDeliveries = [0, 0, 0, 0, 0, 0, 0];
+
+            for ($d = 0; $d < 7; $d++) {
+                $dateStr = $weekDates[$d];
+
+                if ($dateStr > $todayDate) {
+                    // Future day: delivered is 0
+                    $locDeliveries[$d] = 0;
+                } elseif ($dateStr === $todayDate) {
+                    // Today: live todayNewReviews or positive difference
+                    $effectiveToday = (int) ($loc['todayNewReviews'] ?? max(0, (int) ($loc['difference'] ?? 0)));
+                    $revCount = (int) ($reviewsCountByDate[$dateStr] ?? 0);
+                    $locDeliveries[$d] = max($effectiveToday, $revCount);
+                } else {
+                    // Past day
+                    $delivered = 0;
+
+                    // 1. Check review timestamps
+                    if (isset($reviewsCountByDate[$dateStr])) {
+                        $delivered = max($delivered, (int) $reviewsCountByDate[$dateStr]);
+                    }
+
+                    // 2. Check archived daily report for that date
+                    if (isset($archivedReportsByDate[$dateStr])) {
+                        foreach ($archivedReportsByDate[$dateStr] as $aloc) {
+                            $match = ($aloc['id'] ?? '') === $locId
+                                || ($aloc['name'] ?? '') === $v4Name
+                                || ($aloc['title'] ?? '') === $locTitle;
+                            if ($match) {
+                                $archDelivered = (int) ($aloc['todayNewReviews'] ?? max(0, (int) ($aloc['difference'] ?? 0)));
+                                $delivered = max($delivered, $archDelivered);
+                                break;
+                            }
+                        }
+                    }
+
+                    // 3. Fallback: check if previously saved target has a verified review count
+                    if (isset($savedTargets[$locId]['verifiedReviews'][$d]) && ! empty($savedTargets[$locId]['isVerified'][$d])) {
+                        $savedVal = (int) $savedTargets[$locId]['verifiedReviews'][$d];
+                        if ($savedVal > 0) {
+                            $delivered = max($delivered, $savedVal);
+                        }
+                    }
+
+                    $locDeliveries[$d] = $delivered;
+                }
+            }
+
+            $weeklyDelivery[$locId] = $locDeliveries;
+        }
+
+        return response()->json([
+            'success' => true,
+            'weekStart' => $weekStartStr,
+            'targets' => $savedTargets,
+            'weeklyDelivery' => $weeklyDelivery,
+        ]);
+    }
+
+    /**
      * Render public, embeddable Google Reviews Widget
      */
     public function renderWidgetPreview(Request $request)

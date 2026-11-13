@@ -207,6 +207,7 @@ Route::prefix('api/gbp')->group(function () {
     Route::post('/sync/sheets/create', [GoogleBusinessController::class, 'createOrLinkSheet']);
     Route::get('/multi-profile-report', [GoogleBusinessController::class, 'getMultiProfileReport']);
     Route::post('/multi-profile-snapshot', [GoogleBusinessController::class, 'saveProfileSnapshot']);
+    Route::match(['get', 'post'], '/review-targets', [GoogleBusinessController::class, 'handleReviewTargets']);
     Route::match(['get', 'post'], '/clear-cache', [GoogleBusinessController::class, 'clearServerCache']);
     Route::get('/widget/reviews', [GoogleBusinessController::class, 'getWidgetReviews']);
 });
