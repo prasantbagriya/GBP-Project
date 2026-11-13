@@ -28,6 +28,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Location, Review, ProfileReportItem, MultiProfileReportData } from '../../types';
+import { parseStarRating } from '../../utils/reviewUtils';
 import { KpiSummaryGrid } from './KpiSummaryGrid';
 import { ReviewTrajectoryChart } from './ReviewTrajectoryChart';
 import { StarDistributionDonut } from './StarDistributionDonut';
@@ -192,9 +193,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
   const starFilteredReviews = useMemo(() => {
     if (selectedStarFilter === null) return filteredReviews;
     return filteredReviews.filter((r) => {
-      const numRate = typeof r.starRating === 'number' 
-        ? r.starRating 
-        : r.starRating === 'FIVE' ? 5 : r.starRating === 'FOUR' ? 4 : r.starRating === 'THREE' ? 3 : r.starRating === 'TWO' ? 2 : 1;
+      const numRate = parseStarRating(r?.starRating);
       return numRate === selectedStarFilter;
     });
   }, [filteredReviews, selectedStarFilter]);
@@ -202,18 +201,13 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
   // Star distribution counts in selected timeframe
   const ratingsCount = useMemo(() => {
     const counts = { five: 0, four: 0, three: 0, two: 0, one: 0 };
-    if (filteredReviews.length === 0) {
-      // Fallback base
-      return { five: 22, four: 4, three: 1, two: 0, one: 0 };
-    }
-
     filteredReviews.forEach((r) => {
-      const rating = String(r?.starRating || '');
-      if (rating === '5' || rating === 'FIVE') counts.five++;
-      else if (rating === '4' || rating === 'FOUR') counts.four++;
-      else if (rating === '3' || rating === 'THREE') counts.three++;
-      else if (rating === '2' || rating === 'TWO') counts.two++;
-      else if (rating === '1' || rating === 'ONE') counts.one++;
+      const numRate = parseStarRating(r?.starRating);
+      if (numRate === 5) counts.five++;
+      else if (numRate === 4) counts.four++;
+      else if (numRate === 3) counts.three++;
+      else if (numRate === 2) counts.two++;
+      else if (numRate === 1) counts.one++;
     });
     return counts;
   }, [filteredReviews]);
@@ -348,9 +342,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
         const dStr = r.createTime.split('T')[0];
         if (buckets[dStr]) {
           buckets[dStr].count++;
-          const numRate = typeof r.starRating === 'number' 
-            ? r.starRating 
-            : r.starRating === 'FIVE' ? 5 : r.starRating === 'FOUR' ? 4 : r.starRating === 'THREE' ? 3 : r.starRating === 'TWO' ? 2 : 1;
+          const numRate = parseStarRating(r?.starRating);
           buckets[dStr].ratings.push(numRate);
           if (numRate === 5) buckets[dStr].fiveStars++;
         }
@@ -403,9 +395,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     ];
 
     sourceReviews.forEach((r) => {
-      const rate = typeof r?.starRating === 'number' 
-        ? r.starRating 
-        : r.starRating === 'FIVE' ? 5 : r.starRating === 'FOUR' ? 4 : r.starRating === 'THREE' ? 3 : r.starRating === 'TWO' ? 2 : 1;
+      const rate = parseStarRating(r?.starRating);
 
       if (rate >= 4) pos++;
       else if (rate === 3) neu++;

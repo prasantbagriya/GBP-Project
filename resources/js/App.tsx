@@ -69,6 +69,7 @@ import { FacebookDashboard } from './components/facebook/FacebookDashboard';
 import { ChatManager } from './components/chat/ChatManager';
 import { getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp } from './utils/dateUtils';
 import { isItemAllowedForMember } from './utils/profileIsolation';
+import { parseStarRating } from './utils/reviewUtils';
 
 export default function App() {
   const [panelUser, setPanelUser] = useState<PanelUser | null>(null);
@@ -925,15 +926,8 @@ export default function App() {
   }, [authStatus, locations.length, activeLoc]);
 
 
-  const parseRating = (ratingStr: string): number => {
-    if (ratingStr === 'FIVE') return 5;
-    if (ratingStr === 'FOUR') return 4;
-    if (ratingStr === 'THREE') return 3;
-    if (ratingStr === 'TWO') return 2;
-    if (ratingStr === 'ONE') return 1;
-    const parts = ratingStr.split('_');
-    const num = parseInt(parts[parts.length - 1], 10);
-    return isNaN(num) ? 5 : num;
+  const parseRating = (val: any): number => {
+    return parseStarRating(val);
   };
 
   const todayReviews = useMemo(() => {
@@ -1050,9 +1044,7 @@ export default function App() {
     ];
 
     reviews.forEach((r) => {
-      const rate = typeof r?.starRating === 'number' 
-        ? r.starRating 
-        : r?.starRating === 'FIVE' ? 5 : r?.starRating === 'FOUR' ? 4 : r?.starRating === 'THREE' ? 3 : r?.starRating === 'TWO' ? 2 : 1;
+      const rate = parseStarRating(r?.starRating);
 
       if (rate >= 4) pos++;
       else if (rate === 3) neu++;

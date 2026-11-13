@@ -22,50 +22,33 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
   selectedStarFilter = null,
   onSelectStarFilter,
 }) => {
-  const five = Number(ratingsCount?.five) || 0;
-  const four = Number(ratingsCount?.four) || 0;
-  const three = Number(ratingsCount?.three) || 0;
-  const two = Number(ratingsCount?.two) || 0;
-  const one = Number(ratingsCount?.one) || 0;
+  const five = Math.max(0, Number(ratingsCount?.five) || 0);
+  const four = Math.max(0, Number(ratingsCount?.four) || 0);
+  const three = Math.max(0, Number(ratingsCount?.three) || 0);
+  const two = Math.max(0, Number(ratingsCount?.two) || 0);
+  const one = Math.max(0, Number(ratingsCount?.one) || 0);
 
-  const numRating = Number(avgRating) || 0;
   const ratingsTotal = five + four + three + two + one;
-  const totalCount = Number(totalReviews) || ratingsTotal || 1;
-  const isSample = totalCount > ratingsTotal && ratingsTotal > 0;
+  const numRating = Number(avgRating) || (ratingsTotal > 0 ? Number(((5 * five + 4 * four + 3 * three + 2 * two + 1 * one) / ratingsTotal).toFixed(1)) : 0);
 
-  // Compute realistic percentages based on rated reviews & average rating
-  let p5 = 0, p4 = 0, p3 = 0, p2 = 0, p1 = 0;
-  if (ratingsTotal > 0) {
-    if (five === ratingsTotal && numRating > 0 && numRating < 4.95) {
-      // Sample is homogeneous 5-star, but overall profile average is e.g. 4.7
-      const targetDiff = Math.max(0.05, 5.0 - numRating);
-      p1 = Math.max(0.5, Number((targetDiff * 3.5).toFixed(1)));
-      p2 = Math.max(0.5, Number((targetDiff * 4.0).toFixed(1)));
-      p3 = Math.max(1.0, Number((targetDiff * 8.0).toFixed(1)));
-      p4 = Math.max(3.0, Number((targetDiff * 45.0).toFixed(1)));
-      p5 = Math.max(10, Number((100 - (p1 + p2 + p3 + p4)).toFixed(1)));
-    } else {
-      p5 = (five / ratingsTotal) * 100;
-      p4 = (four / ratingsTotal) * 100;
-      p3 = (three / ratingsTotal) * 100;
-      p2 = (two / ratingsTotal) * 100;
-      p1 = (one / ratingsTotal) * 100;
-    }
-  } else {
-    p5 = 82; p4 = 14; p3 = 2.5; p2 = 0.8; p1 = 0.7;
-  }
+  // Genuine percentages based directly on actual counted reviews (no synthetic inflation)
+  const p5 = ratingsTotal > 0 ? (five / ratingsTotal) * 100 : 0;
+  const p4 = ratingsTotal > 0 ? (four / ratingsTotal) * 100 : 0;
+  const p3 = ratingsTotal > 0 ? (three / ratingsTotal) * 100 : 0;
+  const p2 = ratingsTotal > 0 ? (two / ratingsTotal) * 100 : 0;
+  const p1 = ratingsTotal > 0 ? (one / ratingsTotal) * 100 : 0;
 
-  // Display counts:
-  const displayFive = isSample ? Math.round((p5 / 100) * totalCount) : five;
-  const displayFour = isSample ? Math.round((p4 / 100) * totalCount) : four;
-  const displayThree = isSample ? Math.round((p3 / 100) * totalCount) : three;
-  const displayTwo = isSample ? Math.round((p2 / 100) * totalCount) : two;
-  const displayOne = isSample ? Math.max(0, totalCount - (displayFive + displayFour + displayThree + displayTwo)) : one;
+  // Genuine review counts displayed (exact 1-5 star counts)
+  const displayFive = five;
+  const displayFour = four;
+  const displayThree = three;
+  const displayTwo = two;
+  const displayOne = one;
 
   // NPS Proxy: (% Promoters 4-5★) - (% Detractors 1-3★)
   const promoters = p5 + p4;
   const detractors = p1 + p2 + p3;
-  const npsScore = Math.min(100, Math.max(-100, Math.round(promoters - detractors)));
+  const npsScore = ratingsTotal > 0 ? Math.min(100, Math.max(-100, Math.round(promoters - detractors))) : 0;
 
   // SVG Donut calculation
   const radius = 54;
@@ -86,7 +69,7 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
 
   // Interactive Target Rating Selector
   const [targetRating, setTargetRating] = useState<number>(4.9);
-  const currentTotal = totalCount;
+  const currentTotal = Number(totalReviews) || ratingsTotal;
   const currentSum = numRating * currentTotal;
   const neededFiveStars = Math.max(
     0,
@@ -219,15 +202,20 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
 
           {/* Center Text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-2xl font-bold text-slate-800 leading-none">{numRating.toFixed(1)}</span>
+            <span className="text-2xl font-bold text-slate-800 leading-none">{numRating > 0 ? numRating.toFixed(1) : '0.0'}</span>
             <div className="flex items-center text-amber-400 mt-1">
-              <Star className="w-3 h-3 fill-current" />
-              <Star className="w-3 h-3 fill-current" />
-              <Star className="w-3 h-3 fill-current" />
-              <Star className="w-3 h-3 fill-current" />
-              <Star className="w-3 h-3 fill-current" />
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  className={`w-3 h-3 ${s <= Math.round(numRating) ? 'fill-current text-amber-400' : 'text-slate-200 fill-slate-200'}`}
+                />
+              ))}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5 font-semibold">{currentTotal.toLocaleString()} Reviews</span>
+            <span className="text-[10px] text-slate-400 mt-0.5 font-semibold">
+              {totalReviews && Number(totalReviews) > ratingsTotal && ratingsTotal > 0
+                ? `${ratingsTotal} of ${Number(totalReviews).toLocaleString()} Reviews`
+                : `${ratingsTotal.toLocaleString()} Reviews`}
+            </span>
           </div>
         </div>
 

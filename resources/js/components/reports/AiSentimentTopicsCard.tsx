@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, ThumbsUp, AlertCircle, MessageSquare, X, Star } from 'lucide-react';
 import { Review } from '../../types';
+import { parseStarRating } from '../../utils/reviewUtils';
 
 interface AiSentimentTopicsCardProps {
   title?: string;
@@ -144,9 +145,7 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
                 </div>
               ) : (
                 matchingReviews.map((r, i) => {
-                  const ratingNum = typeof r.starRating === 'number' 
-                    ? r.starRating 
-                    : r.starRating === 'FIVE' ? 5 : r.starRating === 'FOUR' ? 4 : r.starRating === 'THREE' ? 3 : r.starRating === 'TWO' ? 2 : 1;
+                  const ratingNum = parseStarRating(r?.starRating);
 
                   return (
                     <div key={r.reviewId || i} className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5 text-xs">
