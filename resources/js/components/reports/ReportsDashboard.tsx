@@ -224,11 +224,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     if (safeLocations.length > 0) {
       return safeLocations.map((loc, idx) => {
         const isCurrent = (loc.v4Name && loc.v4Name === selectedLocationKey) || loc.name === selectedLocationKey;
-        const total = isCurrent ? safeReviews.length : Math.max(120 - idx * 25, 45);
-        const todayNew = isCurrent ? safeTodayReviews.length : (idx === 0 ? 3 : 1);
-        const rating = isCurrent ? Number(avgRating) || 4.8 : (4.9 - idx * 0.1);
-        const replied = isCurrent ? safeRepliedReviews.length : Math.round(total * 0.95);
-        const pending = isCurrent ? safePendingReviews.length : Math.max(total - replied, 0);
+        const total = isCurrent ? safeReviews.length : (Number((loc as any).totalReviews) || 0);
+        const todayNew = isCurrent ? safeTodayReviews.length : (Number((loc as any).todayNewReviews) || 0);
+        const rating = isCurrent ? (Number(avgRating) || 0) : (Number((loc as any).averageRating) || 0);
+        const replied = isCurrent ? safeRepliedReviews.length : (Number((loc as any).repliedCount) || 0);
+        const pending = isCurrent ? safePendingReviews.length : (Number((loc as any).pendingCount) || 0);
 
         return {
           id: loc.name,
@@ -237,10 +237,10 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           address: loc.address || '',
           storeCode: loc.storeCode || '',
           totalReviews: total,
-          beforeTodayReviews: total - todayNew,
+          beforeTodayReviews: Math.max(0, total - todayNew),
           todayNewReviews: todayNew,
           difference: todayNew,
-          averageRating: parseFloat(rating.toFixed(1)),
+          averageRating: rating > 0 ? parseFloat(rating.toFixed(1)) : 0,
           repliedCount: replied,
           pendingCount: pending,
         };
@@ -264,10 +264,12 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     // 1. ALL PROFILES COMBINED
     if (reportScope === 'all') {
       if (effectiveLeaderboardData.length > 0) {
+        const ratedProfiles = effectiveLeaderboardData.filter(l => Number(l.averageRating) > 0);
         const totalRev = effectiveLeaderboardData.reduce((acc, l) => acc + (Number(l.totalReviews) || 0), 0);
         const periodGrowth = effectiveLeaderboardData.reduce((acc, l) => acc + (Number(l.difference || l.todayNewReviews) || 0), 0);
-        const totalRatingSum = effectiveLeaderboardData.reduce((acc, l) => acc + (Number(l.averageRating) || 4.8) * (Number(l.totalReviews) || 1), 0);
-        const weightedAvg = totalRev > 0 ? parseFloat((totalRatingSum / totalRev).toFixed(1)) : 4.8;
+        const totalRatingWeight = ratedProfiles.reduce((acc, l) => acc + (Number(l.averageRating) * (Number(l.totalReviews) || 1)), 0);
+        const totalRatedRev = ratedProfiles.reduce((acc, l) => acc + (Number(l.totalReviews) || 1), 0);
+        const weightedAvg = totalRatedRev > 0 ? parseFloat((totalRatingWeight / totalRatedRev).toFixed(1)) : (Number(avgRating) || 0);
         const totalReplied = effectiveLeaderboardData.reduce((acc, l) => acc + (Number(l.repliedCount) || 0), 0);
         const totalPending = effectiveLeaderboardData.reduce((acc, l) => acc + (Number(l.pendingCount) || 0), 0);
         const rate = totalRev > 0 ? Math.min(100, Math.round((totalReplied / Math.max(totalReplied + totalPending, 1)) * 100)) : 96;

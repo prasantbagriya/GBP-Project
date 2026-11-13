@@ -1430,9 +1430,19 @@ class GoogleBusinessController extends Controller
 
                 $finalToday = ! empty($cachedReviews) ? $todayCount : ($reportTodayNew ?: 0);
 
+                // Compute real review average if cached average is missing
+                $cachedAvg = $cached['averageRating'] ?? $reportRating;
+                if ($cachedAvg === null && ! empty($cachedReviews)) {
+                    $sum = 0;
+                    foreach ($cachedReviews as $cr) {
+                        $sum += $this->ratingStringToNumber((string) ($cr['starRating'] ?? 'FIVE'));
+                    }
+                    $cachedAvg = round($sum / count($cachedReviews), 1);
+                }
+
                 return response()->json([
                     'reviews' => $cachedReviews,
-                    'averageRating' => $cached['averageRating'] ?? ($reportRating ?? 5.0),
+                    'averageRating' => $cachedAvg ?? 5.0,
                     'totalReviewCount' => $cached['totalReviewCount'] ?? ($reportTotal ?? count($cachedReviews)),
                     'todayReviewsCount' => $finalToday,
                     'cached' => true,
@@ -1503,9 +1513,20 @@ class GoogleBusinessController extends Controller
             $hasMoreGooglePages = ! empty($pageToken);
             $reviews = $this->mergeReviewsWithCache($reviews, $existingReviews, $hasMoreGooglePages);
 
+            // Calculate genuine average rating directly from reviews if Google API returned null
+            $calculatedAvg = null;
+            if (! empty($reviews)) {
+                $sum = 0;
+                foreach ($reviews as $rev) {
+                    $sum += $this->ratingStringToNumber((string) ($rev['starRating'] ?? 'FIVE'));
+                }
+                $calculatedAvg = round($sum / count($reviews), 1);
+            }
+            $finalAvgRating = $googleAvgRating ?? ($cached['averageRating'] ?? ($calculatedAvg ?? null));
+
             $cachePayload = [
                 'reviews' => $reviews,
-                'averageRating' => $googleAvgRating ?? ($cached['averageRating'] ?? null),
+                'averageRating' => $finalAvgRating,
                 'totalReviewCount' => $googleTotalCount ?? ($cached['totalReviewCount'] ?? count($reviews)),
                 'savedAt' => now()->toIso8601String(),
             ];
@@ -5562,6 +5583,12 @@ class GoogleBusinessController extends Controller
 
                 if ($googleAvgRating !== null) {
                     $avgRating = (float) $googleAvgRating;
+                } elseif (! empty($rawReviews)) {
+                    $sum = 0;
+                    foreach ($rawReviews as $rItem) {
+                        $sum += $this->ratingStringToNumber((string) ($rItem['starRating'] ?? 'FIVE'));
+                    }
+                    $avgRating = round($sum / count($rawReviews), 1);
                 }
 
                 // Check if all reviews in page 1 were from today (after 5:00 AM IST) and there is a nextPageToken
