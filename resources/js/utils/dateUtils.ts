@@ -80,3 +80,13 @@ export function formatReviewTimestamp(createTime: string | null | undefined): st
     return '';
   }
 }
+
+/**
+ * Safely format a local Date into YYYY-MM-DD without UTC timezone shifts.
+ */
+export function formatLocalDate(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}

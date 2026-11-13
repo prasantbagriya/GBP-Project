@@ -67,7 +67,7 @@ import { AiSentimentTopicsCard } from './components/reports/AiSentimentTopicsCar
 import { InfoTooltip } from './components/InfoTooltip';
 import { FacebookDashboard } from './components/facebook/FacebookDashboard';
 import { ChatManager } from './components/chat/ChatManager';
-import { getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp } from './utils/dateUtils';
+import { getBusinessShiftedDate, isTodayBusinessDay as isToday, formatReviewTimestamp, formatLocalDate } from './utils/dateUtils';
 import { isItemAllowedForMember } from './utils/profileIsolation';
 import { parseStarRating } from './utils/reviewUtils';
 
@@ -1990,7 +1990,7 @@ export default function App() {
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     const link = document.createElement('a');
     link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', `GBP_Reviews_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `GBP_Reviews_${formatLocalDate(new Date())}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

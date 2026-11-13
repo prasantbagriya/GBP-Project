@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { ProfileReportItem, MultiProfileReportData, PanelUser } from '../types';
 import { DailyReviewTargetModal } from './DailyReviewTargetModal';
-import { getBusinessDateStr, getBusinessShiftedDate, BUSINESS_TIMEZONE } from '../utils/dateUtils';
+import { getBusinessDateStr, getBusinessShiftedDate, BUSINESS_TIMEZONE, formatLocalDate } from '../utils/dateUtils';
 import { isItemAllowedForMember } from '../utils/profileIsolation';
 import { 
   getAssignedStaffBracket, 
@@ -440,7 +440,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `GBP_Daily_Report_${new Date().toISOString().slice(0, 10)}.txt`;
+    link.download = `GBP_Daily_Report_${formatLocalDate(new Date())}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

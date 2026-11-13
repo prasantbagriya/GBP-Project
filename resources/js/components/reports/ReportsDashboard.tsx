@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { Location, Review, ProfileReportItem, MultiProfileReportData } from '../../types';
 import { parseStarRating } from '../../utils/reviewUtils';
+import { formatLocalDate, getBusinessDateStr } from '../../utils/dateUtils';
 import { KpiSummaryGrid } from './KpiSummaryGrid';
 import { ReviewTrajectoryChart } from './ReviewTrajectoryChart';
 import { StarDistributionDonut } from './StarDistributionDonut';
@@ -327,7 +328,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     for (let i = daysCount - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(now.getDate() - i);
-      const key = d.toISOString().split('T')[0];
+      const key = formatLocalDate(d);
       const label = d.toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
@@ -339,7 +340,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     if (safeReviews.length > 0) {
       safeReviews.forEach((r) => {
         if (!r?.createTime) return;
-        const dStr = r.createTime.split('T')[0];
+        const dStr = getBusinessDateStr(r.createTime) || formatLocalDate(new Date(r.createTime));
         if (buckets[dStr]) {
           buckets[dStr].count++;
           const numRate = parseStarRating(r?.starRating);
@@ -544,7 +545,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     const link = document.createElement('a');
     link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', `GBP_Executive_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `GBP_Executive_Report_${formatLocalDate(new Date())}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

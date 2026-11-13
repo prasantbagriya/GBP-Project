@@ -28,6 +28,7 @@ import {
   Edit2
 } from 'lucide-react';
 import { Location } from '../types';
+import { formatLocalDate, getBusinessShiftedDate } from '../utils/dateUtils';
 import { 
   OFFICIAL_REVIEW_TEAM, 
   getAssignedStaffBracket, 
@@ -111,7 +112,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
   const [weekOffset, setWeekOffset] = useState<number>(0);
 
   const weekInfo = useMemo(() => {
-    const now = new Date();
+    const now = getBusinessShiftedDate();
     // Adjust for weekOffset (in weeks)
     now.setDate(now.getDate() + (weekOffset * 7));
     
@@ -132,8 +133,8 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
       monday,
       sunday,
       weekKey,
-      startDateStr: monday.toISOString().slice(0, 10),
-      endDateStr: sunday.toISOString().slice(0, 10),
+      startDateStr: formatLocalDate(monday),
+      endDateStr: formatLocalDate(sunday),
       formattedRange: `${monday.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${sunday.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
     };
   }, [weekOffset]);
@@ -335,7 +336,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
     return DAY_NAMES.map((dName, idx) => {
       const dayDate = new Date(monday);
       dayDate.setDate(monday.getDate() + idx);
-      const dateStr = dayDate.toISOString().slice(0, 10);
+      const dateStr = formatLocalDate(dayDate);
       const dateDisplay = dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       const dayTarget = counts[idx] || 0;
 

@@ -42,7 +42,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Location, ProfileReportItem, MultiProfileReportData, PanelUser } from '../types';
-import { getBusinessShiftedDate } from '../utils/dateUtils';
+import { getBusinessShiftedDate, formatLocalDate } from '../utils/dateUtils';
 import { isItemAllowedForMember } from '../utils/profileIsolation';
 import { 
   OFFICIAL_REVIEW_TEAM, 
@@ -89,13 +89,6 @@ const DAY_NAMES = [
   { en: 'Saturday', hi: 'शनिवार' },
   { en: 'Sunday', hi: 'रविवार' },
 ];
-
-const formatLocalDate = (d: Date): string => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
 
 export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
   userEmail,
