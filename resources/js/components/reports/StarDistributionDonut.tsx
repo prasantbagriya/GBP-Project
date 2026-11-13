@@ -239,15 +239,12 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
                     style={{ width: `${Math.min(100, Math.max(0, tier.pct))}%` }} 
                   />
                 </div>
-                {/* Prominently show review count in front of the bar instead of just percent */}
-                <div className="min-w-28 sm:min-w-32 flex items-center justify-end gap-1.5 shrink-0 text-right">
-                  <span className={`px-2 py-0.5 rounded-md font-bold text-xs shadow-2xs whitespace-nowrap ${
-                    tier.count > 0 ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-slate-400'
+                {/* Review count in place of percent */}
+                <div className="min-w-24 sm:min-w-28 text-right shrink-0">
+                  <span className={`px-2.5 py-1 rounded-md font-bold text-xs whitespace-nowrap inline-block ${
+                    tier.count > 0 ? 'bg-slate-100 text-slate-900 border border-slate-200 shadow-2xs' : 'text-slate-400 bg-slate-50 border border-slate-100'
                   }`}>
                     {tier.count.toLocaleString()} {tier.count === 1 ? 'Review' : 'Reviews'}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-medium w-9 text-right shrink-0">
-                    {Number(tier.pct || 0).toFixed(0)}%
                   </span>
                 </div>
               </div>
