@@ -455,12 +455,13 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locationName: locName,
-          beforeTodayReviews: baselineInput
+          beforeTodayReviews: baselineInput,
+          date: selectedDateMode
         })
       });
       if (res.ok) {
         setEditingBaselineId(null);
-        await fetchReportData();
+        await fetchReportData(false, selectedDateMode);
       }
     } catch (e) {
       alert('Failed to save baseline');
@@ -936,13 +937,11 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                 ) : (
                                   <span 
                                     onClick={() => {
-                                      if (selectedDateMode === 'today') {
-                                        setEditingBaselineId(loc.id);
-                                        setBaselineInput(loc.beforeTodayReviews);
-                                      }
+                                      setEditingBaselineId(loc.id);
+                                      setBaselineInput(loc.beforeTodayReviews);
                                     }}
-                                    className={`font-bold text-slate-700 ${selectedDateMode === 'today' ? 'cursor-pointer hover:underline' : ''}`}
-                                    title={selectedDateMode === 'today' ? "Click to edit before-today baseline" : undefined}
+                                    className="font-bold text-slate-700 cursor-pointer hover:underline"
+                                    title="Click to edit opening baseline"
                                   >
                                     {loc.beforeTodayReviews}
                                   </span>

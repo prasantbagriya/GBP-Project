@@ -5400,8 +5400,11 @@ class GoogleBusinessController extends Controller
             try {
                 $savedReportDate = $this->getBusinessDate(Carbon::parse($savedReport['generatedAt']));
                 $isTodayReport = ($savedReportDate === $todayDate);
-                // If saved report is from before today (before 5:00 AM today), extract previous closing total reviews for each location
-                if (! $isTodayReport) {
+                // If saved report is from before today (e.g. yesterday), auto-archive it and extract previous closing totals
+                if (! $isTodayReport && ! empty($savedReportDate)) {
+                    $this->saveServerData("{$reportKey}_{$savedReportDate}", $savedReport);
+                    $this->saveServerData("gbp_multi_report_daily_{$savedReportDate}", $savedReport);
+
                     foreach ($savedReport['locations'] as $prevLoc) {
                         $pName = $prevLoc['name'] ?? ($prevLoc['id'] ?? '');
                         if (! empty($pName) && isset($prevLoc['totalReviews'])) {
@@ -5869,9 +5872,14 @@ class GoogleBusinessController extends Controller
         $yesterdaySnapshotKey = "gbp_snap_{$locIdHash}_{$yesterdayDate}";
         $latestSnapshotKey = "gbp_snap_latest_{$locIdHash}";
 
+        $targetDateMode = $request->input('date', 'today');
+
         // Persist baseline to disk and cache for both today and yesterday
         $this->saveServerData("gbp_manual_baseline_{$locIdHash}_{$todayDate}", $beforeCount);
         $this->saveServerData("gbp_day_baseline_{$locIdHash}_{$todayDate}", $beforeCount);
+        if ($targetDateMode === 'yesterday') {
+            $this->saveServerData("gbp_manual_baseline_{$locIdHash}_{$yesterdayDate}", $beforeCount);
+        }
         $this->saveServerData("gbp_daily_snap_{$locIdHash}_{$yesterdayDate}", [
             'total' => $beforeCount,
             'date' => $yesterdayDate,
@@ -5937,6 +5945,36 @@ class GoogleBusinessController extends Controller
             $this->saveServerData($reportKey, $savedReport);
         }
 
+        // Also update yesterday's archive if editing in yesterday mode
+        if ($targetDateMode === 'yesterday') {
+            foreach (["{$reportKey}_{$yesterdayDate}", "gbp_multi_report_daily_{$yesterdayDate}"] as $yKey) {
+                $yRep = $this->getServerData($yKey);
+                if ($yRep && ! empty($yRep['locations'])) {
+                    $newYTodayNew = 0;
+                    $locClean = preg_replace('#^accounts/[^/]+/locations/#', '', $locName);
+                    $locClean = preg_replace('#^locations/#', '', $locClean);
+
+                    foreach ($yRep['locations'] as &$item) {
+                        $iClean = preg_replace('#^accounts/[^/]+/locations/#', '', $item['v4Name'] ?? '');
+                        $iClean = preg_replace('#^locations/#', '', $item['id'] ?? ($item['name'] ?? $iClean));
+
+                        if ($item['name'] === $locName || $item['id'] === $locName || $iClean === $locClean) {
+                            $item['beforeTodayReviews'] = $beforeCount;
+                            $diff = $item['totalReviews'] - $beforeCount;
+                            $item['difference'] = $diff;
+                            $item['todayNewReviews'] = max(0, $diff);
+                        }
+                        $newYTodayNew += (int) ($item['todayNewReviews'] ?? 0);
+                    }
+                    unset($item);
+                    if (isset($yRep['overall'])) {
+                        $yRep['overall']['totalTodayNew'] = $newYTodayNew;
+                    }
+                    $this->saveServerData($yKey, $yRep);
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Baseline snapshot updated successfully',
@@ -5957,12 +5995,21 @@ class GoogleBusinessController extends Controller
             ?: $this->getServerData("gbp_multi_report_daily_{$targetDate}");
 
         if (is_array($archived) && ! empty($archived['locations'])) {
-            $archived['cached'] = true;
-            $archived['isHistorical'] = true;
-            $archived['isToday'] = false;
-            $archived['reportDate'] = $targetDate;
+            $hasAnyGrowthOrReviews = false;
+            foreach ($archived['locations'] as $aloc) {
+                if (($aloc['todayNewReviews'] ?? 0) > 0 || ($aloc['difference'] ?? 0) !== 0 || ($aloc['beforeTodayReviews'] ?? 0) !== ($aloc['totalReviews'] ?? 0)) {
+                    $hasAnyGrowthOrReviews = true;
+                    break;
+                }
+            }
+            if ($hasAnyGrowthOrReviews) {
+                $archived['cached'] = true;
+                $archived['isHistorical'] = true;
+                $archived['isToday'] = false;
+                $archived['reportDate'] = $targetDate;
 
-            return $archived;
+                return $archived;
+            }
         }
 
         // If current saved report on disk is already timestamped for targetDate, return it directly
@@ -6041,7 +6088,7 @@ class GoogleBusinessController extends Controller
             Log::warning('Error querying historical ReviewReport: '.$e->getMessage());
         }
 
-        // 3. Fallback: If yesterday was requested and currentSavedReport exists, synthesize yesterday closing snapshot
+        // 3. Fallback: Synthesize yesterday's report accurately from saved report, snapshots, and Google review timestamps
         if ($targetDate === $yesterdayDate && is_array($currentSavedReport) && ! empty($currentSavedReport['locations'])) {
             $yesterdayItems = [];
             $combinedTotal = 0;
@@ -6051,25 +6098,72 @@ class GoogleBusinessController extends Controller
             $dayBeforeDate = Carbon::createFromFormat('Y-m-d', $yesterdayDate, $tz)->subDay()->toDateString();
 
             foreach ($currentSavedReport['locations'] as $loc) {
-                // For yesterday, closing total was today's opening baseline (beforeTodayReviews)
-                $closingYesterday = (int) ($loc['beforeTodayReviews'] ?? $loc['totalReviews']);
+                $locName = $loc['name'] ?? ($loc['id'] ?? '');
+                $locIdHash = md5($locName);
+                $v4Name = $loc['v4Name'] ?? null;
                 $avgR = (float) ($loc['averageRating'] ?? 5.0);
 
-                $locIdHash = md5($loc['name'] ?? ($loc['id'] ?? ''));
+                // Check recorded snapshot on yesterday date
+                $yesterdaySnap = $this->getServerData("gbp_daily_snap_{$locIdHash}_{$yesterdayDate}")
+                    ?? $this->getServerData("gbp_snap_{$locIdHash}_{$yesterdayDate}")
+                    ?? Cache::get("gbp_snap_{$locIdHash}_{$yesterdayDate}");
+
+                // Closing count on yesterday
+                $closingYesterday = ($yesterdaySnap && isset($yesterdaySnap['total']) && is_numeric($yesterdaySnap['total']))
+                    ? (int) $yesterdaySnap['total']
+                    : (int) ($loc['totalReviews'] ?? 0);
+
+                // Count reviews created on yesterday's date from cached Google reviews
+                $cachedLocReviews = $this->getServerData('gbp_reviews_'.$locIdHash)
+                    ?? ($v4Name ? $this->getServerData('gbp_reviews_'.md5($v4Name)) : null);
+
+                $yesterdayGoogleNewCount = 0;
+                if (is_array($cachedLocReviews) && ! empty($cachedLocReviews['reviews'])) {
+                    foreach ($cachedLocReviews['reviews'] as $rev) {
+                        $cTime = $rev['createTime'] ?? '';
+                        if (! empty($cTime)) {
+                            $cDate = $this->getBusinessDate(Carbon::parse($cTime));
+                            if ($cDate === $yesterdayDate) {
+                                $yesterdayGoogleNewCount++;
+                            }
+                        }
+                    }
+                }
+
+                // Check manual baseline set specifically for yesterday
+                $yesterdayManualBaseline = $this->getServerData("gbp_manual_baseline_{$locIdHash}_{$yesterdayDate}");
+
+                // Check snapshot from day-before-yesterday
                 $dayBeforeSnap = $this->getServerData("gbp_daily_snap_{$locIdHash}_{$dayBeforeDate}")
                     ?? $this->getServerData("gbp_snap_{$locIdHash}_{$dayBeforeDate}")
                     ?? Cache::get("gbp_snap_{$locIdHash}_{$dayBeforeDate}");
 
-                $openingYesterday = ($dayBeforeSnap && isset($dayBeforeSnap['total']) && is_numeric($dayBeforeSnap['total']))
-                    ? min((int) $dayBeforeSnap['total'], $closingYesterday)
-                    : $closingYesterday;
-
-                $yesterdayGrowth = max(0, $closingYesterday - $openingYesterday);
+                if ($yesterdayManualBaseline !== null && is_numeric($yesterdayManualBaseline)) {
+                    $openingYesterday = min((int) $yesterdayManualBaseline, $closingYesterday);
+                    $yesterdayGrowth = max(0, $closingYesterday - $openingYesterday);
+                } elseif ($dayBeforeSnap && isset($dayBeforeSnap['total']) && is_numeric($dayBeforeSnap['total'])) {
+                    $openingYesterday = min((int) $dayBeforeSnap['total'], $closingYesterday);
+                    $yesterdayGrowth = max(0, $closingYesterday - $openingYesterday);
+                } elseif ($yesterdayGoogleNewCount > 0) {
+                    $yesterdayGrowth = $yesterdayGoogleNewCount;
+                    $openingYesterday = max(0, $closingYesterday - $yesterdayGrowth);
+                } elseif (isset($loc['beforeTodayReviews']) && isset($loc['totalReviews']) && (int) $loc['beforeTodayReviews'] < (int) $loc['totalReviews']) {
+                    // Last saved report captured yesterday's verified review growth!
+                    $openingYesterday = (int) $loc['beforeTodayReviews'];
+                    $closingYesterday = (int) $loc['totalReviews'];
+                    $yesterdayGrowth = max(0, $closingYesterday - $openingYesterday);
+                } elseif (isset($loc['todayNewReviews']) && (int) $loc['todayNewReviews'] > 0) {
+                    $yesterdayGrowth = (int) $loc['todayNewReviews'];
+                    $openingYesterday = max(0, $closingYesterday - $yesterdayGrowth);
+                } else {
+                    $openingYesterday = $closingYesterday;
+                    $yesterdayGrowth = 0;
+                }
 
                 $yesterdayItems[] = [
                     'id' => $loc['id'],
                     'name' => $loc['name'],
-                    'v4Name' => $loc['v4Name'] ?? null,
+                    'v4Name' => $v4Name,
                     'title' => $loc['title'],
                     'address' => $loc['address'] ?? '',
                     'storeCode' => $loc['storeCode'] ?? null,
@@ -6085,6 +6179,7 @@ class GoogleBusinessController extends Controller
                     'assignedStaffBracket' => self::getPermanentStaffBracket($loc['title'] ?? ''),
                     'assignedStaffPhone' => self::getPermanentStaffPhone($loc['title'] ?? ''),
                 ];
+
                 $combinedTotal += $closingYesterday;
                 $combinedNew += $yesterdayGrowth;
                 if ($avgR > 0) {
@@ -6092,6 +6187,7 @@ class GoogleBusinessController extends Controller
                     $ratedCount++;
                 }
             }
+
             usort($yesterdayItems, function ($a, $b) {
                 $ratingA = (float) ($a['averageRating'] ?? 0);
                 $ratingB = (float) ($b['averageRating'] ?? 0);
@@ -6120,10 +6216,6 @@ class GoogleBusinessController extends Controller
                 'isHistorical' => true,
                 'isToday' => false,
             ];
-
-            // Persist so next time it is loaded directly from disk archives
-            $this->saveServerData("{$reportKey}_{$targetDate}", $yesterdayReport);
-            $this->saveServerData("gbp_multi_report_daily_{$targetDate}", $yesterdayReport);
 
             return $yesterdayReport;
         }
