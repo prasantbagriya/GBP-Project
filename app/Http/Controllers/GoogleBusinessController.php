@@ -5965,6 +5965,23 @@ class GoogleBusinessController extends Controller
             return $archived;
         }
 
+        // If current saved report on disk is already timestamped for targetDate, return it directly
+        if (is_array($currentSavedReport) && ! empty($currentSavedReport['locations']) && ! empty($currentSavedReport['generatedAt'])) {
+            try {
+                $savedReportDate = $this->getBusinessDate(Carbon::parse($currentSavedReport['generatedAt']));
+                if ($savedReportDate === $targetDate) {
+                    $savedReportCopy = $currentSavedReport;
+                    $savedReportCopy['cached'] = true;
+                    $savedReportCopy['isHistorical'] = true;
+                    $savedReportCopy['isToday'] = false;
+                    $savedReportCopy['reportDate'] = $targetDate;
+
+                    return $savedReportCopy;
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
         // 2. Check SQL ReviewReport model
         try {
             $reportRecord = ReviewReport::with('items')->where('report_date', $targetDate)->first();
@@ -6085,7 +6102,7 @@ class GoogleBusinessController extends Controller
                 return $ratingA <=> $ratingB;
             });
 
-            return [
+            $yesterdayReport = [
                 'success' => true,
                 'hasReport' => true,
                 'userEmail' => $userEmail,
@@ -6103,6 +6120,12 @@ class GoogleBusinessController extends Controller
                 'isHistorical' => true,
                 'isToday' => false,
             ];
+
+            // Persist so next time it is loaded directly from disk archives
+            $this->saveServerData("{$reportKey}_{$targetDate}", $yesterdayReport);
+            $this->saveServerData("gbp_multi_report_daily_{$targetDate}", $yesterdayReport);
+
+            return $yesterdayReport;
         }
 
         return null;

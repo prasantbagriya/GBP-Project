@@ -296,11 +296,8 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
     let lines: string[] = [];
 
-    // Clean, professional header with Yesterday indicator if viewing historical
-    const titleHeader = isYesterdayMode 
-      ? `*Daily Google Business Profile Report (Yesterday - ${dateFormatted})*`
-      : '*Daily Google Business Profile Report*';
-    lines.push(titleHeader);
+    // Same professional header for both Today and Yesterday
+    lines.push('*Daily Google Business Profile Report*');
     lines.push(`Date: ${dateFormatted} | Time: ${timeFormatted}`);
     lines.push('------------------------------------');
     lines.push('');
@@ -316,9 +313,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
       // Yesterday: 420 ➔ Today: 423
       const staffBracket = getAssignedStaffBracket(p.title);
       const profileTitle = boldProfileNames ? `*${p.title}*` : p.title;
-      const effectiveTodayNew = isYesterdayMode
-        ? (p.todayNewReviews || 0)
-        : Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
+      const effectiveTodayNew = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
 
       lines.push(`📍 ${idx + 1}. ${profileTitle}${staffBracket ? ` ${staffBracket}` : ''}`);
       if (includePhone) {
@@ -328,32 +323,17 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         }
       }
 
-      if (isYesterdayMode) {
-        lines.push(`Total Reviews: ${p.totalReviews}`);
-        if (effectiveTodayNew > 0) {
-          lines.push(`Reviews Growth: +${effectiveTodayNew}`);
-        }
-      } else {
-        lines.push(`New Reviews Today: ${effectiveTodayNew}`);
-      }
+      lines.push(`New Reviews Today: ${effectiveTodayNew}`);
 
       if (includeRatings) {
         lines.push(`Average Rating: ${p.averageRating}`);
       }
 
       if (includeComparison) {
-        if (isYesterdayMode) {
-          if (p.beforeTodayReviews > 0 && p.beforeTodayReviews !== p.totalReviews) {
-            lines.push(`Previous: ${p.beforeTodayReviews} ➔ Closing: ${p.totalReviews}${effectiveTodayNew > 0 ? ` (+${effectiveTodayNew})` : ''}`);
-          } else {
-            lines.push(`Closing Total: ${p.totalReviews}${effectiveTodayNew > 0 ? ` (+${effectiveTodayNew})` : ''}`);
-          }
-        } else {
-          const diffText = showNetDifference && p.difference !== 0
-            ? ` (${p.difference > 0 ? `+${p.difference}` : p.difference})`
-            : '';
-          lines.push(`Yesterday: ${p.beforeTodayReviews} ➔  Today: ${p.totalReviews}${diffText}`);
-        }
+        const diffText = showNetDifference && p.difference !== 0
+          ? ` (${p.difference > 0 ? `+${p.difference}` : p.difference})`
+          : '';
+        lines.push(`Yesterday: ${p.beforeTodayReviews} ➔  Today: ${p.totalReviews}${diffText}`);
       }
 
       if (includePending && p.pendingCount !== undefined && p.pendingCount > 0) {
@@ -369,17 +349,10 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
     if (includeSummaryFooter && activeProfiles.length > 0) {
       lines.push('------------------------------------');
-      lines.push(isYesterdayMode ? '*Yesterday Overall Summary:*' : '*Overall Summary:*');
+      lines.push('*Overall Summary:*');
       lines.push(`Total Profiles: ${selectedStats.profilesCount}`);
-      if (isYesterdayMode) {
-        lines.push(`Combined Total Reviews: ${selectedStats.totalReviews}`);
-        if (selectedStats.todayNew > 0) {
-          lines.push(`Yesterday Net Growth: +${selectedStats.todayNew}`);
-        }
-      } else {
-        lines.push(`New Reviews Today: +${selectedStats.todayNew}`);
-        lines.push(`Combined Total Reviews: ${selectedStats.totalReviews}`);
-      }
+      lines.push(`New Reviews Today: +${selectedStats.todayNew}`);
+      lines.push(`Combined Total Reviews: ${selectedStats.totalReviews}`);
       lines.push(`Average Rating: ${selectedStats.avgRating}`);
       if (includePending && selectedStats.totalPending > 0) {
         lines.push(`Total Pending Replies: ${selectedStats.totalPending}`);
@@ -934,99 +907,75 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                             {/* Today vs Before Comparison Pill */}
                             <div className="mt-2 flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs">
                               <div className="p-1.5 px-2 bg-slate-100 rounded-lg text-slate-700 font-medium flex items-center gap-1.5 flex-wrap">
-                                {selectedDateMode === 'yesterday' ? (
-                                  <>
-                                    <span className="text-slate-400 text-[10px] uppercase font-bold">
-                                      Closing:
-                                    </span>
-                                    <strong className="text-blue-700 font-bold">{loc.totalReviews}</strong>
-                                    {loc.beforeTodayReviews > 0 && loc.beforeTodayReviews !== loc.totalReviews && (
-                                      <span className="text-[11px] text-slate-500 font-normal">
-                                        (prev: {loc.beforeTodayReviews})
-                                      </span>
-                                    )}
-                                  </>
+                                <span className="text-slate-400 text-[10px] uppercase font-bold">
+                                  Before:
+                                </span>
+                                
+                                {isEditing ? (
+                                  <div className="flex items-center gap-1">
+                                    <input
+                                      type="number"
+                                      value={baselineInput}
+                                      onChange={(e) => setBaselineInput(parseInt(e.target.value) || 0)}
+                                      className="w-14 px-1 py-0.5 text-xs bg-white border border-blue-400 rounded outline-none font-bold"
+                                    />
+                                    <button
+                                      onClick={() => handleSaveBaseline(loc.name)}
+                                      disabled={savingBaseline}
+                                      className="px-1.5 py-0.5 bg-blue-600 text-white rounded text-[10px] font-bold"
+                                    >
+                                      ✓
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingBaselineId(null)}
+                                      className="text-slate-400 text-[10px]"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
                                 ) : (
-                                  <>
-                                    <span className="text-slate-400 text-[10px] uppercase font-bold">
-                                      Before:
-                                    </span>
-                                    
-                                    {isEditing ? (
-                                      <div className="flex items-center gap-1">
-                                        <input
-                                          type="number"
-                                          value={baselineInput}
-                                          onChange={(e) => setBaselineInput(parseInt(e.target.value) || 0)}
-                                          className="w-14 px-1 py-0.5 text-xs bg-white border border-blue-400 rounded outline-none font-bold"
-                                        />
-                                        <button
-                                          onClick={() => handleSaveBaseline(loc.name)}
-                                          disabled={savingBaseline}
-                                          className="px-1.5 py-0.5 bg-blue-600 text-white rounded text-[10px] font-bold"
-                                        >
-                                          ✓
-                                        </button>
-                                        <button
-                                          onClick={() => setEditingBaselineId(null)}
-                                          className="text-slate-400 text-[10px]"
-                                        >
-                                          ✕
-                                        </button>
-                                      </div>
-                                    ) : (
-                                      <span 
-                                        onClick={() => {
-                                          setEditingBaselineId(loc.id);
-                                          setBaselineInput(loc.beforeTodayReviews);
-                                        }}
-                                        className="font-bold cursor-pointer hover:underline text-slate-700"
-                                        title="Click to edit before-today baseline"
-                                      >
-                                        {loc.beforeTodayReviews}
-                                      </span>
-                                    )}
-
-                                    <span className="text-slate-300">➔</span>
-                                    <span className="text-slate-400 text-[10px] uppercase font-bold">
-                                      Today:
-                                    </span>
-                                    <strong className="text-blue-700 font-bold">{loc.totalReviews}</strong>
-                                  </>
+                                  <span 
+                                    onClick={() => {
+                                      if (selectedDateMode === 'today') {
+                                        setEditingBaselineId(loc.id);
+                                        setBaselineInput(loc.beforeTodayReviews);
+                                      }
+                                    }}
+                                    className={`font-bold text-slate-700 ${selectedDateMode === 'today' ? 'cursor-pointer hover:underline' : ''}`}
+                                    title={selectedDateMode === 'today' ? "Click to edit before-today baseline" : undefined}
+                                  >
+                                    {loc.beforeTodayReviews}
+                                  </span>
                                 )}
+
+                                <span className="text-slate-300">➔</span>
+                                <span className="text-slate-400 text-[10px] uppercase font-bold">
+                                  Today:
+                                </span>
+                                <strong className="text-blue-700 font-bold">{loc.totalReviews}</strong>
                               </div>
 
                               {/* Growth Tag */}
-                              {selectedDateMode === 'yesterday' ? (
-                                (loc.todayNewReviews || 0) > 0 ? (
-                                  <span className="p-1 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
-                                    <TrendingUp className="w-3 h-3" /> +{loc.todayNewReviews} reviews
-                                  </span>
-                                ) : null
+                              {loc.difference > 0 ? (
+                                <span className="p-1 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
+                                  <TrendingUp className="w-3 h-3" /> +{loc.difference} Growth
+                                </span>
+                              ) : loc.difference < 0 ? (
+                                <span className="p-1 px-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
+                                  <TrendingDown className="w-3 h-3" /> {loc.difference} Drop
+                                </span>
                               ) : (
-                                <>
-                                  {loc.difference > 0 ? (
-                                    <span className="p-1 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
-                                      <TrendingUp className="w-3 h-3" /> +{loc.difference} Growth
-                                    </span>
-                                  ) : loc.difference < 0 ? (
-                                    <span className="p-1 px-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg font-bold flex items-center gap-1 text-[11px] shrink-0">
-                                      <TrendingDown className="w-3 h-3" /> {loc.difference} Drop
-                                    </span>
-                                  ) : (
-                                    <span className="p-1 px-2 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[11px] font-medium flex items-center gap-1 shrink-0">
-                                      <Minus className="w-3 h-3 text-slate-400" />
-                                      <span>No change</span>
-                                    </span>
-                                  )}
+                                <span className="p-1 px-2 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[11px] font-medium flex items-center gap-1 shrink-0">
+                                  <Minus className="w-3 h-3 text-slate-400" />
+                                  <span>No change</span>
+                                </span>
+                              )}
 
-                                  {Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0)) > 0 && (
-                                    <span className="p-1 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0">
-                                      <MessageSquare className="w-3 h-3 text-blue-600" />
-                                      <span>+{Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0))} today</span>
-                                    </span>
-                                  )}
-                                </>
+                              {Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0)) > 0 && (
+                                <span className="p-1 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0">
+                                  <MessageSquare className="w-3 h-3 text-blue-600" />
+                                  <span>+{Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0))} today</span>
+                                </span>
                               )}
 
                               {loc.pendingCount > 0 && (
