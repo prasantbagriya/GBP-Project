@@ -5369,6 +5369,33 @@ class GoogleBusinessController extends Controller
         // Check whether the saved report on disk is actually from today (after 5:00 AM morning IST)
         $isTodayReport = false;
         $prevReportLocationsMap = [];
+
+        // Check yesterday's archived daily report on disk
+        $yesterdayArchived = $this->getServerData("{$reportKey}_{$yesterdayDate}")
+            ?: $this->getServerData("gbp_multi_report_daily_{$yesterdayDate}");
+        if (is_array($yesterdayArchived) && ! empty($yesterdayArchived['locations'])) {
+            foreach ($yesterdayArchived['locations'] as $yloc) {
+                $yName = $yloc['name'] ?? ($yloc['id'] ?? '');
+                if (! empty($yName) && isset($yloc['totalReviews'])) {
+                    $prevReportLocationsMap[$yName] = (int) $yloc['totalReviews'];
+                    $prevReportLocationsMap[md5($yName)] = (int) $yloc['totalReviews'];
+                }
+            }
+        }
+
+        if (empty($prevReportLocationsMap)) {
+            try {
+                $yReport = ReviewReport::with('items')->where('report_date', $yesterdayDate)->first();
+                if ($yReport && $yReport->items->isNotEmpty()) {
+                    foreach ($yReport->items as $item) {
+                        $prevReportLocationsMap[$item->location_name] = (int) $item->total_reviews;
+                        $prevReportLocationsMap[md5($item->location_name)] = (int) $item->total_reviews;
+                    }
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
         if ($savedReport !== null && is_array($savedReport) && ! empty($savedReport['locations']) && ! empty($savedReport['generatedAt'])) {
             try {
                 $savedReportDate = $this->getBusinessDate(Carbon::parse($savedReport['generatedAt']));
@@ -5629,18 +5656,54 @@ class GoogleBusinessController extends Controller
 
             $prevClosing = $prevReportLocationsMap[$locName] ?? ($prevReportLocationsMap[$locIdHash] ?? null);
 
-            if ($manualBaseline !== null && is_numeric($manualBaseline)) {
-                $beforeTodayCount = (int) $manualBaseline;
-                if ($beforeTodayCount > $totalCount) {
-                    $beforeTodayCount = $totalCount;
+            // Check if current savedReport already recorded a valid beforeTodayReviews baseline for this location
+            $existingSavedBefore = null;
+            if (is_array($savedReport) && ! empty($savedReport['locations'])) {
+                foreach ($savedReport['locations'] as $sloc) {
+                    $sName = $sloc['name'] ?? ($sloc['id'] ?? '');
+                    if ($sName === $locName || md5($sName) === $locIdHash) {
+                        if (isset($sloc['beforeTodayReviews']) && is_numeric($sloc['beforeTodayReviews']) && (int) $sloc['beforeTodayReviews'] > 0) {
+                            $existingSavedBefore = (int) $sloc['beforeTodayReviews'];
+                        }
+                        break;
+                    }
                 }
-                $difference = $totalCount - $beforeTodayCount;
-                $effectiveTodayNew = max($todayCount, max(0, $difference));
+            }
+
+            if ($manualBaseline !== null && is_numeric($manualBaseline)) {
+                $beforeTodayCount = min((int) $manualBaseline, $totalCount);
+            } elseif ($yesterdaySnap && isset($yesterdaySnap['total']) && is_numeric($yesterdaySnap['total'])) {
+                $beforeTodayCount = min((int) $yesterdaySnap['total'], $totalCount);
+            } elseif ($prevClosing !== null && is_numeric($prevClosing)) {
+                $beforeTodayCount = min((int) $prevClosing, $totalCount);
+            } elseif ($existingSavedBefore !== null && $existingSavedBefore <= $totalCount) {
+                $beforeTodayCount = $existingSavedBefore;
+            } elseif ($latestSnap && isset($latestSnap['date']) && $latestSnap['date'] < $todayDate && isset($latestSnap['total']) && is_numeric($latestSnap['total'])) {
+                $beforeTodayCount = min((int) $latestSnap['total'], $totalCount);
+            } elseif ($dayBaseline !== null && is_numeric($dayBaseline)) {
+                $beforeTodayCount = min((int) $dayBaseline, $totalCount);
             } else {
-                // Ground truth strictly derived from real Google reviews timestamped today (after 5:00 AM IST)
-                $effectiveTodayNew = $todayCount;
                 $beforeTodayCount = max(0, $totalCount - $todayCount);
-                $difference = $todayCount;
+            }
+
+            // Self-healing: If reviews created today are verified from Google, opening baseline before today cannot exceed total minus today's reviews
+            if ($todayCount > 0 && $beforeTodayCount > ($totalCount - $todayCount)) {
+                $beforeTodayCount = max(0, $totalCount - $todayCount);
+            }
+
+            $difference = $totalCount - $beforeTodayCount;
+            $effectiveTodayNew = max($todayCount, max(0, $difference));
+
+            // Also store yesterday's closing snapshot if it was missing so it persists
+            if (! $yesterdaySnap && $beforeTodayCount > 0) {
+                $ySnap = [
+                    'total' => $beforeTodayCount,
+                    'rating' => $avgRating,
+                    'date' => $yesterdayDate,
+                    'updated_at' => Carbon::now($tz)->toIso8601String(),
+                ];
+                $this->saveServerData("gbp_daily_snap_{$locIdHash}_{$yesterdayDate}", $ySnap);
+                $this->saveServerData("gbp_snap_{$locIdHash}_{$yesterdayDate}", $ySnap);
             }
 
             // Persistently record closing/current snapshot for today (becomes tomorrow's yesterday baseline)
@@ -5968,10 +6031,24 @@ class GoogleBusinessController extends Controller
             $combinedNew = 0;
             $ratingSum = 0;
             $ratedCount = 0;
+            $dayBeforeDate = Carbon::createFromFormat('Y-m-d', $yesterdayDate, $tz)->subDay()->toDateString();
+
             foreach ($currentSavedReport['locations'] as $loc) {
+                // For yesterday, closing total was today's opening baseline (beforeTodayReviews)
                 $closingYesterday = (int) ($loc['beforeTodayReviews'] ?? $loc['totalReviews']);
                 $avgR = (float) ($loc['averageRating'] ?? 5.0);
-                $diff = (int) ($loc['difference'] ?? $loc['todayNewReviews'] ?? 0);
+
+                $locIdHash = md5($loc['name'] ?? ($loc['id'] ?? ''));
+                $dayBeforeSnap = $this->getServerData("gbp_daily_snap_{$locIdHash}_{$dayBeforeDate}")
+                    ?? $this->getServerData("gbp_snap_{$locIdHash}_{$dayBeforeDate}")
+                    ?? Cache::get("gbp_snap_{$locIdHash}_{$dayBeforeDate}");
+
+                $openingYesterday = ($dayBeforeSnap && isset($dayBeforeSnap['total']) && is_numeric($dayBeforeSnap['total']))
+                    ? min((int) $dayBeforeSnap['total'], $closingYesterday)
+                    : $closingYesterday;
+
+                $yesterdayGrowth = max(0, $closingYesterday - $openingYesterday);
+
                 $yesterdayItems[] = [
                     'id' => $loc['id'],
                     'name' => $loc['name'],
@@ -5980,9 +6057,9 @@ class GoogleBusinessController extends Controller
                     'address' => $loc['address'] ?? '',
                     'storeCode' => $loc['storeCode'] ?? null,
                     'totalReviews' => $closingYesterday,
-                    'beforeTodayReviews' => max(0, $closingYesterday - $diff),
-                    'todayNewReviews' => $diff,
-                    'difference' => $diff,
+                    'beforeTodayReviews' => $openingYesterday,
+                    'todayNewReviews' => $yesterdayGrowth,
+                    'difference' => $yesterdayGrowth,
                     'averageRating' => $avgR,
                     'repliedCount' => (int) ($loc['repliedCount'] ?? 0),
                     'pendingCount' => (int) ($loc['pendingCount'] ?? 0),
@@ -5992,7 +6069,7 @@ class GoogleBusinessController extends Controller
                     'assignedStaffPhone' => self::getPermanentStaffPhone($loc['title'] ?? ''),
                 ];
                 $combinedTotal += $closingYesterday;
-                $combinedNew += $diff;
+                $combinedNew += $yesterdayGrowth;
                 if ($avgR > 0) {
                     $ratingSum += $avgR;
                     $ratedCount++;
