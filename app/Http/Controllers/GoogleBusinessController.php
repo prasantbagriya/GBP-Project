@@ -1449,8 +1449,8 @@ class GoogleBusinessController extends Controller
             $pageToken = null;
             $googleTotalCount = null;
             $googleAvgRating = null;
-            // On refresh with existing reviews, 2 pages (100 reviews) is plenty to get fresh reviews in <1s
-            $maxPages = empty($existingReviews) ? 5 : 2;
+            // Allow up to 15 pages (750 reviews) on initial load, and up to 6 pages (300 reviews) on refresh
+            $maxPages = empty($existingReviews) ? 15 : 6;
             $page = 0;
 
             do {

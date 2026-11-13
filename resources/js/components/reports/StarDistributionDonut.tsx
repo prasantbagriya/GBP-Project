@@ -211,36 +211,45 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
                 />
               ))}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5 font-semibold">
-              {totalReviews && Number(totalReviews) > ratingsTotal && ratingsTotal > 0
-                ? `${ratingsTotal} of ${Number(totalReviews).toLocaleString()} Reviews`
-                : `${ratingsTotal.toLocaleString()} Reviews`}
+            <span className="text-[10px] text-slate-500 mt-0.5 font-bold">
+              {ratingsTotal.toLocaleString()} Reviews
             </span>
           </div>
         </div>
 
         {/* Right: Breakdown Progress Bars with Click Filter */}
-        <div className="flex-1 w-full space-y-1.5 min-w-0">
+        <div className="flex-1 w-full space-y-2 min-w-0">
           {starTiers.map((tier) => {
             const isSelected = selectedStarFilter === tier.star;
             return (
               <div
                 key={tier.star}
                 onClick={() => handleStarClick(tier.star)}
-                className={`flex items-center gap-2 text-xs p-1 rounded-md transition-all cursor-pointer ${tier.hoverColor} ${
+                className={`flex items-center gap-2 text-xs p-1.5 rounded-md transition-all cursor-pointer ${tier.hoverColor} ${
                   isSelected ? 'bg-blue-50 ring-1 ring-blue-400 font-bold' : 'font-medium'
                 }`}
                 title={`Click to filter reviews by ${tier.label}`}
               >
-                <span className="w-12 sm:w-14 text-slate-700 whitespace-nowrap shrink-0">{tier.label}</span>
-                <div className="flex-1 h-2 sm:h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <span className="w-16 sm:w-20 text-slate-700 whitespace-nowrap shrink-0 font-semibold flex items-center gap-1">
+                  <span>{tier.label}</span>
+                </span>
+                <div className="flex-1 h-2.5 sm:h-3 bg-slate-100 rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${tier.color} rounded-full transition-all duration-500`} 
                     style={{ width: `${Math.min(100, Math.max(0, tier.pct))}%` }} 
                   />
                 </div>
-                <span className="w-12 text-right font-bold text-slate-800 whitespace-nowrap shrink-0">{tier.count.toLocaleString()}</span>
-                <span className="w-10 text-right text-slate-400 text-[11px] font-semibold whitespace-nowrap shrink-0">{Number(tier.pct || 0).toFixed(0)}%</span>
+                {/* Prominently show review count in front of the bar instead of just percent */}
+                <div className="min-w-28 sm:min-w-32 flex items-center justify-end gap-1.5 shrink-0 text-right">
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-xs shadow-2xs whitespace-nowrap ${
+                    tier.count > 0 ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-slate-400'
+                  }`}>
+                    {tier.count.toLocaleString()} {tier.count === 1 ? 'Review' : 'Reviews'}
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium w-9 text-right shrink-0">
+                    {Number(tier.pct || 0).toFixed(0)}%
+                  </span>
+                </div>
               </div>
             );
           })}
