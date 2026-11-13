@@ -135,6 +135,8 @@ export interface MultiProfileReportData {
   success: boolean;
   hasReport?: boolean;
   isToday?: boolean;
+  isHistorical?: boolean;
+  reportDate?: string;
   cached?: boolean;
   userEmail?: string;
   generatedAt: string;

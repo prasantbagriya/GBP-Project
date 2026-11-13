@@ -5350,6 +5350,22 @@ class GoogleBusinessController extends Controller
 
         $savedReport = $this->getServerData($reportKey);
 
+        // Check for specific date request (e.g. ?date=yesterday or ?date=2026-11-12)
+        $requestedDateInput = $request->input('date');
+        $targetDate = null;
+        if ($requestedDateInput === 'yesterday' || $requestedDateInput === 'prev') {
+            $targetDate = $yesterdayDate;
+        } elseif ($requestedDateInput && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $requestedDateInput)) {
+            $targetDate = (string) $requestedDateInput;
+        }
+
+        if ($targetDate && $targetDate !== $todayDate) {
+            $historicalReport = $this->getHistoricalMultiReport($targetDate, $userEmail, $savedReport, $todayDate, $yesterdayDate);
+            if ($historicalReport) {
+                return response()->json($this->filterReportForUser($historicalReport));
+            }
+        }
+
         // Check whether the saved report on disk is actually from today (after 5:00 AM morning IST)
         $isTodayReport = false;
         $prevReportLocationsMap = [];
@@ -5705,8 +5721,10 @@ class GoogleBusinessController extends Controller
             'cached' => false,
         ];
 
-        // Save report data persistently to server
+        // Save report data persistently to server (current cache + daily archives)
         $this->saveServerData($reportKey, $reportData);
+        $this->saveServerData("{$reportKey}_{$todayDate}", $reportData);
+        $this->saveServerData("gbp_multi_report_daily_{$todayDate}", $reportData);
 
         // Also save structured report and items directly into SQL tables
         try {
@@ -5861,6 +5879,156 @@ class GoogleBusinessController extends Controller
             'message' => 'Baseline snapshot updated successfully',
             'beforeTodayReviews' => $beforeCount,
         ]);
+    }
+
+    /**
+     * Retrieves historical/previous day report by date (from disk archive, SQL table, or yesterday baseline synthesis).
+     */
+    protected function getHistoricalMultiReport(string $targetDate, string $userEmail, ?array $currentSavedReport, string $todayDate, string $yesterdayDate): ?array
+    {
+        $tz = 'Asia/Kolkata';
+        $reportKey = 'gbp_multi_report_'.md5($userEmail);
+
+        // 1. Check disk archive for specific date
+        $archived = $this->getServerData("{$reportKey}_{$targetDate}")
+            ?: $this->getServerData("gbp_multi_report_daily_{$targetDate}");
+
+        if (is_array($archived) && ! empty($archived['locations'])) {
+            $archived['cached'] = true;
+            $archived['isHistorical'] = true;
+            $archived['isToday'] = false;
+            $archived['reportDate'] = $targetDate;
+
+            return $archived;
+        }
+
+        // 2. Check SQL ReviewReport model
+        try {
+            $reportRecord = ReviewReport::with('items')->where('report_date', $targetDate)->first();
+            if ($reportRecord && $reportRecord->items->isNotEmpty()) {
+                $items = [];
+                foreach ($reportRecord->items as $row) {
+                    $items[] = [
+                        'id' => $row->location_name,
+                        'name' => $row->location_name,
+                        'v4Name' => $row->v4_name,
+                        'title' => $row->title,
+                        'address' => $row->address ?? '',
+                        'storeCode' => $row->store_code,
+                        'totalReviews' => (int) $row->total_reviews,
+                        'beforeTodayReviews' => (int) $row->before_today_reviews,
+                        'todayNewReviews' => (int) $row->today_new_reviews,
+                        'difference' => (int) $row->difference,
+                        'averageRating' => (float) $row->average_rating,
+                        'repliedCount' => (int) $row->replied_count,
+                        'pendingCount' => (int) $row->pending_count,
+                        'reviewLink' => $row->review_link,
+                        'assignedStaff' => self::getPermanentAssignedStaff($row->title),
+                        'assignedStaffBracket' => self::getPermanentStaffBracket($row->title),
+                        'assignedStaffPhone' => self::getPermanentStaffPhone($row->title),
+                    ];
+                }
+                usort($items, function ($a, $b) {
+                    $ratingA = (float) ($a['averageRating'] ?? 0);
+                    $ratingB = (float) ($b['averageRating'] ?? 0);
+                    if ($ratingA == $ratingB) {
+                        return ($a['totalReviews'] ?? 0) <=> ($b['totalReviews'] ?? 0);
+                    }
+
+                    return $ratingA <=> $ratingB;
+                });
+
+                return [
+                    'success' => true,
+                    'hasReport' => true,
+                    'userEmail' => $userEmail,
+                    'reportDate' => $targetDate,
+                    'generatedAt' => $reportRecord->created_at ? $reportRecord->created_at->toIso8601String() : Carbon::parse($targetDate, $tz)->setTime(18, 0, 0)->toIso8601String(),
+                    'locations' => $items,
+                    'overall' => $reportRecord->overall_stats ?: [
+                        'totalProfiles' => count($items),
+                        'totalReviews' => (int) $reportRecord->total_reviews,
+                        'totalTodayNew' => (int) $reportRecord->total_today_new,
+                        'totalPending' => (int) $reportRecord->total_pending,
+                        'averageRating' => (float) $reportRecord->average_rating,
+                    ],
+                    'cached' => true,
+                    'isHistorical' => true,
+                    'isToday' => false,
+                ];
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Error querying historical ReviewReport: '.$e->getMessage());
+        }
+
+        // 3. Fallback: If yesterday was requested and currentSavedReport exists, synthesize yesterday closing snapshot
+        if ($targetDate === $yesterdayDate && is_array($currentSavedReport) && ! empty($currentSavedReport['locations'])) {
+            $yesterdayItems = [];
+            $combinedTotal = 0;
+            $combinedNew = 0;
+            $ratingSum = 0;
+            $ratedCount = 0;
+            foreach ($currentSavedReport['locations'] as $loc) {
+                $closingYesterday = (int) ($loc['beforeTodayReviews'] ?? $loc['totalReviews']);
+                $avgR = (float) ($loc['averageRating'] ?? 5.0);
+                $diff = (int) ($loc['difference'] ?? $loc['todayNewReviews'] ?? 0);
+                $yesterdayItems[] = [
+                    'id' => $loc['id'],
+                    'name' => $loc['name'],
+                    'v4Name' => $loc['v4Name'] ?? null,
+                    'title' => $loc['title'],
+                    'address' => $loc['address'] ?? '',
+                    'storeCode' => $loc['storeCode'] ?? null,
+                    'totalReviews' => $closingYesterday,
+                    'beforeTodayReviews' => max(0, $closingYesterday - $diff),
+                    'todayNewReviews' => $diff,
+                    'difference' => $diff,
+                    'averageRating' => $avgR,
+                    'repliedCount' => (int) ($loc['repliedCount'] ?? 0),
+                    'pendingCount' => (int) ($loc['pendingCount'] ?? 0),
+                    'reviewLink' => $loc['reviewLink'] ?? null,
+                    'assignedStaff' => self::getPermanentAssignedStaff($loc['title'] ?? ''),
+                    'assignedStaffBracket' => self::getPermanentStaffBracket($loc['title'] ?? ''),
+                    'assignedStaffPhone' => self::getPermanentStaffPhone($loc['title'] ?? ''),
+                ];
+                $combinedTotal += $closingYesterday;
+                $combinedNew += $diff;
+                if ($avgR > 0) {
+                    $ratingSum += $avgR;
+                    $ratedCount++;
+                }
+            }
+            usort($yesterdayItems, function ($a, $b) {
+                $ratingA = (float) ($a['averageRating'] ?? 0);
+                $ratingB = (float) ($b['averageRating'] ?? 0);
+                if ($ratingA == $ratingB) {
+                    return ($a['totalReviews'] ?? 0) <=> ($b['totalReviews'] ?? 0);
+                }
+
+                return $ratingA <=> $ratingB;
+            });
+
+            return [
+                'success' => true,
+                'hasReport' => true,
+                'userEmail' => $userEmail,
+                'reportDate' => $targetDate,
+                'generatedAt' => Carbon::parse($targetDate, $tz)->setTime(18, 0, 0)->toIso8601String(),
+                'locations' => $yesterdayItems,
+                'overall' => [
+                    'totalProfiles' => count($yesterdayItems),
+                    'totalReviews' => $combinedTotal,
+                    'totalTodayNew' => $combinedNew,
+                    'totalPending' => (int) ($currentSavedReport['overall']['totalPending'] ?? 0),
+                    'averageRating' => $ratedCount > 0 ? round($ratingSum / $ratedCount, 1) : 5.0,
+                ],
+                'cached' => true,
+                'isHistorical' => true,
+                'isToday' => false,
+            ];
+        }
+
+        return null;
     }
 
     /**

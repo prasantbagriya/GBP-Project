@@ -100,6 +100,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   const [showAddPhone, setShowAddPhone] = useState(false);
   const [showTargetModal, setShowTargetModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedDateMode, setSelectedDateMode] = useState<'today' | 'yesterday'>('today');
 
   // Custom formatting options
   const [includeComparison, setIncludeComparison] = useState(true);
@@ -155,11 +156,18 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
     });
   };
 
-  const fetchReportData = async (forceRefresh: boolean = false) => {
+  const fetchReportData = async (forceRefresh: boolean = false, dateMode: 'today' | 'yesterday' = selectedDateMode) => {
     setLoading(true);
     setErrorMessage(null);
     try {
-      const res = await fetch(`/api/gbp/multi-profile-report${forceRefresh ? '?refresh=true' : ''}`);
+      const queryParams = new URLSearchParams();
+      if (dateMode === 'yesterday') {
+        queryParams.set('date', 'yesterday');
+      } else if (forceRefresh) {
+        queryParams.set('refresh', 'true');
+      }
+      const qs = queryParams.toString();
+      const res = await fetch(`/api/gbp/multi-profile-report${qs ? `?${qs}` : ''}`);
       if (res.ok) {
         const data: MultiProfileReportData = await res.json();
         if (data.locations) {
@@ -273,20 +281,25 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
   // Generate WhatsApp formatted message text
   const generatedMessage = useMemo(() => {
     const now = new Date();
+    const isYesterdayMode = selectedDateMode === 'yesterday' || Boolean(reportData?.isHistorical);
     // 5:00 AM daily cutoff: shift current time by 5 hours so report date rolls over at 5:00 AM IST
     const businessDate = getBusinessShiftedDate(now);
-    const dateFormatted = businessDate.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      timeZone: BUSINESS_TIMEZONE
-    });
+    const dateFormatted = isYesterdayMode && reportData?.reportDate
+      ? new Date(reportData.reportDate + 'T00:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+      : businessDate.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: BUSINESS_TIMEZONE
+        });
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: BUSINESS_TIMEZONE });
 
     let lines: string[] = [];
 
-    // Clean, professional header without emojis
-    const titleHeader = '*Daily Google Business Profile Report*';
+    // Clean, professional header with Yesterday indicator if viewing historical
+    const titleHeader = isYesterdayMode 
+      ? `*Daily Google Business Profile Report (Yesterday - ${dateFormatted})*`
+      : '*Daily Google Business Profile Report*';
     lines.push(titleHeader);
     lines.push(`Date: ${dateFormatted} | Time: ${timeFormatted}`);
     lines.push('------------------------------------');
@@ -300,7 +313,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
       // 📍 1. Prince NDA Academy - NDA (UPSC + SSB)
       // New Reviews Today: 3 
       // Average Rating: 4.6 
-      // Today: 420 ➔  423
+      // Yesterday: 420 ➔ Today: 423
       const staffBracket = getAssignedStaffBracket(p.title);
       const profileTitle = boldProfileNames ? `*${p.title}*` : p.title;
       const effectiveTodayNew = Math.max(p.todayNewReviews || 0, Math.max(0, p.difference || 0));
@@ -311,17 +324,21 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           lines.push(`📞 Phone: ${staffPhone}`);
         }
       }
-      lines.push(`New Reviews Today: ${effectiveTodayNew}`);
+      lines.push(`${isYesterdayMode ? 'Reviews Growth' : 'New Reviews Today'}: ${effectiveTodayNew}`);
 
       if (includeRatings) {
         lines.push(`Average Rating: ${p.averageRating}`);
       }
 
       if (includeComparison) {
-        const diffText = showNetDifference && p.difference !== 0
-          ? ` (${p.difference > 0 ? `+${p.difference}` : p.difference})`
-          : '';
-        lines.push(`Today: ${p.beforeTodayReviews} ➔  ${p.totalReviews}${diffText}`);
+        if (isYesterdayMode) {
+          lines.push(`Closing Total: ${p.totalReviews}${effectiveTodayNew > 0 ? ` (+${effectiveTodayNew})` : ''}`);
+        } else {
+          const diffText = showNetDifference && p.difference !== 0
+            ? ` (${p.difference > 0 ? `+${p.difference}` : p.difference})`
+            : '';
+          lines.push(`Yesterday: ${p.beforeTodayReviews} ➔  Today: ${p.totalReviews}${diffText}`);
+        }
       }
 
       if (includePending && p.pendingCount !== undefined && p.pendingCount > 0) {
@@ -337,9 +354,9 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
     if (includeSummaryFooter && activeProfiles.length > 0) {
       lines.push('------------------------------------');
-      lines.push('*Overall Summary:*');
+      lines.push(isYesterdayMode ? '*Yesterday Overall Summary:*' : '*Overall Summary:*');
       lines.push(`Total Profiles: ${selectedStats.profilesCount}`);
-      lines.push(`New Reviews Today: +${selectedStats.todayNew}`);
+      lines.push(`${isYesterdayMode ? 'Yesterday Net Growth' : 'New Reviews Today'}: +${selectedStats.todayNew}`);
       lines.push(`Combined Total Reviews: ${selectedStats.totalReviews}`);
       lines.push(`Average Rating: ${selectedStats.avgRating}`);
       if (includePending && selectedStats.totalPending > 0) {
@@ -366,7 +383,8 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
     includePhone,
     boldProfileNames,
     selectedStats,
-    customNote
+    customNote,
+    selectedDateMode
   ]);
 
   const handleCopy = () => {
@@ -497,6 +515,39 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          {/* Day Selector: Today vs Yesterday (Kal) */}
+          <div className="inline-flex items-center p-0.5 bg-slate-100 rounded-lg border border-slate-200 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDateMode('today');
+                fetchReportData(false, 'today');
+              }}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
+                selectedDateMode === 'today'
+                  ? 'bg-white text-blue-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Today (Aaj)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDateMode('yesterday');
+                fetchReportData(false, 'yesterday');
+              }}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
+                selectedDateMode === 'yesterday'
+                  ? 'bg-white text-blue-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="View and export yesterday's (last day's) saved report"
+            >
+              Yesterday (Kal)
+            </button>
+          </div>
+
           {reportData?.generatedAt && (
             <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1 border border-slate-200 shrink-0 whitespace-nowrap" title="Report timestamp">
               <Clock className="w-3 h-3 text-blue-600 shrink-0" />
@@ -539,6 +590,28 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Yesterday Archive Indicator Banner */}
+      {selectedDateMode === 'yesterday' && (
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-amber-900 shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>Showing Yesterday's Saved Report:</strong> Review counts and WhatsApp preview below reflect yesterday's closing records.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedDateMode('today');
+              fetchReportData(false, 'today');
+            }}
+            className="px-3.5 py-1.5 bg-white hover:bg-amber-100/60 border border-amber-300 text-amber-800 text-xs font-semibold rounded-lg shrink-0 cursor-pointer transition-colors"
+          >
+            Switch to Today's Live Report
+          </button>
+        </div>
+      )}
 
       {/* Account Info Pill - Displayed horizontal on mobile exactly like desktop */}
       {Boolean(reportData?.locations?.length) && (
