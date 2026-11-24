@@ -28,70 +28,71 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ panelUser }) => {
     <div className="space-y-5 w-full max-w-full min-w-0 overflow-x-hidden">
       
       {/* Header Banner */}
-      <div className="card p-4 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-        <div className="space-y-1.5 min-w-0 flex-1">
+      <div className="card p-4 sm:p-5 bg-white text-slate-900 rounded-xl border border-slate-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+        <div className="space-y-1 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="p-2 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-xl shrink-0 shadow-xs">
-              <MessageSquare className="w-5 h-5" />
+            <span className="p-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg shrink-0">
+              <MessageSquare className="w-4 h-4" />
             </span>
-            <h2 className="text-lg sm:text-xl font-semibold tracking-tight">
-              Website Live Support & Drag-and-Drop Chatbot
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900">
+              Website Live Support & Chatbot
             </h2>
-            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-semibold text-[10px] uppercase px-2 py-0.5 rounded-full">
-              Real-time Active
+            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-xs px-2 py-0.5 rounded-md flex items-center gap-1.5 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live
             </span>
           </div>
-          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-            Real-time live visitor inbox, team member routing, visual drag-and-drop auto-reply builder, and embeddable website widget.
+          <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+            Real-time visitor inbox, team member routing, visual drag-and-drop auto-reply builder, and embeddable website widget.
           </p>
         </div>
 
         {/* Sub-Tab Navigation Switcher */}
-        <div className="flex items-center gap-1 bg-black/20 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 shrink-0 overflow-x-auto max-w-full">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0 overflow-x-auto max-w-full">
           <button
             onClick={() => setActiveSubTab('inbox')}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-              activeSubTab === 'inbox' ? 'bg-white text-indigo-900 shadow-md' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`px-3 py-1.5 rounded-md text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeSubTab === 'inbox' ? 'bg-indigo-600 text-white font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            Live Inbox
+            Live inbox
           </button>
 
           <button
             onClick={() => setActiveSubTab('builder')}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-              activeSubTab === 'builder' ? 'bg-white text-indigo-900 shadow-md' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`px-3 py-1.5 rounded-md text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeSubTab === 'builder' ? 'bg-indigo-600 text-white font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
             }`}
           >
             <Workflow className="w-3.5 h-3.5" />
-            Flow Builder
+            Flow builder
           </button>
 
           <button
             onClick={() => setActiveSubTab('widget')}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-              activeSubTab === 'widget' ? 'bg-white text-indigo-900 shadow-md' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`px-3 py-1.5 rounded-md text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeSubTab === 'widget' ? 'bg-indigo-600 text-white font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
-            Widget & Embed
+            Widget & embed
           </button>
 
           <button
             onClick={() => setActiveSubTab('canned')}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-              activeSubTab === 'canned' ? 'bg-white text-indigo-900 shadow-md' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`px-3 py-1.5 rounded-md text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeSubTab === 'canned' ? 'bg-indigo-600 text-white font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
             }`}
           >
             <Bookmark className="w-3.5 h-3.5" />
-            Canned Replies
+            Canned replies
           </button>
 
           <button
             onClick={() => setActiveSubTab('analytics')}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-              activeSubTab === 'analytics' ? 'bg-white text-indigo-900 shadow-md' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`px-3 py-1.5 rounded-md text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeSubTab === 'analytics' ? 'bg-indigo-600 text-white font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
             }`}
           >
             <BarChart2 className="w-3.5 h-3.5" />

@@ -342,8 +342,8 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-md inline-block">
-                  In-Store Review Stand
+                <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md inline-block">
+                  In-store review stand
                 </span>
                 <InfoTooltip 
                   title="Google Review QR Code Stand"
@@ -354,7 +354,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 Google Review QR Code Stand
               </h3>
             </div>
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-md border border-blue-100 shadow-2xs shrink-0">
+            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100 shrink-0">
               <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
@@ -362,15 +362,15 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           {/* Realistic Printable Acrylic Stand Preview (100% Scannable QR Code) */}
           <div 
             id="printable-review-stand"
-            className="p-5 sm:p-6 bg-white text-slate-800 rounded-2xl shadow-xl flex flex-col items-center text-center space-y-3.5 border-2 border-slate-200/90 relative overflow-hidden max-w-[340px] mx-auto w-full"
+            className="p-5 sm:p-6 bg-white text-slate-900 rounded-xl flex flex-col items-center text-center space-y-3.5 border border-slate-200 relative overflow-hidden max-w-[340px] mx-auto w-full shadow-xs"
           >
-            {/* Top Google 4-Color Accent Line */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-red-500 via-amber-400 to-emerald-500 absolute top-0 left-0 right-0" />
+            {/* Top Accent Line */}
+            <div className="h-1 w-full bg-indigo-600 absolute top-0 left-0 right-0" />
 
-            {/* Top decorative badge */}
-            <div className="mt-1 flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200/80 px-3.5 py-1 rounded-full text-[11px] font-bold tracking-wide shadow-2xs">
+            {/* Top badge */}
+            <div className="mt-1 flex items-center gap-1.5 bg-indigo-50 text-indigo-900 border border-indigo-200 px-3.5 py-1 rounded-full text-xs font-bold">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>Review Us On Google</span>
+              <span>Review us on Google</span>
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             </div>
 
@@ -401,7 +401,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
               
               {/* Center Google 'G' & Star Badge */}
               <div className="mt-2.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-800 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md shadow-2xs">
-                <span className="text-blue-600 font-extrabold text-xs">G</span>
+                <span className="text-indigo-600 font-extrabold text-xs">G</span>
                 <span>Google Reviews</span>
                 <div className="flex items-center text-amber-400">
                   <Star className="w-2.5 h-2.5 fill-current" />
@@ -415,7 +415,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
 
             {/* Scan Instructions */}
             <div className="space-y-0.5 max-w-[300px]">
-              <p className="text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
+              <p className="text-xs font-bold text-indigo-600 flex items-center justify-center gap-1">
                 <span>📱 Scan with Phone Camera</span>
               </p>
               <p className="text-[11px] text-slate-500 font-medium">
@@ -443,7 +443,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
 
             <button 
               onClick={handlePrintStand}
-              className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
+              className="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
               title="Print Table Tent / Counter Stand"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -477,35 +477,35 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
               </div>
             </div>
 
-            {/* WhatsApp Message Preview Box - Compact Chat Bubble */}
-            <div className="p-3 bg-emerald-50/50 border border-emerald-200/70 rounded-md space-y-2 text-xs">
-              <div className="flex items-center justify-between text-emerald-800 font-bold text-[11px]">
+            {/* WhatsApp Message Preview Box */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 text-xs">
+              <div className="flex items-center justify-between text-slate-800 font-bold text-xs">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>WhatsApp Message Template</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  <span>WhatsApp message template</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCopyWhatsAppMessage}
-                  className="text-emerald-700 hover:text-emerald-900 flex items-center gap-1 font-semibold text-[10px] bg-white border border-emerald-200 px-2 py-0.5 rounded-md cursor-pointer transition-colors shadow-2xs"
+                  className="text-slate-700 hover:text-slate-900 flex items-center gap-1 font-semibold text-[11px] bg-white border border-slate-300 px-2 py-0.5 rounded cursor-pointer transition-colors shadow-2xs"
                 >
-                  {copiedMessage ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedMessage ? 'Copied!' : 'Copy Text'}</span>
+                  {copiedMessage ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedMessage ? 'Copied' : 'Copy text'}</span>
                 </button>
               </div>
 
-              <div className="bg-white p-2.5 rounded-md shadow-2xs border border-emerald-100 text-slate-700 space-y-1.5 leading-relaxed font-sans text-xs">
+              <div className="bg-white p-2.5 rounded-md border border-slate-200 text-slate-700 space-y-1.5 leading-relaxed font-sans text-xs">
                 <p>
-                  Hello! Thank you so much for choosing <strong className="text-slate-900">{location.title}</strong> 🙏
+                  Hello! Thank you so much for choosing <strong className="text-slate-900">{location.title}</strong>
                 </p>
-                <p className="text-[11px] text-slate-500">
-                  How was your experience with us? Please take 1 minute to leave us your 5-star review on Google:
+                <p className="text-[11px] text-slate-500 font-medium">
+                  How was your experience with us? Please take 1 minute to leave us your review on Google:
                 </p>
-                <p className="font-mono text-blue-600 text-[10px] break-all bg-blue-50/50 p-1.5 rounded-md border border-blue-100">
+                <p className="text-indigo-700 text-xs break-all bg-indigo-50/50 p-1.5 rounded border border-indigo-200/80 font-medium">
                   {currentUrl || '(Google Review URL)'}
                 </p>
-                <p className="text-slate-400 text-[10px]">
-                  Your feedback is invaluable to our entire team!
+                <p className="text-slate-500 text-[11px]">
+                  Your feedback is invaluable to our entire team.
                 </p>
               </div>
             </div>
@@ -550,7 +550,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           <div className="card p-5 bg-white border border-slate-200 rounded-lg space-y-3 shadow-2xs">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <LinkIcon className="w-3.5 h-3.5 text-blue-600" />
+                <LinkIcon className="w-3.5 h-3.5 text-indigo-600" />
                 <span>Review URL Settings</span>
                 <InfoTooltip 
                   title="Review URL Settings"
@@ -576,7 +576,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   onClick={() => handleSelectLinkFormat('place')}
                   className={`px-2 py-1.5 rounded-md text-[11px] font-semibold border text-left transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     currentUrl === effectivePlaceUrl
-                      ? 'bg-blue-50 border-blue-400 text-blue-700'
+                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                   title={effectivePlaceUrl}
@@ -590,7 +590,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   onClick={() => handleSelectLinkFormat('write')}
                   className={`px-2 py-1.5 rounded-md text-[11px] font-semibold border text-left transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     currentUrl === effectiveWriteUrl
-                      ? 'bg-blue-50 border-blue-400 text-blue-700'
+                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                   title={effectiveWriteUrl}
@@ -604,12 +604,12 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   onClick={() => handleSelectLinkFormat('search')}
                   className={`px-2 py-1.5 rounded-md text-[11px] font-semibold border text-left transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     currentUrl === effectiveSearchUrl
-                      ? 'bg-blue-50 border-blue-400 text-blue-700'
+                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                   title={effectiveSearchUrl}
                 >
-                  <ExternalLink className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                   <span className="truncate">Search Link</span>
                 </button>
               </div>
@@ -623,14 +623,14 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   value={editableUrl}
                   onChange={(e) => setEditableUrl(e.target.value)}
                   placeholder="Paste official Google Maps or g.page review link..."
-                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-md text-xs font-mono text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-md text-xs text-slate-800 outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-2xs"
                 />
 
                 <button 
                   type="button"
                   onClick={() => saveReviewUrl(editableUrl)}
                   disabled={savingUrl || !editableUrl || editableUrl === currentUrl}
-                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1 shrink-0 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1 shrink-0 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
                   title="Save this review link"
                 >
                   <Save className="w-3.5 h-3.5" />
@@ -678,7 +678,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                 href={currentUrl || '#'} 
                 target="_blank" 
                 rel="noreferrer"
-                className={`w-full sm:flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-center rounded-md text-xs font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shadow-2xs ${!currentUrl ? 'pointer-events-none opacity-50' : ''}`}
+                className={`w-full sm:flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-center rounded-md text-xs font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shadow-2xs ${!currentUrl ? 'pointer-events-none opacity-50' : ''}`}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>Test Review Page</span>
@@ -699,13 +699,13 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
               <button
                 type="button"
                 onClick={onToggleAi}
-                className={`text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 transition-all cursor-pointer ${
-                  geminiEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                className={`text-xs font-bold px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                  geminiEnabled ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
                 }`}
                 title={geminiEnabled ? "AI is active (Click to toggle)" : "AI is disabled (Click to enable)"}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${geminiEnabled ? 'bg-blue-600 animate-pulse' : 'bg-slate-400'}`} />
-                {geminiEnabled ? 'Gemini AI Active' : 'AI Disabled (Click to Enable)'}
+                <span className={`w-1.5 h-1.5 rounded-full ${geminiEnabled ? 'bg-indigo-600' : 'bg-slate-400'}`} />
+                {geminiEnabled ? 'AI active' : 'AI disabled'}
               </button>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -715,18 +715,18 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
 
           <div className="flex items-center gap-2">
             {sentiment && (
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1 shadow-2xs">
-                💾 Saved Analysis
+              <span className="text-xs bg-indigo-50 text-indigo-800 border border-indigo-200 px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1">
+                Saved analysis
               </span>
             )}
             <button 
               onClick={() => runSentimentAnalysis(true)}
               disabled={analyzingSentiment}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 self-start transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 self-start transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
               title="Regenerate sentiment analysis from latest customer reviews"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${analyzingSentiment ? 'animate-spin' : ''}`} />
-              {analyzingSentiment ? 'Analyzing...' : (sentiment ? 'Re-Analyze (Regenerate)' : 'Generate Analysis')}
+              {analyzingSentiment ? 'Analyzing...' : (sentiment ? 'Re-analyze' : 'Generate analysis')}
             </button>
           </div>
         </div>
@@ -808,13 +808,13 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
 
             {/* AI Actionable Recommendation */}
             {sentiment.actionRecommendation && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="p-4 bg-indigo-50/60 border border-indigo-200/80 rounded-xl flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
                 <div className="text-xs">
-                  <span className="font-bold text-blue-900 block mb-0.5">
+                  <span className="font-bold text-indigo-950 block mb-0.5">
                     Gemini Operational Recommendation:
                   </span>
-                  <p className="text-blue-800 leading-relaxed font-medium">
+                  <p className="text-indigo-900 leading-relaxed font-medium">
                     {sentiment.actionRecommendation}
                   </p>
                 </div>
@@ -823,15 +823,15 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           </div>
         ) : analyzingSentiment ? (
           <div className="py-8 text-center text-slate-400">
-            <RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-600 mb-2" />
+            <RefreshCw className="w-6 h-6 animate-spin mx-auto text-indigo-600 mb-2" />
             <p className="text-xs">
               Analyzing reviews with AI...
             </p>
           </div>
         ) : (
           <div className="py-8 px-4 text-center space-y-3 bg-slate-50/70 border border-dashed border-slate-200 rounded-xl">
-            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-              <Sparkles className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+              <Sparkles className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-slate-800">
@@ -844,7 +844,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
             <button
               onClick={() => runSentimentAnalysis(true)}
               disabled={analyzingSentiment || (!reviews || reviews.length === 0)}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-bold inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Generate Sentiment Analysis</span>
@@ -868,7 +868,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
           <button 
             onClick={handleSaveHours}
             disabled={savingHours}
-            className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1.5 self-start shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1.5 self-start shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <Save className="w-3.5 h-3.5" />
             {savingHours ? 'Saving...' : 'Save Hours to Google'}
@@ -893,7 +893,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   value={h.open} 
                   disabled={h.closed}
                   onChange={(e) => updateHour(idx, 'open', e.target.value)}
-                  className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-slate-700 font-mono disabled:opacity-40"
+                  className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-slate-700 disabled:opacity-40"
                 />
                 <span className="text-slate-400 font-bold">to</span>
                 <input 
@@ -901,7 +901,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   value={h.close} 
                   disabled={h.closed}
                   onChange={(e) => updateHour(idx, 'close', e.target.value)}
-                  className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-slate-700 font-mono disabled:opacity-40"
+                  className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-slate-700 disabled:opacity-40"
                 />
               </div>
 
@@ -910,7 +910,7 @@ export const GrowthTools: React.FC<GrowthToolsProps> = ({ location, reviews, gem
                   type="checkbox" 
                   checked={h.closed} 
                   onChange={(e) => updateHour(idx, 'closed', e.target.checked)}
-                  className="rounded text-blue-600"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="text-slate-500 font-medium">Closed</span>
               </label>

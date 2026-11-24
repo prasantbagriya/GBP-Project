@@ -952,7 +952,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
         {/* ================= MODAL HEADER (Fixed Top) ================= */}
         <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0">
               <Target className="w-5 h-5" />
             </div>
             <div>
@@ -1015,7 +1015,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
             
             {/* Week & Target Input */}
             <div className="space-y-1.5">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+              <span className="text-[10px] font-semibold text-slate-500">
                 Current Week Plan
               </span>
               <div className="flex items-center gap-2 flex-wrap">
@@ -1027,7 +1027,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                   ◀ Prev
                 </button>
                 <span className="text-xs font-bold text-slate-800 bg-white border border-slate-200 px-3 py-1 rounded-md shadow-2xs flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                  <Calendar className="w-3.5 h-3.5 text-indigo-600" />
                   {weekInfo.formattedRange}
                 </span>
                 <button
@@ -1040,7 +1040,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                 {weekOffset !== 0 && (
                   <button
                     onClick={() => setWeekOffset(0)}
-                    className="text-[11px] text-blue-600 hover:underline font-semibold cursor-pointer ml-1"
+                    className="text-[11px] text-indigo-600 hover:underline font-semibold cursor-pointer ml-1"
                   >
                     Reset to This Week
                   </button>
@@ -1064,7 +1064,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                       const val = parseInt(e.target.value) || 0;
                       setWeeklyTarget(val);
                     }}
-                    className="w-24 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-blue-600 outline-none focus:border-blue-500 shadow-2xs"
+                    className="w-24 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-indigo-600 outline-none focus:border-indigo-500 shadow-2xs"
                   />
                   <span className="text-xs text-slate-500 font-semibold">Reviews</span>
                 </div>
@@ -1073,7 +1073,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
               <button
                 type="button"
                 onClick={handleRandomizeDailyTargets}
-                className="mt-4 sm:mt-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-2 shadow-2xs cursor-pointer transition-colors"
+                className="mt-4 sm:mt-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-2 shadow-2xs cursor-pointer transition-colors"
                 title="Automatically distribute weekly target across 7 days with realistic 1-10 variations"
               >
                 <Dices className="w-4 h-4" />
@@ -1084,26 +1084,26 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
 
           {/* Section 2: Overall Progress Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="card p-3.5 border-l-4 border-l-blue-600">
-              <span className="text-[10px] text-slate-400 uppercase font-bold">Week Target</span>
+            <div className="card p-3.5">
+              <span className="text-[10px] text-slate-500 font-semibold">Week Target</span>
               <div className="text-xl font-bold text-slate-800 mt-0.5">{stats.totalTarget}</div>
               <span className="text-[10px] text-slate-400">Total planned</span>
             </div>
 
-            <div className="card p-3.5 border-l-4 border-l-emerald-600">
-              <span className="text-[10px] text-slate-400 uppercase font-bold">Delivered / Verified</span>
+            <div className="card p-3.5">
+              <span className="text-[10px] text-slate-500 font-semibold">Delivered / Verified</span>
               <div className="text-xl font-bold text-emerald-600 mt-0.5">{stats.totalVerified}</div>
               <span className="text-[10px] text-emerald-700 font-semibold">{stats.verifiedDaysCount} / 7 days verified</span>
             </div>
 
-            <div className="card p-3.5 border-l-4 border-l-indigo-600">
-              <span className="text-[10px] text-slate-400 uppercase font-bold">Goal Completion</span>
+            <div className="card p-3.5">
+              <span className="text-[10px] text-slate-500 font-semibold">Goal Completion</span>
               <div className="text-xl font-bold text-indigo-600 mt-0.5">{stats.completionPct}%</div>
               <span className="text-[10px] text-slate-400">{Math.max(0, stats.totalTarget - stats.totalVerified)} reviews remaining</span>
             </div>
 
-            <div className="card p-3.5 border-l-4 border-l-amber-500">
-              <span className="text-[10px] text-slate-400 uppercase font-bold">Pace Variance</span>
+            <div className="card p-3.5">
+              <span className="text-[10px] text-slate-500 font-semibold">Pace Variance</span>
               <div className={`text-xl font-bold mt-0.5 ${stats.netVariance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                 {stats.netVariance >= 0 ? `+${stats.netVariance}` : stats.netVariance}
               </div>
@@ -1117,8 +1117,8 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
           <div className="card p-4 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-600" />
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <Users className="w-4 h-4 text-indigo-600" />
+                <h4 className="text-xs font-bold text-slate-800">
                   Assigned Team Members ({members.length})
                 </h4>
                 <span className="text-[10px] bg-slate-100 text-slate-600 font-medium px-2 py-0.5 rounded-full">
@@ -1129,7 +1129,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAddMember(prev => !prev)}
-                className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{showAddMember ? 'Cancel' : 'Add Member'}</span>
@@ -1138,32 +1138,32 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
 
             {/* Add Member Form */}
             {showAddMember && (
-              <form onSubmit={handleAddMember} className="p-3 bg-blue-50/70 border border-blue-200 rounded-lg flex flex-wrap items-center gap-2 text-xs">
+              <form onSubmit={handleAddMember} className="p-3 bg-indigo-50/70 border border-indigo-200 rounded-lg flex flex-wrap items-center gap-2 text-xs">
                 <input
                   type="text"
                   required
                   placeholder="Member Name (e.g. Rahul Sharma)"
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
-                  className="flex-1 min-w-[150px] p-2 bg-white border border-blue-300 rounded-md outline-none"
+                  className="flex-1 min-w-[150px] p-2 bg-white border border-indigo-300 rounded-md outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Role (e.g. Front Desk)"
                   value={newMemberRole}
                   onChange={(e) => setNewMemberRole(e.target.value)}
-                  className="w-36 p-2 bg-white border border-blue-300 rounded-md outline-none"
+                  className="w-36 p-2 bg-white border border-indigo-300 rounded-md outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Phone (+91...)"
                   value={newMemberPhone}
                   onChange={(e) => setNewMemberPhone(e.target.value)}
-                  className="w-36 p-2 bg-white border border-blue-300 rounded-md outline-none"
+                  className="w-36 p-2 bg-white border border-indigo-300 rounded-md outline-none"
                 />
                 <button
                   type="submit"
-                  className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold cursor-pointer transition-colors whitespace-nowrap shadow-2xs"
+                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-bold cursor-pointer transition-colors whitespace-nowrap shadow-2xs"
                 >
                   Save Member
                 </button>
@@ -1211,8 +1211,8 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-blue-600" />
+                <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-indigo-600" />
                   Day-by-Day Target & Verification (Monday ➔ Sunday)
                 </h4>
                 <p className="text-[11px] text-slate-500">
@@ -1236,7 +1236,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                   <div
                     key={day.dayIndex}
                     className={`p-3.5 sm:p-4 transition-colors ${
-                      isSelected ? 'bg-blue-50/40 border-l-4 border-l-blue-600' : 'hover:bg-slate-50/60'
+                      isSelected ? 'bg-indigo-50/60' : 'hover:bg-slate-50/60'
                     }`}
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -1247,11 +1247,11 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                           day.isVerified 
                             ? 'bg-emerald-100 text-emerald-800'
                             : idx === currentDayIndex && weekOffset === 0
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-indigo-600 text-white'
                               : 'bg-slate-100 text-slate-700'
                         }`}>
                           <span className="text-[10px] leading-none uppercase">{day.dayNameEn.slice(0, 3)}</span>
-                          <span className="text-xs leading-tight">{day.dateDisplay.split(' ')[1] || (idx + 1)}</span>
+                          <span className="text-xs leading-tight font-semibold">{day.dateDisplay.split(' ')[1] || (idx + 1)}</span>
                         </div>
 
                         <div>
@@ -1260,7 +1260,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                               {day.dayNameEn} ({day.dayNameHi})
                             </strong>
                             {idx === currentDayIndex && weekOffset === 0 && (
-                              <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded font-bold">
+                              <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.2 rounded font-bold">
                                 Today
                               </span>
                             )}
@@ -1278,7 +1278,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                           value={day.targetReviews}
                           disabled={day.isVerified}
                           onChange={(e) => handleManualDayTargetChange(idx, parseInt(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-blue-500 disabled:opacity-75 disabled:bg-slate-100"
+                          className="w-16 px-2 py-1 text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-indigo-500 disabled:opacity-75 disabled:bg-slate-100"
                         />
                         <span className="text-[11px] text-slate-400">rev</span>
                       </div>
@@ -1294,7 +1294,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                           className={`w-16 px-2 py-1 text-xs font-bold rounded-md outline-none border transition-colors ${
                             day.isVerified
                               ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                              : 'bg-white border-slate-300 text-slate-800 focus:border-blue-500'
+                              : 'bg-white border-slate-300 text-slate-800 focus:border-indigo-500'
                           }`}
                         />
 
@@ -1360,8 +1360,8 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
                           onClick={() => setSelectedMessageDayIdx(idx)}
                           className={`px-2.5 py-1 text-[11px] rounded-md font-bold transition-all cursor-pointer whitespace-nowrap ${
                             isSelected
-                              ? 'bg-blue-600 text-white shadow-2xs'
-                              : 'bg-white hover:bg-blue-50 text-blue-700 border border-blue-200'
+                              ? 'bg-indigo-600 text-white shadow-2xs'
+                              : 'bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200'
                           }`}
                         >
                           {isSelected ? '✓ In Message' : 'Use in Message'}
@@ -1459,11 +1459,11 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
 
             {/* Right Col: WhatsApp Preview Bubble */}
             <div className="lg:col-span-6">
-              <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider block mb-1.5">
+              <span className="text-[11px] text-slate-500 font-semibold block mb-1.5">
                 WhatsApp Chat Preview
               </span>
               <div className="bg-[#efeae2] border border-slate-300 rounded-xl p-3.5 shadow-inner">
-                <div className="bg-white rounded-lg rounded-tl-none p-3 shadow-2xs font-mono text-xs whitespace-pre-wrap leading-relaxed text-slate-800">
+                <div className="bg-white rounded-lg rounded-tl-none p-3 shadow-2xs text-xs whitespace-pre-wrap leading-relaxed text-slate-800">
                   {generatedWhatsAppMessage}
                 </div>
               </div>
@@ -1495,7 +1495,7 @@ export const DailyReviewTargetModal: React.FC<DailyReviewTargetModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold cursor-pointer transition-all shadow-sm"
+              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold cursor-pointer transition-all shadow-sm"
             >
               Done / Close
             </button>

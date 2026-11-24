@@ -479,8 +479,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
       <div className="card p-5 sm:p-6 bg-white border border-slate-200 rounded-lg shadow-sm relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
               Access Control & Permissions
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-2.5">
@@ -498,13 +498,13 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
               className="p-2 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 rounded-md border border-slate-200 shadow-2xs transition-colors flex items-center justify-center cursor-pointer"
               title="Refresh Members"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
             </button>
 
             {isAdmin && (
               <button
                 onClick={handleOpenAddModal}
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md font-semibold text-xs transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
+                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-md font-semibold text-xs transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Add New Member</span>
@@ -516,7 +516,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs border-l-4 border-l-indigo-600">
+        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs">
           <div className="w-9 h-9 rounded-md bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
             <Users className="w-4 h-4" />
           </div>
@@ -526,7 +526,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           </div>
         </div>
 
-        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs border-l-4 border-l-emerald-600">
+        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs">
           <div className="w-9 h-9 rounded-md bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
             <UserCheck className="w-4 h-4" />
           </div>
@@ -536,7 +536,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           </div>
         </div>
 
-        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs border-l-4 border-l-purple-600">
+        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs">
           <div className="w-9 h-9 rounded-md bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 shrink-0">
             <Shield className="w-4 h-4" />
           </div>
@@ -546,8 +546,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           </div>
         </div>
 
-        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs border-l-4 border-l-blue-600">
-          <div className="w-9 h-9 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+        <div className="card p-4 bg-white border border-slate-200 rounded-lg flex items-center gap-3 shadow-2xs">
+          <div className="w-9 h-9 rounded-md bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
             <User className="w-4 h-4" />
           </div>
           <div>
@@ -566,7 +566,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
             placeholder="Search by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
+            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors"
           />
         </div>
 
@@ -575,7 +575,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           <select
             value={roleFilter}
             onChange={(e: any) => setRoleFilter(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-600 cursor-pointer"
+            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-600 cursor-pointer"
           >
             <option value="all">All Roles</option>
             <option value="admin">Admins Only</option>
@@ -586,7 +586,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           <select
             value={statusFilter}
             onChange={(e: any) => setStatusFilter(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-600 cursor-pointer"
+            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-600 cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="active">Active Only</option>
@@ -599,7 +599,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
       <div className="card bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-3" />
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
             <p className="text-xs sm:text-sm font-medium">Loading team members...</p>
           </div>
         ) : filteredMembers.length === 0 ? (
@@ -640,7 +640,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                           <div className={`w-9 h-9 rounded-md flex items-center justify-center font-bold text-xs shrink-0 relative ${
                             isAdminMember 
                               ? 'bg-purple-600 text-white shadow-2xs' 
-                              : 'bg-blue-50 border border-blue-200 text-blue-700'
+                              : 'bg-indigo-50 border border-indigo-200 text-indigo-700'
                           }`}>
                             {getInitials(member.name)}
                             <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
@@ -651,7 +651,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                             <div className="font-semibold text-slate-800 flex items-center gap-2">
                               {member.name}
                               {isSelf && (
-                                <span className="px-1.5 py-0.5 text-[10px] bg-blue-50 text-blue-700 rounded-md border border-blue-200 font-semibold">
+                                <span className="px-1.5 py-0.5 text-[10px] bg-indigo-50 text-indigo-700 rounded-md border border-indigo-200 font-semibold">
                                   You
                                 </span>
                               )}
@@ -680,8 +680,8 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                             Admin
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                            <User className="w-3 h-3 text-blue-600" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <User className="w-3 h-3 text-indigo-600" />
                             Member
                           </span>
                         )}
@@ -696,7 +696,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 max-w-[200px] truncate" title={member.assigned_wing || 'Not Assigned'}>
-                            <Building2 className="w-3 h-3 text-blue-600 shrink-0" />
+                            <Building2 className="w-3 h-3 text-indigo-600 shrink-0" />
                             <span className="truncate">{member.assigned_wing || 'Not Assigned'}</span>
                           </span>
                         )}
@@ -706,7 +706,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                       <td className="py-4 px-4">
                         {isActive ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Active
                           </span>
                         ) : (
@@ -725,7 +725,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                             <span>{new Date(member.last_login_at).toLocaleString()}</span>
                           </div>
                         ) : (
-                          <span className="text-slate-400 italic">Never logged in</span>
+                          <span className="text-slate-400 italic font-sans">Never logged in</span>
                         )}
                       </td>
 
@@ -736,7 +736,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                             {/* Edit */}
                             <button
                               onClick={() => handleOpenEditModal(member)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors cursor-pointer"
                               title="Edit User"
                             >
                               <Edit3 className="w-4 h-4" />
@@ -796,7 +796,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           <div className="bg-white border border-slate-200 rounded-xl w-full max-w-md p-5 sm:p-6 shadow-xl relative text-slate-800 my-auto">
             <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+                <div className="w-8 h-8 rounded-md bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
                   <UserPlus className="w-4 h-4" />
                 </div>
                 <div>
@@ -824,7 +824,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                   placeholder="e.g. Rahul Sharma"
                   value={addName}
                   onChange={(e) => setAddName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 shadow-2xs"
                 />
               </div>
 
@@ -839,7 +839,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                   placeholder="user@example.com"
                   value={addEmail}
                   onChange={(e) => setAddEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 shadow-2xs"
                 />
               </div>
 
@@ -857,7 +857,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                     placeholder="+91 98765 43210"
                     value={addPhone}
                     onChange={(e) => setAddPhone(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 shadow-2xs"
                   />
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">Used for WhatsApp daily review reports (+91).</p>
@@ -872,7 +872,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                   <button
                     type="button"
                     onClick={() => setAddPassword(generateRandomPassword())}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <Sparkles className="w-3 h-3" />
                     Auto Generate
@@ -885,7 +885,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                     placeholder="Enter password..."
                     value={addPassword}
                     onChange={(e) => setAddPassword(e.target.value)}
-                    className="w-full pl-3 pr-9 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs"
+                    className="w-full pl-3 pr-9 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 shadow-2xs"
                   />
                   <button
                     type="button"
@@ -909,11 +909,11 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                     onClick={() => setAddRole('member')}
                     className={`p-2.5 rounded-md border text-left cursor-pointer transition-colors ${
                       addRole === 'member'
-                        ? 'bg-blue-50 border-blue-400 text-blue-900'
+                        ? 'bg-indigo-50 border-indigo-400 text-indigo-900'
                         : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    <div className="font-semibold text-xs flex items-center gap-1.5 text-blue-700">
+                    <div className="font-semibold text-xs flex items-center gap-1.5 text-indigo-700">
                       <User className="w-3.5 h-3.5" />
                       Member
                     </div>
@@ -943,12 +943,12 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
                     <span>Assigned Profile / Wing</span>
-                    <span className="text-[10px] text-blue-600 font-medium">Strict Access Isolation</span>
+                    <span className="text-[10px] text-indigo-600 font-medium">Strict Access Isolation</span>
                   </label>
                   <select
                     value={addAssignedWing}
                     onChange={(e) => setAddAssignedWing(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm focus:outline-none focus:border-blue-600 cursor-pointer shadow-2xs"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm focus:outline-none focus:border-indigo-600 cursor-pointer shadow-2xs"
                   >
                     <option value="">Select profile to assign...</option>
                     {profileOptions.map((wing) => (
@@ -994,7 +994,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                 <button
                   type="submit"
                   disabled={isSubmittingAdd}
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-md text-xs flex items-center gap-2 cursor-pointer shadow-sm disabled:opacity-50 transition-colors"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold rounded-md text-xs flex items-center gap-2 cursor-pointer shadow-sm disabled:opacity-50 transition-colors"
                 >
                   {isSubmittingAdd ? (
                     <>
@@ -1017,7 +1017,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
           <div className="bg-white border border-slate-200 rounded-xl w-full max-w-md p-5 sm:p-6 shadow-xl relative text-slate-800 my-auto">
             <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+                <div className="w-8 h-8 rounded-md bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
                   <Edit3 className="w-4 h-4" />
                 </div>
                 <div>
@@ -1043,7 +1043,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-600 shadow-2xs"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-600 shadow-2xs"
                 />
               </div>
 
@@ -1056,7 +1056,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                   required
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-600 shadow-2xs"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-600 shadow-2xs"
                 />
               </div>
 
@@ -1073,7 +1073,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                     placeholder="+91 98765 43210"
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-600 shadow-2xs"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-600 shadow-2xs"
                   />
                 </div>
               </div>
@@ -1088,11 +1088,11 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                     onClick={() => setEditRole('member')}
                     className={`p-2.5 rounded-md border text-left cursor-pointer transition-colors ${
                       editRole === 'member'
-                        ? 'bg-blue-50 border-blue-400 text-blue-900'
+                        ? 'bg-indigo-50 border-indigo-400 text-indigo-900'
                         : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    <div className="font-semibold text-xs flex items-center gap-1.5 text-blue-700">
+                    <div className="font-semibold text-xs flex items-center gap-1.5 text-indigo-700">
                       <User className="w-3.5 h-3.5" />
                       Member
                     </div>
@@ -1120,12 +1120,12 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
                     <span>Assigned Profile / Wing</span>
-                    <span className="text-[10px] text-blue-600 font-medium">Strict Access Isolation</span>
+                    <span className="text-[10px] text-indigo-600 font-medium">Strict Access Isolation</span>
                   </label>
                   <select
                     value={editAssignedWing}
                     onChange={(e) => setEditAssignedWing(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm focus:outline-none focus:border-blue-600 cursor-pointer shadow-2xs"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs sm:text-sm focus:outline-none focus:border-indigo-600 cursor-pointer shadow-2xs"
                   >
                     <option value="">Select profile to assign...</option>
                     {profileOptions.map((wing) => (
@@ -1169,7 +1169,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({ currentUser, ava
                 <button
                   type="submit"
                   disabled={isSubmittingEdit}
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-md text-xs flex items-center gap-2 cursor-pointer shadow-sm disabled:opacity-50 transition-colors"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold rounded-md text-xs flex items-center gap-2 cursor-pointer shadow-sm disabled:opacity-50 transition-colors"
                 >
                   {isSubmittingEdit ? (
                     <>

@@ -578,7 +578,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
               title="Fetch live fresh report from Google API"
               className="w-full sm:w-auto px-2 sm:px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap truncate"
             >
-              <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loadingMultiProfile ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
+              <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loadingMultiProfile ? 'animate-spin text-indigo-600' : 'text-slate-500'}`} />
               <span className="truncate hidden sm:inline">{loadingMultiProfile ? 'Syncing...' : 'Live Refresh'}</span>
               <span className="truncate sm:hidden">{loadingMultiProfile ? '...' : 'Refresh'}</span>
             </button>
@@ -630,7 +630,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                       onClick={handleExportExecutiveCsv}
                       className="w-full text-left px-3.5 py-2 text-xs hover:bg-slate-50 text-slate-800 flex items-center gap-2 cursor-pointer whitespace-nowrap"
                     >
-                      <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <Building2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                       <div>
                         <strong className="block font-medium">Executive Summary CSV</strong>
                         <span className="text-[10px] text-slate-400">Branch rankings, totals & SLA</span>
@@ -680,23 +680,23 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
             <button
               onClick={() => setReportScope('all')}
-              className={`px-3 py-1.5 rounded-md transition-all font-medium whitespace-nowrap shrink-0 ${
+              className={`px-3 py-1.5 rounded-md transition-colors font-semibold whitespace-nowrap shrink-0 text-xs cursor-pointer ${
                 reportScope === 'all'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
               }`}
             >
-              All Profiles Combined ({effectiveLeaderboardData.length || safeLocations.length})
+              All profiles combined ({effectiveLeaderboardData.length || safeLocations.length})
             </button>
             <button
               onClick={() => setReportScope('single')}
-              className={`px-3 py-1.5 rounded-md transition-all font-medium whitespace-nowrap shrink-0 ${
+              className={`px-3 py-1.5 rounded-md transition-colors font-semibold whitespace-nowrap shrink-0 text-xs cursor-pointer ${
                 reportScope === 'single'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
               }`}
             >
-              Single Location Deep Dive
+              Single location deep dive
             </button>
           </div>
 
@@ -706,7 +706,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
               <select
                 value={selectedLocationKey}
                 onChange={handleLocationPickerChange}
-                className="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer truncate"
+                className="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 font-medium focus:outline-none focus:border-indigo-500 shadow-2xs cursor-pointer truncate"
               >
                 {safeLocations.map((loc) => {
                   const val = loc.v4Name || loc.name;
@@ -745,9 +745,9 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
       {/* Active Profile Info Banner when in Single Location Mode */}
       {reportScope === 'single' && activeLocation && (
-        <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-lg flex items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 bg-indigo-50/70 border border-indigo-200/80 rounded-lg flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+            <Building2 className="w-4 h-4 text-indigo-600 shrink-0" />
             <div>
               <span className="text-slate-600">Currently analyzing branch:</span>
               <strong className="font-semibold text-slate-900 ml-1.5 text-sm">{activeLocation.title || activeLocation.name}</strong>
@@ -759,7 +759,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
           <button
             onClick={() => setReportScope('all')}
-            className="text-blue-700 hover:text-blue-900 hover:underline font-medium shrink-0 cursor-pointer whitespace-nowrap"
+            className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium shrink-0 cursor-pointer whitespace-nowrap"
           >
             Switch to All Profiles &rarr;
           </button>
@@ -944,11 +944,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                     </tr>
                   ) : (
                     safeWeeklyBreakdown.map((item, idx) => (
-                      <tr key={idx} className={item.dayName === 'Today' ? 'bg-blue-50/30' : ''}>
+                      <tr key={idx} className={item.dayName === 'Today' ? 'bg-indigo-50/40' : ''}>
                         <td className="font-semibold text-slate-800 whitespace-nowrap">
                           {item.dayName} <span className="text-slate-400 text-xs font-normal">({item.dateLabel})</span>
                         </td>
-                        <td className="font-bold text-slate-700 font-mono">{Number(item.total) || 0}</td>
+                        <td className="font-bold text-slate-700">{Number(item.total) || 0}</td>
                         <td className="text-amber-600 font-semibold">{Number(item.fiveStars) || 0}</td>
                         <td className="text-red-500 font-semibold">{Number(item.negative) || 0}</td>
                         <td>
@@ -1003,14 +1003,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
               <p className="text-xs text-slate-500 leading-relaxed">
                 Google prioritizes businesses with higher response velocity in local pack rankings. Maintaining a response rate above 85% within 24 hours can boost organic visibility by up to 25%.
               </p>
-              <div className="p-4 bg-blue-50/70 rounded-lg border border-blue-100 flex items-center justify-between text-xs">
+              <div className="p-4 bg-indigo-50/50 rounded-lg border border-indigo-200/80 flex items-center justify-between text-xs shadow-2xs">
                 <div>
-                  <span className="font-semibold text-blue-900 block">Enable Gemini AI Auto-Replies</span>
-                  <span className="text-blue-700 text-[11px]">Automatically reply to 4-star and 5-star reviews in real time</span>
+                  <span className="font-bold text-slate-900 block">Enable Gemini AI auto-replies</span>
+                  <span className="text-slate-600 text-[11px] font-medium">Automatically reply to positive reviews in real time</span>
                 </div>
                 <button
                   onClick={() => onNavigateTab && onNavigateTab('autoreply')}
-                  className="px-3.5 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all shrink-0 ml-3 cursor-pointer shadow-xs whitespace-nowrap"
+                  className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shrink-0 ml-3 cursor-pointer whitespace-nowrap"
                 >
                   Configure
                 </button>

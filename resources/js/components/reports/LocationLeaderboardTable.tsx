@@ -96,7 +96,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
   if (list.length === 0) {
     return (
       <div className="card p-8 text-center text-slate-400">
-        <Building2 className="w-10 h-10 mx-auto mb-2 opacity-40 text-blue-500" />
+        <Building2 className="w-10 h-10 mx-auto mb-2 opacity-40 text-indigo-600" />
         <p className="text-sm font-medium text-slate-700">No Multi-Location Profiles Loaded Yet</p>
         <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto font-normal">
           Connect your Google Business Profiles or click Live Refresh above to populate cross-branch rankings.
@@ -113,7 +113,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-amber-500 shrink-0" />
             <h3 className="text-sm font-medium text-slate-800">Multi-Location Branch Performance Leaderboard</h3>
-            <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 font-normal whitespace-nowrap shrink-0">
+            <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200 font-normal whitespace-nowrap shrink-0">
               {list.length} Profiles Linked
             </span>
           </div>
@@ -148,7 +148,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search branches by title, store code, or address..."
-            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-all font-normal"
+            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-all font-normal"
           />
         </div>
 
@@ -157,10 +157,10 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
           
           <button
             onClick={() => toggleSort('reviews')}
-            className={`px-2.5 py-1 rounded border text-[11px] font-normal flex items-center gap-1 transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`px-2.5 py-1 rounded-md border text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               sortField === 'reviews' 
-                ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-2xs font-medium' 
-                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-bold' 
+                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
             }`}
           >
             <span>Reviews</span>
@@ -243,7 +243,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
                     className={`hover:bg-slate-50/80 transition-colors ${isTop ? 'bg-amber-50/20' : ''}`}
                   >
                     {/* Rank */}
-                    <td className="text-center font-medium text-slate-500 font-mono whitespace-nowrap shrink-0">
+                    <td className="text-center font-medium text-slate-500 whitespace-nowrap shrink-0">
                       {rank === 1 ? (
                         <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 inline-flex items-center justify-center text-xs shadow-2xs">
                           🥇
@@ -266,7 +266,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
                       <div className="font-medium text-slate-800 text-sm flex items-center gap-1.5 whitespace-nowrap">
                         <span>{item.title || item.name || 'Unnamed Location'}</span>
                         {item.storeCode && (
-                          <span className="text-[10px] font-mono text-slate-400 font-normal">
+                          <span className="text-[10px] text-slate-400 font-normal">
                             ({item.storeCode})
                           </span>
                         )}
@@ -279,7 +279,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
                     </td>
 
                     {/* Total Reviews */}
-                    <td className="font-medium text-slate-800 font-mono text-sm whitespace-nowrap shrink-0">
+                    <td className="font-medium text-slate-800 text-sm whitespace-nowrap shrink-0">
                       {totalRevs.toLocaleString()}
                     </td>
 
@@ -291,7 +291,7 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
                           +{diff}
                         </span>
                       ) : (
-                        <span className="text-slate-400 text-xs font-mono">0</span>
+                        <span className="text-slate-400 text-xs">0</span>
                       )}
                     </td>
 
@@ -329,9 +329,9 @@ export const LocationLeaderboardTable: React.FC<LocationLeaderboardTableProps> =
                     <td className="text-right whitespace-nowrap shrink-0">
                       <button
                         onClick={() => onSelectLocation && key && onSelectLocation(key)}
-                        className="px-2.5 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-all inline-flex items-center gap-1 cursor-pointer font-medium border border-blue-100 shadow-2xs whitespace-nowrap shrink-0"
+                        className="px-2.5 py-1 text-xs text-indigo-700 hover:text-indigo-900 hover:bg-indigo-50 rounded-md transition-colors inline-flex items-center gap-1 cursor-pointer font-medium border border-indigo-200 whitespace-nowrap shrink-0"
                       >
-                        <span>Deep Dive</span>
+                        <span>Deep dive</span>
                         <ArrowRight className="w-3 h-3 shrink-0" />
                       </button>
                     </td>

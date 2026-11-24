@@ -17,7 +17,8 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
       (function() {
@@ -42,9 +43,31 @@
         }
       })();
     </script>
-    @vite(['resources/js/main.tsx'])
+    @php
+        try {
+            $viteTags = app(\Illuminate\Foundation\Vite::class)(['resources/js/main.tsx']);
+        } catch (\Throwable $e) {
+            $viteTags = '';
+            $buildAssetsDir = public_path('build/assets');
+            if (is_dir($buildAssetsDir)) {
+                $jsFiles = glob($buildAssetsDir . DIRECTORY_SEPARATOR . 'main-*.js');
+                $cssFiles = glob($buildAssetsDir . DIRECTORY_SEPARATOR . 'main-*.css');
+                if (!empty($jsFiles)) {
+                    usort($jsFiles, fn($a, $b) => filemtime($b) - filemtime($a));
+                    $latestJs = basename($jsFiles[0]);
+                    $viteTags .= '<script type="module" src="' . asset("build/assets/{$latestJs}") . '"></script>' . PHP_EOL;
+                }
+                if (!empty($cssFiles)) {
+                    usort($cssFiles, fn($a, $b) => filemtime($b) - filemtime($a));
+                    $latestCss = basename($cssFiles[0]);
+                    $viteTags .= '<link rel="stylesheet" href="' . asset("build/assets/{$latestCss}") . '">' . PHP_EOL;
+                }
+            }
+        }
+    @endphp
+    {!! $viteTags !!}
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen h-full w-full font-normal m-0 p-0 overflow-x-hidden">
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen h-full w-full font-normal m-0 p-0 overflow-x-hidden font-sans">
     <div id="root" class="min-h-screen w-full flex flex-col"></div>
 </body>
 </html>

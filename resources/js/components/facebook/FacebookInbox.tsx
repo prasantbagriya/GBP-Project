@@ -117,7 +117,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-blue-600" />
+            <MessageSquare className="w-5 h-5 text-indigo-600" />
             <span>Facebook Messenger Direct Inbox</span>
           </h3>
           <p className="text-xs text-slate-500">
@@ -131,7 +131,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
           disabled={loadingConv}
           className="px-3 py-1.5 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${loadingConv ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 text-indigo-600 ${loadingConv ? 'animate-spin' : ''}`} />
           <span>Refresh Inbox</span>
         </button>
       </div>
@@ -159,7 +159,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
             {loadingConv ? (
               <div className="p-8 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                <RefreshCw className="w-5 h-5 animate-spin text-blue-600" />
+                <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
                 <span>Loading conversations...</span>
               </div>
             ) : conversations.length === 0 ? (
@@ -178,9 +178,9 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
                     key={conv.id}
                     type="button"
                     onClick={() => setSelectedConvId(conv.id)}
-                    className={`w-full text-left p-3 flex items-start gap-3 transition-colors cursor-pointer ${isSelected ? 'bg-blue-50/80 border-l-4 border-l-blue-600' : 'hover:bg-slate-100/70'}`}
+                    className={`w-full text-left p-3 flex items-start gap-3 transition-colors cursor-pointer ${isSelected ? 'bg-indigo-50/80 font-semibold' : 'hover:bg-slate-100/70'}`}
                   >
-                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 font-bold text-xs">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-xs">
                       {sender?.name ? sender.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
                     </div>
 
@@ -199,7 +199,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
                     </div>
 
                     {conv.unread_count && conv.unread_count > 0 ? (
-                      <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                      <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
                         {conv.unread_count}
                       </span>
                     ) : null}
@@ -217,7 +217,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
               {/* Thread Header */}
               <div className="p-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
                     {otherSender?.name ? otherSender.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
                   </div>
                   <div>
@@ -239,7 +239,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
               <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
                 {loadingMessages ? (
                   <div className="p-8 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                    <RefreshCw className="w-5 h-5 animate-spin text-blue-600" />
+                    <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
                     <span>Loading messages...</span>
                   </div>
                 ) : messages.length === 0 ? (
@@ -256,7 +256,7 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
                         className={`flex flex-col ${isFromPage ? 'items-end' : 'items-start'}`}
                       >
                         <div
-                          className={`max-w-[75%] p-3 rounded-2xl text-xs leading-relaxed shadow-2xs ${isFromPage ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}
+                          className={`max-w-[75%] p-3 rounded-2xl text-xs leading-relaxed shadow-2xs ${isFromPage ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}
                         >
                           <p className="whitespace-pre-wrap">{msg.message}</p>
                         </div>
@@ -276,13 +276,13 @@ export const FacebookInbox: React.FC<FacebookInboxProps> = ({ page }) => {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Type a message to customer..."
-                  className="flex-1 text-xs border border-slate-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 text-xs border border-slate-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
                 />
 
                 <button
                   type="submit"
                   disabled={sending || !replyText.trim()}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-50"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-50"
                 >
                   {sending ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />

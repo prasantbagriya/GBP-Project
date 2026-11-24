@@ -521,7 +521,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
               }}
               className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                 selectedDateMode === 'today'
-                  ? 'bg-white text-blue-700 shadow-2xs'
+                  ? 'bg-white text-indigo-700 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -535,7 +535,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
               }}
               className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                 selectedDateMode === 'yesterday'
-                  ? 'bg-white text-blue-700 shadow-2xs'
+                  ? 'bg-white text-indigo-700 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
               title="View and export yesterday's (last day's) saved report"
@@ -546,7 +546,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
           {reportData?.generatedAt && (
             <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1 border border-slate-200 shrink-0 whitespace-nowrap" title="Report timestamp">
-              <Clock className="w-3 h-3 text-blue-600 shrink-0" />
+              <Clock className="w-3 h-3 text-indigo-600 shrink-0" />
               <span className="whitespace-nowrap">
                 {getBusinessDateStr(new Date(reportData.generatedAt)) === getBusinessDateStr(new Date())
                   ? `Today at ${new Date(reportData.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}`
@@ -558,20 +558,20 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           {onNavigateTab ? (
             <button
               onClick={() => onNavigateTab('reviewTargets')}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0"
               title="Open Daily Review Targets & Goals Page"
             >
               <Target className="w-3.5 h-3.5 shrink-0" />
-              <span className="whitespace-nowrap">Target Planner</span>
+              <span className="whitespace-nowrap">Target planner</span>
             </button>
           ) : (
             <button
               onClick={() => setShowTargetModal(true)}
-              className="px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
+              className="px-3 py-1.5 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-700 rounded-lg text-xs font-normal flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0"
               title="Open Quick Target Planner Popup"
             >
-              <Target className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-              <span className="whitespace-nowrap">Target Planner</span>
+              <Target className="w-3.5 h-3.5 text-indigo-700 shrink-0" />
+              <span className="whitespace-nowrap">Target planner</span>
             </button>
           )}
 
@@ -581,7 +581,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap shrink-0 transition-colors"
             title="Fetch fresh data from Google API and update server cache"
           >
-            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loading ? 'animate-spin text-blue-600' : 'text-blue-600'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loading ? 'animate-spin text-indigo-600' : 'text-indigo-600'}`} />
             <span className="whitespace-nowrap">{loading ? 'Checking Google...' : 'Live Refresh'}</span>
           </button>
         </div>
@@ -609,66 +609,9 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         </div>
       )}
 
-      {/* Account Info Pill - Displayed horizontal on mobile exactly like desktop */}
-      {Boolean(reportData?.locations?.length) && (
-        <div className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-2.5 text-xs font-medium text-slate-700 w-full min-w-0 shadow-2xs">
-          <div className="flex items-center gap-2 min-w-0">
-            <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
-            <span className="font-semibold text-slate-900 text-xs sm:text-sm truncate">
-              Google Business Profile
-            </span>
-          </div>
-          <span className="text-[11px] bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-slate-700 font-semibold shrink-0 whitespace-nowrap">
-            {reportData?.locations?.length || 0} Profiles Linked
-          </span>
-        </div>
-      )}
-
-      {/* Error Alert Banner */}
-      {errorMessage && (
-        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-rose-900 shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span className="text-xs">
-              <strong>Error:</strong> {errorMessage}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => fetchReportData(true)}
-            disabled={loading}
-            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg shrink-0 cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-2xs"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Retry Live Fetch</span>
-          </button>
-        </div>
-      )}
-
-      {/* Stale Report Warning Alert */}
-      {!loading && reportData?.locations && reportData.locations.length > 0 && reportData?.isToday === false && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-amber-900 shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span className="text-xs">
-              <strong>Notice:</strong> This report is from earlier (saved on {new Date(reportData.generatedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}). Click <strong>Live Refresh</strong> to fetch today's latest reviews from Google.
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => fetchReportData(true)}
-            disabled={loading}
-            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg shrink-0 cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-2xs"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Fetch Today's Reviews</span>
-          </button>
-        </div>
-      )}
-
       {/* 5 Aggregate Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4 w-full">
-        <div className="card p-4 border-l-4 border-l-blue-600">
+        <div className="card p-4">
           <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
             Selected Profiles
           </div>
@@ -680,7 +623,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           </div>
         </div>
 
-        <div className="card p-4 border-l-4 border-l-amber-500">
+        <div className="card p-4">
           <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
             Combined Rating
           </div>
@@ -691,7 +634,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           <div className="text-[11px] text-slate-400 mt-1">Across selected</div>
         </div>
 
-        <div className="card p-4 border-l-4 border-l-indigo-600">
+        <div className="card p-4">
           <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
             Total Reviews
           </div>
@@ -703,7 +646,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           </div>
         </div>
 
-        <div className="card p-4 border-l-4 border-l-emerald-600">
+        <div className="card p-4">
           <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
             Today's New Reviews
           </div>
@@ -716,7 +659,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           </div>
         </div>
 
-        <div className="card p-4 border-l-4 border-l-rose-500 col-span-2 sm:col-span-1">
+        <div className="card p-4 col-span-2 sm:col-span-1">
           <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
             Pending Replies
           </div>
@@ -734,16 +677,16 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
         <div className="lg:col-span-7 space-y-6">
           
           {/* Quick Target Planner Banner */}
-          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+          <div className="p-3.5 bg-indigo-50/50 border border-indigo-200/80 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                 <Target className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-slate-900">
-                  Daily Review Target & Member Planner
+                <h4 className="text-xs font-bold text-slate-900">
+                  Daily review target & member planner
                 </h4>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-600 font-medium">
                   Assign daily goals to team members, auto-adjust remaining days, and download weekly PDF reports.
                 </p>
               </div>
@@ -758,10 +701,10 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   setShowTargetModal(true);
                 }
               }}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <Target className="w-3.5 h-3.5" />
-              <span>Open Target Planner</span>
+              <span>Open target planner</span>
             </button>
           </div>
 
@@ -771,10 +714,10 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <button
                   onClick={handleSelectAll}
-                  className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer"
                 >
                   {selectedIds.length === (sortedLocations?.length || 0) && (sortedLocations?.length || 0) > 0 ? (
-                    <CheckSquare className="w-4 h-4 text-blue-600" />
+                    <CheckSquare className="w-4 h-4 text-indigo-600" />
                   ) : (
                     <Square className="w-4 h-4 text-slate-400" />
                   )}
@@ -792,13 +735,13 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
-                  <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
+                  <ArrowUpDown className="w-3.5 h-3.5 text-indigo-600" />
                   Sort:
                 </span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="text-xs font-bold bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+                  className="text-xs font-bold bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 outline-none focus:border-indigo-600 cursor-pointer shadow-2xs"
                   title="Profile order in report"
                 >
                   <option value="rating_asc">Lowest Rating First (Default)</option>
@@ -811,28 +754,28 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
 
             {loading && (!reportData?.locations || reportData.locations.length === 0) ? (
               <div className="p-12 text-center text-slate-400">
-                <RefreshCw className="w-7 h-7 animate-spin mx-auto text-blue-600 mb-2" />
+                <RefreshCw className="w-7 h-7 animate-spin mx-auto text-indigo-600 mb-2" />
                 <p className="text-xs font-medium">Checking all Google Business profiles from scratch...</p>
               </div>
             ) : (!reportData?.locations || reportData.locations.length === 0) ? (
               reportData?.hasReport === false || !reportData?.generatedAt ? (
                 <div className="p-10 text-center space-y-3">
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-                    <Sparkles className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-indigo-50 text-indigo-700 rounded-full flex items-center justify-center mx-auto border border-indigo-200">
+                    <Sparkles className="w-6 h-6 text-indigo-600" />
                   </div>
-                  <h4 className="text-sm font-bold text-slate-800">
-                    Daily Report Not Generated Yet
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Daily report not generated yet
                   </h4>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  <p className="text-xs text-slate-600 max-w-md mx-auto font-medium">
                     Data is fetched from Google API only when requested and stored securely on the server. Click below to generate the daily report:
                   </p>
                   <button
                     onClick={() => fetchReportData(true)}
                     disabled={loading}
-                    className="mt-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-md shadow-blue-600/20 cursor-pointer"
+                    className="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium inline-flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>Generate Multi-Profile Report</span>
+                    <span>Generate multi-profile report</span>
                   </button>
                 </div>
               ) : (
@@ -861,7 +804,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSelectProfile(loc.id)}
-                            className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                            className="mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -873,7 +816,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                   </span>
                                 )}
                                 {getAssignedStaffPhone(loc.title) && (
-                                  <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 flex items-center gap-1">
+                                  <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 flex items-center gap-1">
                                     <Phone className="w-2.5 h-2.5" />
                                     {getAssignedStaffPhone(loc.title)}
                                   </span>
@@ -918,12 +861,12 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                       type="number"
                                       value={baselineInput}
                                       onChange={(e) => setBaselineInput(parseInt(e.target.value) || 0)}
-                                      className="w-14 px-1 py-0.5 text-xs bg-white border border-blue-400 rounded outline-none font-bold"
+                                      className="w-14 px-1 py-0.5 text-xs bg-white border border-indigo-400 rounded outline-none font-bold"
                                     />
                                     <button
                                       onClick={() => handleSaveBaseline(loc.name)}
                                       disabled={savingBaseline}
-                                      className="px-1.5 py-0.5 bg-blue-600 text-white rounded text-[10px] font-bold"
+                                      className="px-1.5 py-0.5 bg-indigo-600 text-white rounded text-[10px] font-bold cursor-pointer"
                                     >
                                       ✓
                                     </button>
@@ -951,7 +894,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                                 <span className="text-slate-400 text-[10px] uppercase font-bold">
                                   Today:
                                 </span>
-                                <strong className="text-blue-700 font-bold">{loc.totalReviews}</strong>
+                                <strong className="text-indigo-700 font-bold">{loc.totalReviews}</strong>
                               </div>
 
                               {/* Growth Tag */}
@@ -971,8 +914,8 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                               )}
 
                               {Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0)) > 0 && (
-                                <span className="p-1 px-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0">
-                                  <MessageSquare className="w-3 h-3 text-blue-600" />
+                                <span className="p-1 px-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shrink-0">
+                                  <MessageSquare className="w-3 h-3 text-indigo-600" />
                                   <span>+{Math.max(loc.todayNewReviews || 0, Math.max(0, loc.difference || 0))} today</span>
                                 </span>
                               )}
@@ -993,7 +936,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                               onSelectLocation(loc.v4Name || loc.name || loc.id);
                               onNavigateTab?.('reviews');
                             }}
-                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 shrink-0 cursor-pointer"
+                            className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 shrink-0 cursor-pointer"
                             title={`Open ${loc.title} reviews`}
                           >
                             Open ↗
@@ -1010,7 +953,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
           {/* Formatting & Controls Card */}
           <div className="card p-5 space-y-4">
             <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <Settings2 className="w-4 h-4 text-blue-600" />
+              <Settings2 className="w-4 h-4 text-indigo-600" />
               Report Customization Options
             </h3>
 
@@ -1021,7 +964,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={boldProfileNames}
                   onChange={(e) => setBoldProfileNames(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="font-medium">Bold Profile Names (*Title*)</span>
               </label>
@@ -1031,7 +974,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={includeComparison}
                   onChange={(e) => setIncludeComparison(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Include Before vs Today comparison</span>
               </label>
@@ -1041,7 +984,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={includeRatings}
                   onChange={(e) => setIncludeRatings(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Include Average Star Rating</span>
               </label>
@@ -1051,7 +994,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={includePending}
                   onChange={(e) => setIncludePending(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Include Pending Owner Replies</span>
               </label>
@@ -1061,7 +1004,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={includeReviewLinks}
                   onChange={(e) => setIncludeReviewLinks(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Include 5-Star Review Links</span>
               </label>
@@ -1071,7 +1014,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={showNetDifference}
                   onChange={(e) => setShowNetDifference(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Show (+net change) in Today line</span>
               </label>
@@ -1081,7 +1024,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={includePhone}
                   onChange={(e) => setIncludePhone(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="font-semibold text-emerald-800 flex items-center gap-1">
                   <Phone className="w-3 h-3 text-emerald-600" />
@@ -1094,7 +1037,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   type="checkbox"
                   checked={includeSummaryFooter}
                   onChange={(e) => setIncludeSummaryFooter(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Include Overall Summary footer</span>
               </label>
@@ -1103,7 +1046,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
             {/* Profile Order Selector in Message with SVG Icons */}
             <div className="pt-2 border-t border-slate-100">
               <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
+                <ArrowUpDown className="w-3.5 h-3.5 text-indigo-600" />
                 Profile Ordering in Report Message:
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -1126,7 +1069,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                   {
                     value: 'reviews_desc',
                     label: 'Total Reviews (Highest)',
-                    icon: <BarChart3 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    icon: <BarChart3 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                   }
                 ].map((opt) => {
                   const isSelected = sortBy === opt.value;
@@ -1137,13 +1080,13 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                       onClick={() => setSortBy(opt.value as any)}
                       className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors text-left cursor-pointer border ${
                         isSelected
-                          ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs'
+                          ? 'bg-indigo-50 border-indigo-500 text-indigo-700 font-bold shadow-2xs'
                           : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                       }`}
                     >
                       {opt.icon}
                       <span className="truncate flex-1">{opt.label}</span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 ml-auto" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-indigo-600 shrink-0 ml-auto" />}
                     </button>
                   );
                 })}
@@ -1160,7 +1103,7 @@ export const DailyWhatsAppReport: React.FC<DailyWhatsAppReportProps> = ({
                 value={customNote}
                 onChange={(e) => setCustomNote(e.target.value)}
                 placeholder="e.g. Branch heads please ensure 100% review replies today."
-                className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500"
+                className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-indigo-600"
               />
             </div>
 

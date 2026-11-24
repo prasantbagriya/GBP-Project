@@ -52,12 +52,9 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
     <div className="card p-5 space-y-4 relative">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
+          <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
           <h3 className="text-xs sm:text-sm font-bold text-slate-800">{title}</h3>
         </div>
-        <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md border border-purple-200 font-medium whitespace-nowrap shrink-0">
-          Customer Voice AI
-        </span>
       </div>
 
       {/* Polarity Split Bar */}
@@ -158,7 +155,7 @@ export const AiSentimentTopicsCard: React.FC<AiSentimentTopicsCardProps> = ({
                       </div>
                       <p className="text-slate-600 leading-relaxed">{r.comment || 'No written text provided.'}</p>
                       {r.reviewReply?.comment && (
-                        <div className="p-2 bg-blue-50/70 border border-blue-100 rounded-lg text-[11px] text-blue-900 mt-1">
+                        <div className="p-2 bg-indigo-50/70 border border-indigo-100 rounded-lg text-[11px] text-indigo-900 mt-1">
                           <span className="font-semibold block">Owner Reply:</span>
                           {r.reviewReply.comment}
                         </div>

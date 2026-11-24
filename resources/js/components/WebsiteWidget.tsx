@@ -90,20 +90,15 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
   return (
     <div className="space-y-4 sm:space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* Header Banner */}
-      <div className="card p-4 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-full min-w-0 overflow-hidden">
+      <div className="p-4 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-full min-w-0 overflow-hidden">
         <div className="space-y-1.5 min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 min-w-0">
-            <span className="p-1.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-lg shrink-0">
-              <Globe className="w-5 h-5" />
-            </span>
-            <h2 className="text-base sm:text-lg font-semibold tracking-tight truncate max-w-full">
+          <div className="flex items-center gap-2 min-w-0">
+            <Globe className="w-5 h-5 text-indigo-400 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold tracking-tight truncate max-w-full text-white">
               Website Google Reviews Widget
             </h2>
-            <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-semibold px-2 py-0.5 rounded-full uppercase shrink-0">
-              Auto-Sync
-            </span>
           </div>
-          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed break-words">
+          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed break-words font-normal">
             Embed real-time Google Reviews on your official website. New reviews sync automatically directly from your Google Business Profile.
           </p>
         </div>
@@ -124,7 +119,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
       {/* Profile Selector Banner */}
       <div className="card p-3 sm:p-4 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs w-full max-w-full min-w-0 overflow-hidden">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold shrink-0">
             <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -145,7 +140,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
             <select
               value={selectedLocParam}
               onChange={(e) => onSelectLocation(e.target.value)}
-              className="text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-700 outline-none focus:border-blue-500 cursor-pointer w-full sm:w-auto sm:max-w-xs truncate"
+              className="text-xs font-bold bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-700 outline-none focus:border-indigo-500 cursor-pointer w-full sm:w-auto sm:max-w-xs truncate"
             >
               {locations.map((loc) => {
                 const val = loc.v4Name || loc.name;
@@ -168,12 +163,12 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
           <div className="card p-4 sm:p-5 space-y-4 w-full max-w-full min-w-0 overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-blue-600 shrink-0" />
+                <SlidersHorizontal className="w-4 h-4 text-indigo-600 shrink-0" />
                 <span>Widget Customizer</span>
               </h3>
               <button 
                 onClick={() => setPreviewKey(Date.now())}
-                className="text-slate-400 hover:text-blue-600 p-1 transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-indigo-600 p-1 transition-colors cursor-pointer"
                 title="Refresh preview"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -204,7 +199,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                     }}
                     className={`p-2 sm:p-2.5 rounded-lg border text-center transition-all min-w-0 overflow-hidden cursor-pointer ${
                       layout === item.id 
-                        ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs' 
+                        ? 'bg-indigo-50 border-indigo-500 text-indigo-700 font-bold shadow-2xs' 
                         : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -221,7 +216,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                 <label className="text-xs font-bold text-slate-700">
                   Fixed Widget Height:
                 </label>
-                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded font-mono">
+                <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded">
                   {layout === 'badge' ? (parseInt(widgetHeight, 10) > 260 ? '220px' : `${widgetHeight}px`) : `${widgetHeight}px`}
                 </span>
               </div>
@@ -237,7 +232,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                     onClick={() => { setWidgetHeight(hOpt.val); setPreviewKey(Date.now()); }}
                     className={`py-1.5 px-1.5 sm:px-2 rounded-lg border text-center transition-all min-w-0 overflow-hidden cursor-pointer ${
                       widgetHeight === hOpt.val
-                        ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs'
+                        ? 'bg-indigo-50 border-indigo-500 text-indigo-700 font-bold shadow-2xs' 
                         : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -325,7 +320,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                   type="checkbox"
                   checked={!hideHeader}
                   onChange={(e) => { setHideHeader(!e.target.checked); setPreviewKey(Date.now()); }}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                 />
               </label>
               <p className="text-[10px] text-slate-400 mt-1">
@@ -345,7 +340,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                     value={title}
                     onChange={(e) => { setTitle(e.target.value); setPreviewKey(Date.now()); }}
                     placeholder="Google Reviews"
-                    className="w-full max-w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 outline-none focus:border-blue-500 box-border"
+                    className="w-full max-w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 outline-none focus:border-indigo-500 box-border"
                   />
                 </div>
                 <div>
@@ -357,7 +352,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                     value={subtitle}
                     onChange={(e) => { setSubtitle(e.target.value); setPreviewKey(Date.now()); }}
                     placeholder="Feedback from our students and Parents"
-                    className="w-full max-w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 outline-none focus:border-blue-500 box-border"
+                    className="w-full max-w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 outline-none focus:border-indigo-500 box-border"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">
                     Default: Feedback from our students and Parents
@@ -368,9 +363,9 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
           </div>
 
           {/* Quick CMS Setup Guide */}
-          <div className="card p-4 sm:p-5 space-y-3 bg-slate-50 border-slate-200 w-full max-w-full min-w-0 overflow-hidden">
+          <div className="p-4 sm:p-5 space-y-3 bg-slate-50 border border-slate-200 rounded-xl shadow-xs w-full max-w-full min-w-0 overflow-hidden">
             <h4 className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <HelpCircle className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
               <span>How to Add to Your Website</span>
             </h4>
             <div className="space-y-2 text-[11px] text-slate-600 leading-relaxed">
@@ -394,7 +389,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full min-w-0">
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                  <Code className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Code className="w-4 h-4 text-indigo-600 shrink-0" />
                   <span>Copy Embed Code for Website</span>
                 </h3>
                 <p className="text-slate-400 text-xs">
@@ -408,7 +403,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                   type="button"
                   onClick={() => setActiveCodeTab('script')}
                   className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 rounded-md transition-all whitespace-nowrap text-center cursor-pointer ${
-                    activeCodeTab === 'script' ? 'bg-white text-blue-700 shadow-2xs font-bold' : 'text-slate-600'
+                    activeCodeTab === 'script' ? 'bg-white text-indigo-700 shadow-2xs font-bold' : 'text-slate-600'
                   }`}
                 >
                   &lt;script&gt; Embed
@@ -417,7 +412,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                   type="button"
                   onClick={() => setActiveCodeTab('iframe')}
                   className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 rounded-md transition-all whitespace-nowrap text-center cursor-pointer ${
-                    activeCodeTab === 'iframe' ? 'bg-white text-blue-700 shadow-2xs font-bold' : 'text-slate-600'
+                    activeCodeTab === 'iframe' ? 'bg-white text-indigo-700 shadow-2xs font-bold' : 'text-slate-600'
                   }`}
                 >
                   &lt;iframe&gt; Embed
@@ -426,7 +421,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                   type="button"
                   onClick={() => setActiveCodeTab('api')}
                   className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 rounded-md transition-all whitespace-nowrap text-center cursor-pointer ${
-                    activeCodeTab === 'api' ? 'bg-white text-blue-700 shadow-2xs font-bold' : 'text-slate-600'
+                    activeCodeTab === 'api' ? 'bg-white text-indigo-700 shadow-2xs font-bold' : 'text-slate-600'
                   }`}
                 >
                   JSON API
@@ -438,10 +433,10 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
             {activeCodeTab === 'script' && (
               <div className="space-y-2 w-full min-w-0">
                 <div className="flex items-center justify-between gap-2 px-0.5">
-                  <span className="text-[11px] font-mono text-slate-500 font-medium">Responsive Script Embed</span>
+                  <span className="text-[11px] text-slate-500 font-medium">Responsive Script Embed</span>
                   <button
                     onClick={() => copyToClipboard(scriptCode, 'script')}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition-all whitespace-nowrap shrink-0 cursor-pointer"
+                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition-all whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     {copiedCodeType === 'script' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedCodeType === 'script' ? 'Copied!' : 'Copy Script'}</span>
@@ -462,10 +457,10 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
             {activeCodeTab === 'iframe' && (
               <div className="space-y-2 w-full min-w-0">
                 <div className="flex items-center justify-between gap-2 px-0.5">
-                  <span className="text-[11px] font-mono text-slate-500 font-medium">Standard Iframe Embed</span>
+                  <span className="text-[11px] text-slate-500 font-medium">Standard Iframe Embed</span>
                   <button
                     onClick={() => copyToClipboard(iframeCode, 'iframe')}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition-all whitespace-nowrap shrink-0 cursor-pointer"
+                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition-all whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     {copiedCodeType === 'iframe' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedCodeType === 'iframe' ? 'Copied!' : 'Copy Iframe'}</span>
@@ -486,10 +481,10 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
             {activeCodeTab === 'api' && (
               <div className="space-y-2 w-full min-w-0">
                 <div className="flex items-center justify-between gap-2 px-0.5">
-                  <span className="text-[11px] font-mono text-slate-500 font-medium">REST API Endpoint</span>
+                  <span className="text-[11px] text-slate-500 font-medium">REST API Endpoint</span>
                   <button
                     onClick={() => copyToClipboard(apiEndpointUrl, 'api')}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition-all whitespace-nowrap shrink-0 cursor-pointer"
+                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition-all whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     {copiedCodeType === 'api' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedCodeType === 'api' ? 'Copied!' : 'Copy API URL'}</span>
@@ -533,7 +528,7 @@ export const WebsiteWidget: React.FC<WebsiteWidgetProps> = ({
                   href={widgetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap"
+                  className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>New Tab</span>

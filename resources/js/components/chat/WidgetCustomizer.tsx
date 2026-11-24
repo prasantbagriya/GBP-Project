@@ -151,7 +151,7 @@ export const WidgetCustomizer: React.FC = () => {
                 type="text"
                 value={widget.brand_color}
                 onChange={(e) => setWidget({ ...widget, brand_color: e.target.value })}
-                className="w-28 p-2 border border-slate-300 rounded-xl text-xs uppercase font-mono font-medium"
+                className="w-28 p-2 border border-slate-300 rounded-xl text-xs uppercase font-medium"
               />
               <div className="flex items-center gap-1.5 flex-wrap">
                 {presetColors.map((col) => (

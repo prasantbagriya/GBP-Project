@@ -233,14 +233,14 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
             disabled={refreshing}
             className="px-3 py-1.5 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-indigo-600 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh Feed</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create New Post</span>
@@ -258,7 +258,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
       {/* Posts List / Grid */}
       {loading ? (
         <div className="card p-12 text-center text-slate-400 space-y-3">
-          <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+          <RefreshCw className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
           <p className="text-xs font-semibold text-slate-600">Loading page posts from Facebook...</p>
         </div>
       ) : posts.length === 0 ? (
@@ -271,7 +271,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="mt-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md cursor-pointer shadow-xs"
+            className="mt-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-md cursor-pointer shadow-xs"
           >
             Publish First Post
           </button>
@@ -284,16 +284,16 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
             const sharesCount = post.shares?.count ?? 0;
 
             return (
-              <div key={post.id} className="card flex flex-col justify-between overflow-hidden border border-slate-200 hover:shadow-md transition-shadow">
+              <div key={post.id} className="card flex flex-col justify-between overflow-hidden border border-slate-200 transition-colors">
                 <div>
                   {/* Post Header */}
                   <div className="p-3.5 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/50">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-full overflow-hidden bg-blue-100 shrink-0 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full overflow-hidden bg-indigo-100 shrink-0 flex items-center justify-center">
                         {page.avatar_url ? (
                           <img src={page.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <Building2 className="w-4 h-4 text-blue-600" />
+                          <Building2 className="w-4 h-4 text-indigo-600" />
                         )}
                       </div>
                       <div className="min-w-0">
@@ -313,7 +313,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                           href={post.permalink_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded"
+                          className="p-1.5 text-slate-400 hover:text-indigo-600 rounded"
                           title="Open on Facebook"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -353,7 +353,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                 {/* Post Footer & Engagement Metrics */}
                 <div className="p-3 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between text-xs text-slate-500">
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 font-semibold text-blue-600" title="Likes">
+                    <span className="flex items-center gap-1 font-semibold text-indigo-600" title="Likes">
                       <ThumbsUp className="w-3.5 h-3.5" />
                       {likesCount}
                     </span>
@@ -367,7 +367,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                       {commentsCount} comments
                     </button>
                     {sharesCount > 0 && (
-                      <span className="flex items-center gap-1" title="Shares">
+                      <span className="flex items-center gap-1 font-medium" title="Shares">
                         <Share2 className="w-3.5 h-3.5" />
                         {sharesCount}
                       </span>
@@ -377,7 +377,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenComments(post.id)}
-                    className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 cursor-pointer"
                   >
                     <span>Moderate</span>
                   </button>
@@ -394,7 +394,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
           <div className="card max-w-xl w-full bg-white shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-blue-600" />
+                <Plus className="w-5 h-5 text-indigo-600" />
                 <span>Create Facebook Page Post</span>
               </h3>
               <button
@@ -426,7 +426,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                   onChange={(e) => setMessage(e.target.value)}
                   rows={4}
                   placeholder="What's happening? Share news, admission announcements, discounts or achievements..."
-                  className="w-full text-xs rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full text-xs rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                 />
               </div>
 
@@ -447,7 +447,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                     </button>
                   </div>
                 ) : (
-                  <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer bg-slate-50/50 hover:bg-blue-50/30 transition-colors">
+                  <label className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer bg-slate-50/50 hover:bg-indigo-50/30 transition-colors">
                     <ImageIcon className="w-6 h-6 text-slate-400" />
                     <span className="text-xs font-semibold text-slate-600">Click to upload image (JPG, PNG, WebP)</span>
                     <span className="text-[10px] text-slate-400">Max size 15MB</span>
@@ -466,7 +466,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                 <label className="text-xs font-bold text-slate-700 block mb-1">
                   Optional Website Link
                 </label>
-                <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-1.5 focus-within:ring-2 focus-within:ring-blue-500">
+                <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-2.5 py-1.5 focus-within:ring-2 focus-within:ring-indigo-500">
                   <LinkIcon className="w-3.5 h-3.5 text-slate-400" />
                   <input
                     type="url"
@@ -482,14 +482,14 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                    <Calendar className="w-3.5 h-3.5 text-indigo-600" />
                     Schedule for later?
                   </span>
                   <input
                     type="checkbox"
                     checked={isScheduled}
                     onChange={(e) => setIsScheduled(e.target.checked)}
-                    className="rounded text-blue-600 cursor-pointer"
+                    className="rounded text-indigo-600 cursor-pointer"
                   />
                 </div>
 
@@ -520,7 +520,7 @@ export const FacebookPostStudio: React.FC<FacebookPostStudioProps> = ({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
                 >
                   {submitting ? (
                     <>

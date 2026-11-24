@@ -238,9 +238,9 @@ export default function App() {
       const stored = localStorage.getItem('gbp_active_fb_page_url');
       if (stored) return stored;
     } catch {}
-    return 'https://www.facebook.com/pcpsikar';
+    return '';
   });
-  const [tempFbPageInput, setTempFbPageInput] = useState('https://www.facebook.com/pcpsikar');
+  const [tempFbPageInput, setTempFbPageInput] = useState('');
   const [showAddFbPage, setShowAddFbPage] = useState(false);
   const [newFbPageName, setNewFbPageName] = useState('');
   const [newFbPageUrl, setNewFbPageUrl] = useState('');
@@ -2027,7 +2027,7 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+          <RefreshCw className="w-8 h-8 animate-spin text-indigo-600" />
           <p className="text-slate-500 text-sm font-medium">Loading Google Business Profile Suite...</p>
         </div>
       </div>
@@ -2042,48 +2042,48 @@ export default function App() {
   }> = {
     reputation: {
       title: 'Reputation & GBP',
-      subtitle: 'Google Local Presence',
+      subtitle: '',
       items: [
-        { id: 'dashboard', label: 'Overview & KPIs', icon: <BarChart3 className="w-4 h-4 text-blue-600 shrink-0" /> },
+        { id: 'dashboard', label: 'Overview & KPIs', icon: <BarChart3 className="w-4 h-4 text-indigo-600 shrink-0" /> },
         { id: 'reviews', label: 'Reviews & Replies', icon: <MessageSquare className="w-4 h-4 text-slate-600 shrink-0" />, badge: pendingReviews.length || undefined },
         { id: 'posts', label: 'GBP Post Studio', icon: <Megaphone className="w-4 h-4 text-slate-600 shrink-0" /> },
         { id: 'services', label: 'Services & Menu', icon: <Briefcase className="w-4 h-4 text-slate-600 shrink-0" /> },
-        { id: 'growth', label: 'Growth Tools (QR)', icon: <QrCode className="w-4 h-4 text-slate-600 shrink-0" />, badge: 'New' },
-        { id: 'widget', label: 'Website Review Badge', icon: <Code className="w-4 h-4 text-blue-500 shrink-0" />, badge: 'Embed' },
+        { id: 'growth', label: 'Growth Tools (QR)', icon: <QrCode className="w-4 h-4 text-slate-600 shrink-0" /> },
+        { id: 'widget', label: 'Website Review Badge', icon: <Code className="w-4 h-4 text-indigo-500 shrink-0" /> },
       ]
     },
     inbox: {
       title: 'Omnichannel Inbox',
-      subtitle: 'Customer Conversations',
+      subtitle: '',
       items: [
-        { id: 'chat', label: 'Support Live Chat', icon: <Bot className="w-4 h-4 text-blue-600 shrink-0" />, badge: 'Live' },
-        { id: 'facebook', label: 'Meta / Facebook Suite', icon: <Share2 className="w-4 h-4 text-blue-600 shrink-0" />, badge: 'Meta' },
+        { id: 'chat', label: 'Support Live Chat', icon: <Bot className="w-4 h-4 text-indigo-600 shrink-0" /> },
+        { id: 'facebook', label: 'Meta / Facebook Suite', icon: <Share2 className="w-4 h-4 text-indigo-600 shrink-0" /> },
         { id: 'reviews', label: 'Google Reviews Moderation', icon: <MessageSquare className="w-4 h-4 text-slate-600 shrink-0" />, badge: pendingReviews.length || undefined },
       ]
     },
     automation: {
       title: 'Automation Studio',
-      subtitle: 'AI & Workflow Engine',
+      subtitle: '',
       items: [
-        { id: 'autoreply', label: 'AI Auto-Reply Rules', icon: <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />, badge: 'Gemini' },
-        { id: 'chat', label: 'Visual Chatbot Flows', icon: <Bot className="w-4 h-4 text-blue-600 shrink-0" />, badge: 'Canvas' },
+        { id: 'autoreply', label: 'AI Auto-Reply Rules', icon: <Sparkles className="w-4 h-4 text-amber-500 shrink-0" /> },
+        { id: 'chat', label: 'Visual Chatbot Flows', icon: <Bot className="w-4 h-4 text-indigo-600 shrink-0" /> },
       ]
     },
     reports: {
       title: 'Analytics & Reports',
-      subtitle: 'Executive Intelligence',
+      subtitle: '',
       items: [
-        { id: 'reports', label: 'Executive Analytics', icon: <TrendingUp className="w-4 h-4 text-blue-600 shrink-0" /> },
-        { id: 'reviewTargets', label: 'Daily Review Targets', icon: <Target className="w-4 h-4 text-indigo-500 shrink-0" />, badge: 'Goals' },
-        { id: 'whatsappReport', label: 'WhatsApp Daily Digest', icon: <MessageCircle className="w-4 h-4 text-emerald-500 shrink-0" />, badge: 'Daily' },
+        { id: 'reports', label: 'Executive Analytics', icon: <TrendingUp className="w-4 h-4 text-indigo-600 shrink-0" /> },
+        { id: 'reviewTargets', label: 'Daily Review Targets', icon: <Target className="w-4 h-4 text-indigo-500 shrink-0" /> },
+        { id: 'whatsappReport', label: 'WhatsApp Daily Digest', icon: <MessageCircle className="w-4 h-4 text-emerald-500 shrink-0" /> },
         { id: 'sheets', label: 'Google Sheets 2-Way Sync', icon: <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" /> },
       ]
     },
     team: {
       title: 'Administration',
-      subtitle: 'Workspace & Security',
+      subtitle: '',
       items: [
-        { id: 'team', label: 'Team & Role Access', icon: <Users className="w-4 h-4 text-slate-700 shrink-0" />, badge: panelUser?.role === 'admin' ? 'Admin' : undefined },
+        { id: 'team', label: 'Team & Role Access', icon: <Users className="w-4 h-4 text-slate-700 shrink-0" /> },
       ]
     }
   };
@@ -2098,23 +2098,23 @@ export default function App() {
   ];
 
   return (
-    <div className="flex bg-slate-50 min-h-screen w-full text-slate-800 font-sans overflow-x-hidden">
+    <div className="flex bg-slate-50 min-h-screen w-full text-slate-900 font-sans overflow-x-hidden">
       {/* ========================================================================= */}
-      {/* TIER 1: 64px SLIM ICON RAIL (Modern SaaS Localith/Slack Pattern) */}
+      {/* TIER 1: 64px SLIM ICON RAIL */}
       {/* ========================================================================= */}
-      <aside className="hidden md:flex w-16 bg-slate-900 text-slate-400 h-screen flex-col items-center py-4 justify-between sticky top-0 z-30 shrink-0 select-none shadow-xl border-r border-slate-800">
-        <div className="space-y-5 flex flex-col items-center w-full">
+      <aside className="hidden md:flex w-16 bg-neutral-900 text-neutral-400 h-screen flex-col items-center py-4 justify-between sticky top-0 z-30 shrink-0 select-none border-r border-neutral-800">
+        <div className="space-y-4 flex flex-col items-center w-full">
           {/* App Brand Mark */}
           <div 
             onClick={() => { setActiveHub('reputation'); setActiveTab('dashboard'); }}
-            className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-base shadow-lg cursor-pointer hover:scale-105 active:scale-95 transition-all"
+            className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-medium text-base cursor-pointer hover:bg-indigo-700 transition-colors"
             title={`${t.appName} - Dashboard`}
           >
-            G
+            P
           </div>
 
           {/* Hub Switcher Rail Icons */}
-          <nav className="space-y-2.5 flex flex-col items-center w-full px-2">
+          <nav className="space-y-2 flex flex-col items-center w-full px-2">
             {/* Hub 1: Reputation */}
             <button
               type="button"
@@ -2125,10 +2125,10 @@ export default function App() {
                 }
                 if (sidebarCollapsed) setSidebarCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer relative ${
                 activeHub === 'reputation' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white' 
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
               title="Reputation & Local SEO (Google Business)"
             >
@@ -2146,16 +2146,16 @@ export default function App() {
                 }
                 if (sidebarCollapsed) setSidebarCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer relative ${
                 activeHub === 'inbox' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white' 
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
               title="Omnichannel Inbox (Live Chat, Meta, Google)"
             >
               <MessageSquare className="w-5 h-5" />
               {pendingReviews.length > 0 && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-slate-900" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-neutral-900" />
               )}
               <span className="sr-only">Inbox</span>
             </button>
@@ -2170,10 +2170,10 @@ export default function App() {
                 }
                 if (sidebarCollapsed) setSidebarCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer relative ${
                 activeHub === 'automation' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white' 
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
               title="Automation & AI Flow Studio"
             >
@@ -2191,10 +2191,10 @@ export default function App() {
                 }
                 if (sidebarCollapsed) setSidebarCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer relative ${
                 activeHub === 'reports' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white' 
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
               title="Intelligence, Target Streaks & WhatsApp Digest"
             >
@@ -2211,10 +2211,10 @@ export default function App() {
                   setActiveTab('team');
                   if (sidebarCollapsed) setSidebarCollapsed(false);
                 }}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors cursor-pointer relative ${
                   activeHub === 'team' 
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400/40' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-indigo-600 text-white' 
+                    : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
                 }`}
                 title="Team Management & Access"
               >
@@ -2231,7 +2231,7 @@ export default function App() {
             <button
               type="button"
               onClick={handleInstallAppClick}
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-blue-400 hover:bg-slate-800 transition cursor-pointer"
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
               title="Install Progressive Web App"
             >
               <Smartphone className="w-4.5 h-4.5" />
@@ -2247,7 +2247,7 @@ export default function App() {
                   setActiveTab('team');
                 }
               }}
-              className="w-9 h-9 rounded-lg bg-blue-600 text-white font-semibold text-xs flex items-center justify-center cursor-pointer shadow-xs hover:bg-blue-700 transition-colors"
+              className="w-8 h-8 rounded-md bg-neutral-800 text-neutral-200 border border-neutral-700 font-medium text-xs flex items-center justify-center cursor-pointer hover:bg-neutral-700 transition-colors"
               title={`${panelUser.name} (${panelUser.role})${panelUser.assigned_wing ? ` • Wing: ${panelUser.assigned_wing}` : ''}`}
             >
               {(panelUser.name || 'U').charAt(0).toUpperCase()}
@@ -2265,17 +2265,12 @@ export default function App() {
         <div className="space-y-4">
           {/* Sub-Drawer Header with Collapse Button */}
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <div className="min-w-0">
-              <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
-                {hubConfig[activeHub]?.title || 'Workspace'}
-              </span>
-              <span className="text-[10px] text-slate-400 font-medium block truncate">
-                {hubConfig[activeHub]?.subtitle || t.appName}
-              </span>
-            </div>
+            <span className="text-xs font-bold text-slate-900 block truncate">
+              {hubConfig[activeHub]?.title || 'Workspace'}
+            </span>
             <button
               onClick={() => setSidebarCollapsed(true)}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               title="Collapse sub-panel"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -2284,14 +2279,14 @@ export default function App() {
 
           {/* Location Selector (Compact) */}
           <div>
-            <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5 flex items-center justify-between">
-              <span>{'Business Profile'}</span>
-              <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-mono font-bold">{locations.length}</span>
+            <div className="text-xs font-semibold text-slate-600 mb-1 flex items-center justify-between">
+              <span>Business profile</span>
+              <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-bold">{locations.length}</span>
             </div>
             <select 
               value={activeLoc ? (activeLoc.v4Name || activeLoc.name) : (selectedLocation || '')}
               onChange={(e) => handleLocationChange(e.target.value)}
-              className="w-full text-xs font-semibold bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-blue-500 cursor-pointer transition-colors"
+              className="w-full text-xs font-medium bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg p-2 text-slate-900 outline-none focus:border-indigo-600 cursor-pointer transition-colors shadow-2xs"
             >
               {locations.length === 0 ? (
                 <option value="">{authStatus ? ('No locations found') : ('Connect Google')}</option>
@@ -2308,32 +2303,16 @@ export default function App() {
             </select>
           </div>
 
-          {/* Active Location Info Snippet */}
-          {activeLoc && (activeLoc as any).categories?.primaryCategory?.displayName && (
-            <div className="p-2.5 bg-blue-50/50 border border-blue-100 rounded-lg text-[11px] text-slate-700 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-blue-900 truncate">
-                <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span className="truncate">{(activeLoc as any).categories.primaryCategory.displayName}</span>
-              </div>
-              {(activeLoc as any).storefrontAddress?.locality && (
-                <div className="text-[10px] text-slate-500 truncate flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                  <span className="truncate">{(activeLoc as any).storefrontAddress.locality}</span>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Context Sub-Items Navigation */}
-          <nav className="space-y-1 pt-1">
+          <nav className="space-y-0.5 pt-1">
             {hubConfig[activeHub]?.items.map(item => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
                   activeTab === item.id 
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs font-bold' 
-                    : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 font-medium'
+                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold shadow-2xs' 
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
                 }`}
               >
                 <span className="flex items-center gap-2 truncate">
@@ -2341,8 +2320,8 @@ export default function App() {
                   <span className="truncate">{item.label}</span>
                 </span>
                 {item.badge !== undefined && (
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
-                    typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 tabular-nums font-bold ${
+                    typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-700 border border-indigo-200'
                   }`}>
                     {item.badge}
                   </span>
@@ -2353,29 +2332,13 @@ export default function App() {
         </div>
 
         {/* Footer Channel Status & Google Auth */}
-        <div className="mt-auto space-y-2.5 pt-3 border-t border-slate-100 text-xs">
-          {/* Quick Channels Health Indicator */}
-          <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5 text-[11px]">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Connected Channels</span>
-            <div className="flex items-center justify-between text-slate-700">
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Google Business</span>
-              <span className="text-[10px] font-mono text-slate-400">Live</span>
-            </div>
-            <div className="flex items-center justify-between text-slate-700">
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Meta / Facebook</span>
-              <span className="text-[10px] font-mono text-slate-400">Sync</span>
-            </div>
-            <div className="flex items-center justify-between text-slate-700">
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-500"></span> Web Support Chat</span>
-              <span className="text-[10px] font-mono text-slate-400">Ready</span>
-            </div>
-          </div>
+        <div className="mt-auto space-y-2.5 pt-3 border-t border-slate-200 text-xs">
 
           {panelUser?.role === 'admin' ? (
             authStatus ? (
               <button 
                 onClick={handleLogout} 
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                 title={t.disconnect}
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -2384,7 +2347,7 @@ export default function App() {
             ) : (
               <button
                 onClick={handleConnect}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-2"
                 title={t.connectGoogle}
               >
                 <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5 invert brightness-200" alt="" />
@@ -2392,9 +2355,9 @@ export default function App() {
               </button>
             )
           ) : (
-            <div className="p-2 bg-slate-50 border border-slate-200/80 rounded-lg text-[10px] text-slate-500 text-center">
-              <span className="font-semibold text-slate-700 block truncate">{panelUser?.name}</span>
-              <span className="text-[9px] text-emerald-600 font-medium">● Connected via Admin</span>
+            <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-500 text-center shadow-2xs">
+              <span className="font-bold text-slate-900 block truncate">{panelUser?.name}</span>
+              <span className="text-[10px] text-emerald-700 font-semibold">Connected via admin</span>
             </div>
           )}
         </div>
@@ -2420,7 +2383,7 @@ export default function App() {
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">G</div>
+                  <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center text-white font-bold">G</div>
                   <span className="font-bold text-slate-800 text-base">{t.appName}</span>
                 </div>
                 <button 
@@ -2503,7 +2466,7 @@ export default function App() {
                           }}
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
                             activeTab === item.id 
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs font-bold' 
+                              ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-bold' 
                               : 'text-slate-800 hover:bg-slate-100 font-medium'
                           }`}
                         >
@@ -2513,7 +2476,7 @@ export default function App() {
                           </div>
                           {item.badge !== undefined && (
                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
-                              typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'
+                              typeof item.badge === 'number' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-700'
                             }`}>
                               {item.badge}
                             </span>
@@ -2535,8 +2498,8 @@ export default function App() {
                       <div className="text-xs font-bold text-slate-800 truncate leading-tight">
                         {panelUser.name}
                       </div>
-                      <div className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
-                        <span className={`w-1.5 h-1.5 rounded-full ${panelUser.role === 'admin' ? 'bg-purple-500' : 'bg-blue-500'}`} />
+                      <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                        <span className={`w-1.5 h-1.5 rounded-full ${panelUser.role === 'admin' ? 'bg-purple-500' : 'bg-indigo-500'}`} />
                         <span className="capitalize">{panelUser.role}</span>
                       </div>
                     </div>
@@ -2573,15 +2536,15 @@ export default function App() {
       {/* Main Content Area */}
       <main onScroll={handleMainScroll} className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto sidebar-scroll pb-20 md:pb-8">
         {/* Sticky Header with Hamburger - Smoothly auto-hides on scroll down */}
-        <header className={`h-13 sm:h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-8 text-sm shrink-0 sticky top-0 z-30 shadow-2xs flex-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
+        <header className={`h-14 sm:h-16 bg-white/95 backdrop-blur-sm border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 md:px-8 text-sm shrink-0 sticky top-0 z-30 flex-nowrap overflow-hidden transition-transform duration-200 ease-in-out ${
           headerVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
         }`}>
           {/* Left section: Hamburger menu & Profile info (Strictly Single Line) */}
-          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-nowrap">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-nowrap">
             {/* Hamburger on Mobile */}
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden w-8 h-8 flex items-center justify-center -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-lg focus:outline-none transition-colors cursor-pointer shrink-0"
+              className="md:hidden w-8 h-8 flex items-center justify-center -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg focus:outline-none transition-colors cursor-pointer shrink-0"
               aria-label="Open Navigation Menu"
             >
               <Menu className="w-5 h-5" />
@@ -2591,10 +2554,10 @@ export default function App() {
             {sidebarCollapsed && (
               <button 
                 onClick={() => setSidebarCollapsed(false)}
-                className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0"
+                className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-2xs"
                 title="Expand Navigation Drawer"
               >
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                <ChevronRight className="w-3.5 h-3.5 text-indigo-600" />
                 <span className="capitalize">{activeHub}</span>
               </button>
             )}
@@ -2606,24 +2569,21 @@ export default function App() {
                   setMobileMenuOpen(true);
                 }
               }}
-              className="flex items-center gap-1.5 sm:gap-2 min-w-0 cursor-pointer md:cursor-default group p-1 -m-1 rounded-lg hover:bg-slate-50 md:hover:bg-transparent transition-colors flex-nowrap"
+              className="flex items-center gap-2 min-w-0 cursor-pointer md:cursor-default group p-1 -m-1 rounded-lg hover:bg-slate-50 md:hover:bg-transparent transition-colors flex-nowrap"
               title={'Tap to switch location'}
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600 shadow-2xs">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center shrink-0 text-indigo-600 shadow-2xs">
                 <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
 
-              <div className="flex items-center gap-1.5 min-w-0 flex-nowrap">
-                <span className="font-bold text-slate-800 text-xs sm:text-sm truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[240px] md:max-w-[320px] whitespace-nowrap">
+              <div className="flex items-center gap-2 min-w-0 flex-nowrap">
+                <span className="font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[240px] md:max-w-[320px] whitespace-nowrap">
                   {activeLoc?.title || (authStatus ? ('No Location') : ('Connect Account'))}
                 </span>
                 
-                {/* Live pulsing dot right next to title */}
+                {/* Live solid dot right next to title */}
                 {activeLoc && (
-                  <span className="relative flex h-2 w-2 shrink-0" title="Profile Live">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Profile connected" />
                 )}
 
                 {/* Subtle chevron on mobile */}
@@ -2631,7 +2591,7 @@ export default function App() {
                 
                 {/* Live Status badge on desktop */}
                 {activeLoc && (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">
+                  <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0 shadow-2xs">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live
                   </span>
                 )}
@@ -2640,27 +2600,27 @@ export default function App() {
           </div>
 
           {/* Right section: Header action buttons (Single Line & Uniform Height) */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0 flex-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap">
             {/* Gemini AI Enable / Disable Header Toggle Button */}
             <button
               onClick={toggleGeminiAi}
               disabled={togglingAi}
-              className={`h-8 sm:h-9 px-2 sm:px-2.5 border rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`h-8 sm:h-9 px-2.5 sm:px-3 border rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-2xs ${
                 geminiEnabled
-                  ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-800'
-                  : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-600'
+                  ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                  : 'bg-slate-100 border-slate-300 text-slate-600'
               }`}
               title={geminiEnabled 
                 ? ('Gemini AI Active - Click to Disable') 
                 : ('Gemini AI Disabled - Click to Enable')}
             >
-              <Sparkles className={`w-3.5 h-3.5 ${geminiEnabled ? 'text-emerald-600 fill-emerald-100' : 'text-slate-400'}`} />
+              <Sparkles className={`w-3.5 h-3.5 ${geminiEnabled ? 'text-indigo-600' : 'text-slate-400'}`} />
               <span className="hidden sm:inline">
                 {geminiEnabled 
-                  ? ('AI: On') 
-                  : ('AI: Off')}
+                  ? ('AI on') 
+                  : ('AI off')}
               </span>
-              <span className={`w-2 h-2 rounded-full ${geminiEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${geminiEnabled ? 'bg-indigo-600' : 'bg-slate-400'}`} />
             </button>
 
             {/* Refresh Button with feedback */}
@@ -2678,15 +2638,15 @@ export default function App() {
                 }
               }}
               disabled={isRefreshing}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 text-slate-500 hover:text-blue-600 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer"
               title={'Live Refresh from Google API'}
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-indigo-600' : ''}`} />
             </button>
 
-            {/* Panel User Pill & Sign Out (Hidden on mobile < 640px to prevent header squish/wrapping; available in mobile drawer) */}
+            {/* Panel User Pill & Sign Out */}
             {panelUser && (
-              <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200">
+              <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-neutral-200">
                 <button
                   type="button"
                   onClick={() => {
@@ -2694,26 +2654,22 @@ export default function App() {
                       setActiveTab('team');
                     }
                   }}
-                  className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 ${
+                  className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 ${
                     panelUser?.role === 'admin' ? 'cursor-pointer' : 'cursor-default'
                   } ${
                     activeTab === 'team'
-                      ? 'bg-indigo-50 border border-indigo-300 text-indigo-700 shadow-xs'
-                      : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
+                      ? 'bg-indigo-50 border border-indigo-200 text-indigo-700'
+                      : 'bg-white hover:bg-neutral-50 border border-neutral-200 text-neutral-700'
                   }`}
                   title={panelUser.role === 'admin' ? `Logged in as ${panelUser.name} (Admin). Click to manage team.` : `Logged in as ${panelUser.name} (${panelUser.role})${panelUser.assigned_wing ? ` • Wing: ${panelUser.assigned_wing}` : ''}`}
                 >
-                  <div className="w-5 h-5 rounded-md bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 rounded bg-indigo-600 text-white font-medium text-[10px] flex items-center justify-center shrink-0">
                     {(panelUser.name || 'U').charAt(0).toUpperCase()}
                   </div>
-                  <span className="hidden sm:inline font-bold truncate max-w-[90px]">
+                  <span className="hidden sm:inline font-normal truncate max-w-[90px]">
                     {panelUser.name}
                   </span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                    panelUser.role === 'admin' 
-                      ? 'bg-purple-100 text-purple-700 border border-purple-200' 
-                      : 'bg-blue-100 text-blue-700 border border-blue-200'
-                  }`}>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded capitalize text-slate-700 bg-slate-100 border border-slate-200 font-medium">
                     {panelUser.role}
                   </span>
                 </button>
@@ -2734,26 +2690,22 @@ export default function App() {
         {/* Content Container - Compact on Mobile, Spacious on Desktop */}
         <div className="p-2.5 sm:p-5 lg:p-6 space-y-3.5 sm:space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
           {!authStatus && (
-            <div className="card p-5 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                  Google Business Profile
-                </div>
-                <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-blue-400" />
-                  {'Connect Your Google Business Profile'}
+            <div className="p-5 sm:p-6 bg-slate-900 text-white rounded-xl border border-slate-800 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <span>Connect Your Google Business Profile</span>
                 </h3>
-                <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-                  {'Connect your official Google account to sync live reviews, replies, posts, operating hours, and services in real-time.'}
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                  Connect your official Google account to sync live reviews, replies, posts, operating hours, and services in real-time.
                 </p>
               </div>
               <button
                 onClick={handleConnect}
-                className="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-medium text-xs rounded-lg shadow-xs transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                className="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-semibold text-xs sm:text-sm rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
               >
                 <img src="https://www.google.com/favicon.ico" className="w-4 h-4 shrink-0" alt="" />
-                {'Connect with Google'}
+                <span>Connect with Google</span>
               </button>
             </div>
           )}
@@ -2769,7 +2721,7 @@ export default function App() {
               </p>
               <button
                 onClick={() => loadAllData()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm"
               >
                 {'Retry Live Sync'}
               </button>
@@ -2787,28 +2739,27 @@ export default function App() {
                     setReviewFilter('today');
                     setStarFilter(null);
                   }}
-                  className="card p-3 sm:p-5 border-l-4 border-l-blue-600 hover:shadow-md hover:border-l-blue-700 cursor-pointer transition-all group"
+                  className="card p-3 sm:p-5 hover:border-slate-300 cursor-pointer transition-all group"
                   title="Click to view today's reviews"
                 >
                   <div className="flex items-center justify-between gap-1 mb-1">
                     <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider truncate">
                       {"Reviews Today"}
                     </div>
-                    <span className="text-[10px] text-blue-600 group-hover:underline font-semibold flex items-center gap-0.5 shrink-0">
+                    <span className="text-[10px] text-indigo-600 group-hover:underline font-semibold flex items-center gap-0.5 shrink-0">
                       View <ChevronRight className="w-3 h-3" />
                     </span>
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-slate-800">{effectiveTodayCount}</div>
-                  <div className="text-[10px] sm:text-[11px] text-emerald-600 mt-2 font-semibold flex items-center gap-1 truncate">
-                    <TrendingUp className="w-3 h-3 shrink-0" />
-                    <span className="truncate">{effectiveTodayCount > 0 ? `+${effectiveTodayCount} today` : 'Live monitoring active'}</span>
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 mt-2 font-medium flex items-center gap-1 truncate">
+                    <TrendingUp className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span className="truncate">{effectiveTodayCount > 0 ? `+${effectiveTodayCount} today` : "Today's new reviews"}</span>
                   </div>
                 </div>
 
-                <div className="card p-3 sm:p-5 border-l-4 border-l-amber-500">
+                <div className="card p-3 sm:p-5 hover:border-slate-300 transition-all">
                   <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
                     <span className="truncate">{'Avg Rating'}</span>
-                    <span className="text-[8px] sm:text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-1.5 flex-wrap">
                     <span>{avgRating}</span>
@@ -2818,15 +2769,14 @@ export default function App() {
                       ))}
                     </div>
                   </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-medium truncate">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 mt-2 font-medium truncate">
                     {`Total ${totalRatingsCount} ratings`}
                   </div>
                 </div>
 
-                <div className="card p-3 sm:p-5 border-l-4 border-l-emerald-500">
+                <div className="card p-3 sm:p-5 hover:border-slate-300 transition-all">
                   <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
                     <span className="truncate">{'Response Rate'}</span>
-                    <span className="text-[8px] sm:text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-slate-800">{responseRate}%</div>
                   <div className="text-[10px] sm:text-[11px] text-slate-500 mt-2 font-medium truncate">
@@ -2834,13 +2784,12 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="card p-3 sm:p-5 border-l-4 border-l-indigo-500">
+                <div className="card p-3 sm:p-5 hover:border-slate-300 transition-all">
                   <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 flex items-center justify-between gap-1">
                     <span className="truncate">{'Posts & Services'}</span>
-                    <span className="text-[8px] sm:text-[9px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">All-Time</span>
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-slate-800">{posts.length + services.length}</div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-medium truncate">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 mt-2 font-medium truncate">
                     {`${posts.length} posts, ${services.length} services`}
                   </div>
                 </div>
@@ -2876,7 +2825,7 @@ export default function App() {
                   </button>
                   <button 
                     onClick={() => setActiveTab('whatsappReport')}
-                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg shadow-2xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <MessageCircle className="w-4 h-4 shrink-0" />
                     <span>WhatsApp Report</span>
@@ -2916,14 +2865,14 @@ export default function App() {
                       <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
                         <div>
                           <h4 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                            <TrendingUp className="w-4 h-4 text-blue-600" />
+                            <TrendingUp className="w-4 h-4 text-indigo-600" />
                             Last 7 Days Velocity & Inflow
                           </h4>
                           <p className="text-xs text-slate-500 mt-0.5">Day-by-day customer review volume and Google sync</p>
                         </div>
                         
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-md border border-blue-200 shadow-2xs whitespace-nowrap">
+                          <span className="text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold rounded-md border border-indigo-200 shadow-2xs whitespace-nowrap">
                             +{total7d} Total
                           </span>
                           <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 font-medium rounded-md whitespace-nowrap">
@@ -2955,7 +2904,7 @@ export default function App() {
                                 {/* Review Count Badge on top of Bar */}
                                 <span className={`text-[10px] mb-1 font-bold transition-all ${
                                   isPeak 
-                                    ? 'text-blue-700 scale-105' 
+                                    ? 'text-indigo-700 scale-105' 
                                     : item.total > 0 
                                     ? 'text-slate-700' 
                                     : 'text-slate-300 font-normal'
@@ -2968,11 +2917,11 @@ export default function App() {
                                   <div
                                     className={`w-full rounded-t-md transition-all duration-300 ${
                                       isToday
-                                        ? 'bg-blue-600'
+                                        ? 'bg-indigo-600'
                                         : isPeak
-                                        ? 'bg-blue-500'
+                                        ? 'bg-indigo-500'
                                         : item.total > 0
-                                        ? 'bg-slate-400 group-hover:bg-blue-400'
+                                        ? 'bg-slate-400 group-hover:bg-indigo-400'
                                         : 'bg-slate-200'
                                     }`}
                                     style={{ height: `${heightPct}%` }}
@@ -2981,7 +2930,7 @@ export default function App() {
 
                                 {/* Day Name */}
                                 <span className={`text-[11px] mt-2 font-medium transition-colors ${
-                                  isToday ? 'font-bold text-blue-700' : 'text-slate-500 group-hover:text-slate-900'
+                                  isToday ? 'font-bold text-indigo-700' : 'text-slate-500 group-hover:text-slate-900'
                                 }`}>
                                   {item.dayName.slice(0, 3)}
                                 </span>
@@ -2998,8 +2947,8 @@ export default function App() {
 
                       {/* Velocity Quality Score & Monthly Run-rate */}
                       <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-                        <div className="p-2.5 bg-blue-50/60 rounded-md border border-blue-100/80">
-                          <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider block">7-Day Quality Score</span>
+                        <div className="p-2.5 bg-indigo-50/60 rounded-md border border-indigo-100/80">
+                          <span className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">7-Day Quality Score</span>
                           <span className="font-bold text-slate-800 text-xs">{fiveStar7d} of {total7d} are 5★ ({fiveStarPct}%)</span>
                         </div>
                         <div className="p-2.5 bg-emerald-50/60 rounded-md border border-emerald-100/80">
@@ -3018,7 +2967,7 @@ export default function App() {
                               : 'Steady weekly velocity'}
                           </span>
                         </div>
-                        <span className="text-blue-600 font-semibold shrink-0">Live Google Sync</span>
+                        <span className="text-indigo-600 font-semibold shrink-0">Live Google Sync</span>
                       </div>
                     </div>
                   );
@@ -3055,7 +3004,7 @@ export default function App() {
                     <h3 className="font-bold text-slate-800 text-sm">
                       {'Recent Reviews & Owner Replies'}
                     </h3>
-                    <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold px-2 py-0.5 rounded-full">
                       {totalRatingsCount || allTimeTotalReviews || reviews.length} {'All-Time'}
                     </span>
                     {effectiveTodayCount > 0 && (
@@ -3075,7 +3024,7 @@ export default function App() {
                   </div>
                   <button 
                     onClick={() => setActiveTab('reviews')}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 cursor-pointer"
                   >
                     {'View All'} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -3110,7 +3059,7 @@ export default function App() {
                                     referrerPolicy="no-referrer"
                                   />
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs flex items-center justify-center shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-xs flex items-center justify-center shrink-0">
                                     {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
                                   </div>
                                 )}
@@ -3247,7 +3196,7 @@ export default function App() {
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button 
                     onClick={handleDownloadCsv}
-                    className="flex-1 sm:flex-initial px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    className="flex-1 sm:flex-initial px-3 py-2 bg-white border border-neutral-200 hover:bg-neutral-50 text-neutral-700 rounded-lg text-xs font-normal flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition-colors"
                   >
                     <Download className="w-3.5 h-3.5 shrink-0" />
                     <span>CSV</span>
@@ -3255,22 +3204,22 @@ export default function App() {
 
                   <button 
                     onClick={() => setActiveTab('autoreply')}
-                    className="flex-1 sm:flex-initial px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                    className="flex-1 sm:flex-initial px-3 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition-colors"
                   >
                     <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                    <span>Auto-Reply</span>
+                    <span>Auto-reply</span>
                   </button>
                 </div>
               </div>
 
               {/* Segmented Filter Control */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg overflow-x-auto text-xs font-medium">
+              <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-lg overflow-x-auto text-xs font-normal">
                 {[
-                  { id: 'all', label: `${'All'} (${totalRatingsCount || allTimeTotalReviews || reviews.length})` },
-                  { id: 'today', label: `${'Today'} (${effectiveTodayCount})` },
-                  { id: 'unreplied', label: `${'Pending'} (${pendingReviews.length})` },
-                  { id: 'replied', label: `${'Replied'} (${repliedReviews.length})` },
-                  { id: 'critical', label: 'Critical (1-3★)' }
+                  { id: 'all', label: `All (${totalRatingsCount || allTimeTotalReviews || reviews.length})` },
+                  { id: 'today', label: `Today (${effectiveTodayCount})` },
+                  { id: 'unreplied', label: `Pending (${pendingReviews.length})` },
+                  { id: 'replied', label: `Replied (${repliedReviews.length})` },
+                  { id: 'critical', label: 'Critical (1-3)' }
                 ].map(f => (
                   <button
                     key={f.id}
@@ -3278,8 +3227,8 @@ export default function App() {
                       setReviewFilter(f.id as any);
                       if (f.id === 'today') setStarFilter(null);
                     }}
-                    className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 ${
-                      reviewFilter === f.id ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900'
+                    className={`px-3 py-1.5 rounded-md transition-colors whitespace-nowrap shrink-0 tabular-nums ${
+                      reviewFilter === f.id ? 'bg-white text-neutral-900 border border-neutral-200/80 font-medium' : 'text-neutral-600 hover:text-neutral-900'
                     }`}
                   >
                     {f.label}
@@ -3290,12 +3239,12 @@ export default function App() {
               {/* Review Cards */}
               <div className="space-y-4">
                 {displayedReviews.length === 0 ? (
-                  <div className="card p-12 text-center text-slate-400 space-y-3">
-                    <MessageSquare className="w-10 h-10 mx-auto text-slate-300" />
-                    <h3 className="text-sm font-semibold text-slate-600">
+                  <div className="card p-12 text-center text-neutral-400 space-y-3">
+                    <MessageSquare className="w-10 h-10 mx-auto text-neutral-300" />
+                    <h3 className="text-sm font-medium text-neutral-700">
                       {'No reviews found'}
                     </h3>
-                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    <p className="text-xs text-neutral-500 max-w-sm mx-auto">
                       {'No live Google reviews found matching this filter for the selected location.'}
                     </p>
                   </div>
@@ -3305,51 +3254,51 @@ export default function App() {
                     const hasReply = !!rev.reviewReply?.comment;
 
                     return (
-                      <div key={rev.reviewId} className="card p-5 space-y-4 transition-all hover:shadow-md">
+                      <div key={rev.reviewId} className="card p-5 space-y-3">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                           <div className="flex items-start gap-3">
                             {rev.reviewer.profilePhotoUrl ? (
                               <img 
                                 src={rev.reviewer.profilePhotoUrl} 
-                                className="w-10 h-10 rounded-full border border-slate-200 mt-0.5 shrink-0"
+                                className="w-9 h-9 rounded-full border border-neutral-200 mt-0.5 shrink-0"
                                 alt=""
                                 referrerPolicy="no-referrer"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium text-sm flex items-center justify-center mt-0.5 shrink-0">
+                              <div className="w-9 h-9 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200 font-medium text-xs flex items-center justify-center mt-0.5 shrink-0">
                                 {(rev.reviewer.displayName || 'G').charAt(0).toUpperCase()}
                               </div>
                             )}
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-sm text-slate-800">{rev.reviewer.displayName}</h4>
+                              <h4 className="font-medium text-sm text-neutral-900">{rev.reviewer.displayName}</h4>
                               {isToday(rev.createTime) && (
-                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
-                                  TODAY
+                                <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium px-1.5 py-0.2 rounded">
+                                  Today
                                 </span>
                               )}
-                              <span className="text-xs text-slate-500 font-medium">
+                              <span className="text-xs text-neutral-500 font-normal">
                                 {formatReviewTimestamp(rev.createTime)}
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-1 mt-1 text-amber-400">
+                            <div className="flex items-center gap-1 mt-1 text-amber-500">
                               {[1,2,3,4,5].map(i => (
-                                <Star key={i} className={`w-3.5 h-3.5 ${i <= stars ? 'fill-amber-400' : 'text-slate-200'}`} />
+                                <Star key={i} className={`w-3.5 h-3.5 ${i <= stars ? 'fill-amber-400 text-amber-400' : 'text-neutral-200'}`} />
                               ))}
-                              <span className="text-xs font-semibold text-slate-600 ml-1">{stars} / 5</span>
+                              <span className="text-xs font-normal text-neutral-600 ml-1 tabular-nums">{stars} / 5</span>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-1.5 self-start sm:self-auto flex-wrap shrink-0">
                           {hasReply ? (
-                            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
+                            <span className="text-xs font-normal text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
                               <CheckCheck className="w-3.5 h-3.5 shrink-0" /> <span className="whitespace-nowrap">{'Replied'}</span>
                             </span>
                           ) : (
-                            <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1 whitespace-nowrap shrink-0">
-                              <Clock className="w-3.5 h-3.5 shrink-0" /> <span className="whitespace-nowrap">{'Pending Reply'}</span>
+                            <span className="text-xs font-normal text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+                              <Clock className="w-3.5 h-3.5 shrink-0" /> <span className="whitespace-nowrap">{'Pending reply'}</span>
                             </span>
                           )}
 
@@ -3358,16 +3307,16 @@ export default function App() {
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, true)}
-                                className="px-2.5 py-1 text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                                className="px-2.5 py-1 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                                 title="Draft instant response with Gemini AI"
                               >
                                 <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                                <span className="whitespace-nowrap">{'AI Reply'}</span>
+                                <span className="whitespace-nowrap">{'AI reply'}</span>
                               </button>
                               <button 
                                 type="button"
                                 onClick={() => handleOpenReplyModal(rev, false)}
-                                className="px-2.5 py-1 text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-slate-200 whitespace-nowrap shrink-0"
+                                className="px-2.5 py-1 text-xs font-normal bg-white hover:bg-neutral-50 text-neutral-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer border border-neutral-200 whitespace-nowrap shrink-0"
                                 title="Open reply modal"
                               >
                                 <Edit3 className="w-3.5 h-3.5 shrink-0" />
@@ -3378,7 +3327,7 @@ export default function App() {
                             <button 
                               type="button"
                               onClick={() => handleOpenReplyModal(rev, false)}
-                              className="px-3 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                              className="px-2.5 py-1 text-xs font-normal bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0 border border-neutral-200"
                             >
                               <Edit3 className="w-3.5 h-3.5 shrink-0" />
                               <span className="whitespace-nowrap">{'Edit'}</span>
@@ -3388,8 +3337,8 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => handlePurgeReview(rev.reviewId)}
-                            className="p-1 text-slate-300 hover:text-red-500 rounded transition-colors ml-0.5"
-                            title="अगर यह रिव्यू Google पर डिलीट हो चुका है तो सिस्टम से हटाएं"
+                            className="p-1 text-neutral-400 hover:text-red-500 rounded transition-colors ml-0.5"
+                            title="Remove cached review"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -3397,27 +3346,27 @@ export default function App() {
                       </div>
 
                       {/* Review Text */}
-                      <div className="bg-slate-50/70 p-3 rounded-lg border border-slate-100 text-xs text-slate-700 leading-relaxed">
-                        {rev.comment || <span className="text-slate-400 italic">User left a rating without written feedback.</span>}
+                      <div className="bg-neutral-50 p-3 rounded-lg border border-neutral-200/80 text-xs text-neutral-700 leading-relaxed">
+                        {rev.comment || <span className="text-neutral-400 italic">User left a rating without written feedback.</span>}
                       </div>
 
                       {/* Reply Box */}
                       {hasReply && (
-                        <div className="p-3.5 bg-blue-50/50 border border-blue-200/80 rounded-lg space-y-1 text-xs">
-                          <div className="flex items-center justify-between text-[11px] font-bold text-blue-900">
+                        <div className="p-3.5 bg-neutral-50 border border-neutral-200/80 rounded-lg space-y-1 text-xs">
+                          <div className="flex items-center justify-between text-xs font-medium text-neutral-900">
                             <span className="flex items-center gap-1.5">
-                              <Building2 className="w-3.5 h-3.5 text-blue-600" />
-                              Official Owner Response (Published on Google)
+                              <Building2 className="w-3.5 h-3.5 text-indigo-700" />
+                              Official merchant response
                             </span>
                             <button 
                               onClick={() => handleDeleteReply(rev.reviewId, rev.name)}
-                              className="text-red-500 hover:text-red-700 p-1"
+                              className="text-neutral-400 hover:text-red-600 p-1"
                               title="Delete reply"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          <p className="text-slate-800 font-medium">"{rev.reviewReply!.comment}"</p>
+                          <p className="text-neutral-700 font-normal">"{rev.reviewReply!.comment}"</p>
                         </div>
                       )}
                     </div>
@@ -3456,12 +3405,12 @@ export default function App() {
               {/* Gemini AI Global Enable/Disable Compact Bar */}
               <div className={`card p-2.5 sm:p-3 border flex items-center justify-between gap-2.5 transition-all ${
                 geminiEnabled 
-                  ? 'bg-blue-50/50 border-blue-200' 
+                  ? 'bg-indigo-50/50 border-indigo-200' 
                   : 'bg-slate-50 border-slate-200'
               }`}>
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className={`p-1.5 rounded-md flex items-center justify-center shrink-0 ${
-                    geminiEnabled ? 'bg-blue-600 text-white shadow-2xs' : 'bg-slate-200 text-slate-500'
+                    geminiEnabled ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-slate-200 text-slate-500'
                   }`}>
                     <Sparkles className="w-4 h-4" />
                   </div>
@@ -3509,7 +3458,7 @@ export default function App() {
 
               <div className="card p-2.5 sm:p-3 border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Bot className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Bot className="w-4 h-4 text-indigo-600 shrink-0" />
                   <h2 className="text-xs sm:text-sm font-bold text-slate-800 shrink-0">{t.autoReply}:</h2>
                   {activeLoc && (
                     <span className="text-[11px] sm:text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold px-2 py-0.5 rounded-md truncate max-w-[180px] sm:max-w-xs">
@@ -3526,7 +3475,7 @@ export default function App() {
                         value={activeLoc ? (activeLoc.v4Name || activeLoc.name) : (selectedLocation || '')}
                         onChange={(e) => handleLocationChange(e.target.value)}
                         aria-label="Select Profile"
-                        className="w-full sm:w-auto text-[11px] sm:text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-md py-1.5 px-1.5 sm:px-2.5 text-slate-700 outline-none focus:border-blue-500 cursor-pointer truncate"
+                        className="w-full sm:w-auto text-[11px] sm:text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-md py-1.5 px-1.5 sm:px-2.5 text-slate-700 outline-none focus:border-indigo-600 cursor-pointer truncate"
                       >
                         {locations.map(loc => {
                           const val = loc.v4Name || loc.name;
@@ -3544,7 +3493,7 @@ export default function App() {
                   <button 
                     onClick={handleAutoReplyAllPending}
                     disabled={autoReplyingAll || pendingReviews.length === 0}
-                    className="w-full sm:w-auto px-1.5 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 shadow-xs whitespace-nowrap cursor-pointer truncate"
+                    className="w-full sm:w-auto px-1.5 sm:px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 shadow-xs whitespace-nowrap cursor-pointer truncate"
                     title="Auto-reply to all pending reviews on this specific profile"
                   >
                     {autoReplyingAll ? <RefreshCw className="w-3 h-3 shrink-0 animate-spin" /> : <Bot className="w-3.5 h-3.5 shrink-0" />}
@@ -3573,14 +3522,14 @@ export default function App() {
               </div>
 
               {autoReplyProgress && (
-                <div className="card p-4 bg-blue-50 border-blue-200 space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-blue-900">
+                <div className="card p-4 bg-indigo-50 border-indigo-200 space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-indigo-900">
                     <span>Sending AI-crafted replies...</span>
                     <span>{autoReplyProgress.current} / {autoReplyProgress.total}</span>
                   </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-indigo-200 rounded-full h-2 overflow-hidden">
                     <div 
-                      className="bg-blue-600 h-full rounded-full transition-all duration-300"
+                      className="bg-indigo-600 h-full rounded-full transition-all duration-300"
                       style={{ width: `${(autoReplyProgress.current / autoReplyProgress.total) * 100}%` }}
                     />
                   </div>
@@ -3606,7 +3555,7 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <h2 className="text-xl font-bold text-slate-800">{t.profilePosts}</h2>
                       {posts.length > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-200">
+                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
                           {posts.length} {postsNextPageToken ? '(Latest 6)' : ''}
                         </span>
                       )}
@@ -3630,7 +3579,7 @@ export default function App() {
 
                   <button 
                     onClick={() => setShowNewPostModal(true)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm"
                   >
                     <Plus className="w-4 h-4" />
                     {'Create Google Post'}
@@ -3640,7 +3589,7 @@ export default function App() {
 
               {loadingPosts && posts.length === 0 ? (
                 <div className="card p-12 text-center text-slate-400 space-y-3">
-                  <RefreshCw className="w-8 h-8 mx-auto text-blue-500 animate-spin" />
+                  <RefreshCw className="w-8 h-8 mx-auto text-indigo-600 animate-spin" />
                   <h3 className="text-sm font-bold text-slate-600">
                     {'Loading latest 6 posts from Google...'}
                   </h3>
@@ -3698,7 +3647,7 @@ export default function App() {
                         </span>
 
                         {post.mediaFormat === 'VIDEO' && (
-                          <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded shadow bg-blue-600/90 text-white uppercase tracking-wider backdrop-blur-sm flex items-center gap-1">
+                          <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded shadow bg-indigo-600/90 text-white uppercase tracking-wider backdrop-blur-sm flex items-center gap-1">
                             <Video className="w-3 h-3" /> Video
                           </span>
                         )}
@@ -3708,7 +3657,7 @@ export default function App() {
                     <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-[11px] text-slate-400">
-                          <span className="flex items-center gap-1 font-mono">
+                          <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {new Date(post.createTime).toLocaleDateString()}
                           </span>
@@ -3722,7 +3671,7 @@ export default function App() {
                         </p>
 
                         {post.offer?.couponCode && (
-                          <div className="p-2 bg-amber-50 border border-amber-200 rounded text-xs font-mono font-bold text-amber-900 flex items-center justify-between">
+                          <div className="p-2 bg-amber-50 border border-amber-200 rounded text-xs font-bold text-amber-900 flex items-center justify-between">
                             <span>Coupon: {post.offer.couponCode}</span>
                             <Tag className="w-3.5 h-3.5 text-amber-700" />
                           </div>
@@ -3737,8 +3686,8 @@ export default function App() {
                             <a 
                               href={post.callToAction.url} 
                               target="_blank" 
-                              rel="noreferrer"
-                              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50 px-2.5 py-1 rounded-md"
+                              rel="noreferrer" 
+                              className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-md"
                             >
                               {post.callToAction.actionType}
                               <ArrowUpRight className="w-3 h-3" />
@@ -3785,11 +3734,11 @@ export default function App() {
                     type="button"
                     onClick={handleLoadMorePosts}
                     disabled={loadingMorePosts}
-                    className="px-6 py-2.5 bg-white border border-slate-300 hover:border-blue-500 hover:bg-blue-50/50 hover:text-blue-600 text-slate-700 font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-6 py-2.5 bg-white border border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/50 hover:text-indigo-600 text-slate-700 font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {loadingMorePosts ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin text-blue-600" />
+                        <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
                         <span>{'Loading next 6 posts from Google...'}</span>
                       </>
                     ) : (
@@ -3826,7 +3775,7 @@ export default function App() {
 
                 <button 
                   onClick={() => setShowAddServiceModal(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm self-start sm:self-auto"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm self-start sm:self-auto cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   {'Add Service'}
@@ -3846,17 +3795,17 @@ export default function App() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   {services.map((srv) => (
-                  <div key={srv.id} className="card p-5 space-y-3 hover:shadow-md transition-shadow">
+                  <div key={srv.id} className="card p-5 space-y-3 hover:border-slate-300 transition-colors">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
                           {srv.category}
                         </span>
                         <h4 className="font-bold text-slate-800 text-sm mt-1">{srv.name}</h4>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold bg-slate-100 text-slate-800 px-2 py-1 rounded">
+                        <span className="text-xs font-bold bg-slate-100 text-slate-800 px-2 py-1 rounded">
                           {srv.priceType === 'FREE' ? 'FREE' : `${srv.priceType === 'STARTING_AT' ? 'From ' : ''}₹${srv.price}`}
                         </span>
                         <button 
@@ -3904,7 +3853,7 @@ export default function App() {
 
                 {linkedSheet && (
                   <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 shadow-2xs shrink-0">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     Permanent Sheet Linked
                   </span>
                 )}
@@ -3912,7 +3861,7 @@ export default function App() {
 
               {loadingSheetInfo ? (
                 <div className="card p-8 text-center text-slate-400 space-y-2">
-                  <RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                  <RefreshCw className="w-6 h-6 animate-spin mx-auto text-indigo-600" />
                   <p className="text-xs">Checking connected Google Sheet...</p>
                 </div>
               ) : linkedSheet ? (
@@ -3933,7 +3882,7 @@ export default function App() {
                               Connected
                             </span>
                           </div>
-                          <p className="text-xs text-slate-500 mt-0.5 font-mono truncate">
+                          <p className="text-xs text-slate-500 mt-0.5 truncate">
                             ID: {linkedSheet.spreadsheetId}
                           </p>
                         </div>
@@ -3973,15 +3922,15 @@ export default function App() {
                     <button 
                       onClick={() => handleSyncToSheets(false)}
                       disabled={syncStatus === 'syncing'}
-                      className="p-5 bg-white border border-slate-200 hover:border-blue-500 rounded-xl text-left space-y-3 transition-all group shadow-2xs cursor-pointer w-full"
+                      className="p-5 bg-white border border-slate-200 hover:border-indigo-500 rounded-xl text-left space-y-3 transition-all group shadow-2xs cursor-pointer w-full"
                     >
-                      <div className="w-9 h-9 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <div className="w-9 h-9 rounded-md bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold">
                         <FileSpreadsheet className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-blue-600 flex items-center justify-between gap-1">
+                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-indigo-600 flex items-center justify-between gap-1">
                           <span>Export Reviews Log</span>
-                          <span className="text-[11px] font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Sync Now →</span>
+                          <span className="text-[11px] font-semibold text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Sync Now →</span>
                         </h4>
                         <p className="text-xs text-slate-500 mt-1">Pushes customer name, review ID, star rating, comment, date, and owner reply into <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">Reviews_Log</code>.</p>
                       </div>
@@ -4020,7 +3969,7 @@ export default function App() {
                     <div className="flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-100/80 px-2 py-0.5 rounded-md inline-block">
+                          <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md inline-block">
                             Recommended
                           </span>
                           <InfoTooltip 
@@ -4029,7 +3978,7 @@ export default function App() {
                           />
                         </div>
                         <h3 className="font-bold text-slate-800 text-xs sm:text-sm mt-1 flex items-center gap-1.5 truncate">
-                          <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                          <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
                           <span className="truncate">1-Click Auto-Create & Link Sheet</span>
                         </h3>
                       </div>
@@ -4039,7 +3988,7 @@ export default function App() {
                           type="button"
                           onClick={handleAutoCreateSheet}
                           disabled={autoCreatingSheet}
-                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
+                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
                         >
                           {autoCreatingSheet ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                           <span className="hidden xs:inline">{autoCreatingSheet ? 'Creating...' : 'Create & Link Sheet'}</span>
@@ -4084,7 +4033,7 @@ export default function App() {
                             placeholder="Paste Spreadsheet ID or full Google Sheet URL..." 
                             value={manualSheetInput}
                             onChange={(e) => setManualSheetInput(e.target.value)}
-                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs text-slate-700 focus:border-blue-500 outline-none font-mono shadow-2xs"
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs text-slate-700 focus:border-indigo-600 outline-none shadow-2xs"
                           />
                           <button
                             type="button"
@@ -4143,40 +4092,40 @@ export default function App() {
 
       {/* Modal: Reply to Review */}
       {replyingReview && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-6">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/30 backdrop-blur-sm flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-6">
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-xl card p-5 sm:p-6 space-y-4 shadow-xl my-auto"
+            className="w-full max-w-xl card p-5 sm:p-6 space-y-4 my-auto"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <div>
-                <h3 className="font-bold text-slate-800 text-sm">Reply to Google Review</h3>
-                <p className="text-slate-400 text-xs">Response publishes directly to your Google Business Profile.</p>
+                <h3 className="font-medium text-neutral-900 text-sm">Reply to Google review</h3>
+                <p className="text-neutral-500 text-xs">Response publishes directly to your Google Business Profile.</p>
               </div>
-              <button onClick={() => setReplyingReview(null)} className="text-slate-400 hover:text-slate-600 text-sm font-bold">✕</button>
+              <button onClick={() => setReplyingReview(null)} className="text-neutral-400 hover:text-neutral-700 text-sm">✕</button>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-lg space-y-1 text-xs">
+            <div className="p-3 bg-neutral-50 rounded-lg space-y-1 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-800">{replyingReview.reviewer.displayName}</span>
-                <span className="text-amber-500 font-bold">{parseRating(replyingReview.starRating)} ★</span>
+                <span className="font-medium text-neutral-900">{replyingReview.reviewer.displayName}</span>
+                <span className="text-amber-500 font-medium tabular-nums">{parseRating(replyingReview.starRating)} ★</span>
               </div>
-              <p className="text-slate-600 italic">"{replyingReview.comment || 'No text comment provided'}"</p>
+              <p className="text-neutral-600 italic">"{replyingReview.comment || 'No text comment provided'}"</p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-700">Your Response</label>
+                <label className="text-xs font-medium text-neutral-700">Your response</label>
                 <button
                   type="button"
                   onClick={() => handleGenerateAiReply(replyingReview)}
                   disabled={aiGeneratingReply}
-                  className="text-xs font-bold text-purple-700 hover:text-purple-800 flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2.5 py-1 rounded transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+                  className="text-xs font-normal text-indigo-700 hover:text-indigo-800 flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50 cursor-pointer"
                   title="Generate or polish reply with Gemini AI"
                 >
-                  <Sparkles className={`w-3.5 h-3.5 text-purple-600 ${aiGeneratingReply ? 'animate-spin' : ''}`} />
-                  {aiGeneratingReply ? 'Writing with Gemini...' : (replyText.trim() ? 'AI Rewrite Reply' : 'Generate Smart AI Reply')}
+                  <Sparkles className={`w-3.5 h-3.5 text-indigo-600 ${aiGeneratingReply ? 'animate-spin' : ''}`} />
+                  {aiGeneratingReply ? 'Writing with Gemini...' : (replyText.trim() ? 'AI rewrite reply' : 'Generate AI reply')}
                 </button>
               </div>
 
@@ -4184,22 +4133,22 @@ export default function App() {
                 rows={4}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your response to the customer or click Generate Smart AI Reply above..."
-                className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:border-blue-500 outline-none leading-relaxed"
+                placeholder="Type your response to the customer or click Generate AI reply above..."
+                className="w-full p-3 bg-white border border-neutral-300 rounded-lg text-xs text-neutral-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600/20 leading-relaxed transition-colors"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
               <button 
                 onClick={() => setReplyingReview(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+                className="px-3 py-1.5 text-xs font-normal text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSubmitReply}
                 disabled={sendingReply || !replyText.trim()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 {sendingReply ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 {sendingReply ? 'Publishing...' : 'Publish to Google'}
@@ -4219,7 +4168,7 @@ export default function App() {
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Megaphone className="w-4 h-4 text-blue-600" />
+                <Megaphone className="w-4 h-4 text-indigo-600" />
                 <h3 className="font-bold text-slate-800 text-sm">Create Google Business Post</h3>
               </div>
               <button 
@@ -4246,7 +4195,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setShowAddFbPage(prev => !prev)}
-                        className="text-[11px] bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold flex items-center gap-1 cursor-pointer transition-colors border border-blue-200"
+                        className="text-[11px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-bold flex items-center gap-1 cursor-pointer transition-colors border border-indigo-200"
                         title="Add and save a new Facebook page"
                       >
                         <Plus className="w-3 h-3" />
@@ -4267,8 +4216,8 @@ export default function App() {
 
                   {/* Inline Add New Facebook Page Form */}
                   {showAddFbPage && (
-                    <div className="p-2.5 bg-blue-50/80 border border-blue-200 rounded-lg space-y-2 text-xs">
-                      <div className="font-bold text-blue-800 text-[11px] flex items-center justify-between">
+                    <div className="p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-lg space-y-2 text-xs">
+                      <div className="font-bold text-indigo-900 text-[11px] flex items-center justify-between">
                         <span>Save New Facebook Page</span>
                         <button 
                           type="button" 
@@ -4284,14 +4233,14 @@ export default function App() {
                           value={newFbPageName}
                           onChange={(e) => setNewFbPageName(e.target.value)}
                           placeholder="Page Label (e.g. Coaching Sikar)"
-                          className="p-1.5 bg-white border border-blue-300 rounded text-[11px] outline-none"
+                          className="p-1.5 bg-white border border-indigo-300 rounded text-[11px] outline-none"
                         />
                         <input
                           type="text"
                           value={newFbPageUrl}
                           onChange={(e) => setNewFbPageUrl(e.target.value)}
                           placeholder="https://www.facebook.com/yourpage"
-                          className="p-1.5 bg-white border border-blue-300 rounded text-[11px] outline-none font-mono"
+                          className="p-1.5 bg-white border border-indigo-300 rounded text-[11px] outline-none"
                         />
                       </div>
                       <div className="flex justify-end gap-1.5">
@@ -4306,7 +4255,7 @@ export default function App() {
                           type="button"
                           onClick={handleAddFbPage}
                           disabled={!newFbPageUrl.trim()}
-                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded text-[11px] font-bold cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded text-[11px] font-bold cursor-pointer shadow-2xs"
                         >
                           Save & Load
                         </button>
@@ -4319,7 +4268,7 @@ export default function App() {
                     <select
                       value={fbPageUrl}
                       onChange={(e) => handleSelectFbPage(e.target.value)}
-                      className="w-24 sm:w-28 h-7 px-1.5 bg-slate-50 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 outline-none focus:border-blue-500 cursor-pointer truncate shrink-0"
+                      className="w-24 sm:w-28 h-7 px-1.5 bg-slate-50 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 outline-none focus:border-indigo-600 cursor-pointer truncate shrink-0"
                       title="Select saved Facebook page"
                     >
                       {savedFbPages.map(p => (
@@ -4334,7 +4283,7 @@ export default function App() {
                       value={tempFbPageInput}
                       onChange={(e) => setTempFbPageInput(e.target.value)}
                       placeholder="Paste FB page URL..."
-                      className="flex-1 min-w-0 h-7 px-2 bg-transparent text-[10px] text-slate-700 placeholder:text-slate-400 outline-none font-mono"
+                      className="flex-1 min-w-0 h-7 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-indigo-500"
                     />
 
                     {savedFbPages.length > 1 && (
@@ -4351,7 +4300,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => handleSelectFbPage(tempFbPageInput)}
-                      className="h-7 px-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold cursor-pointer whitespace-nowrap shadow-2xs shrink-0 flex items-center gap-1 transition-all"
+                      className="h-7 px-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold cursor-pointer whitespace-nowrap shadow-2xs shrink-0 flex items-center gap-1 transition-all"
                       title="Load Facebook Page Feed"
                     >
                       <RefreshCw className="w-2.5 h-2.5" />
@@ -4380,7 +4329,7 @@ export default function App() {
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200 space-y-2 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                         Post Content & Photo Extractor
                       </span>
                       <span className="text-[10px] text-slate-400">Copy text/image from feed above</span>
@@ -4390,7 +4339,7 @@ export default function App() {
                       value={fbPastedContent}
                       onChange={(e) => setFbPastedContent(e.target.value)}
                       placeholder="Paste post text, photo link, or embed code here..."
-                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-blue-500 resize-none font-sans"
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-indigo-600 resize-none font-sans"
                     />
 
                     {fbExtractionSuccess && (
@@ -4405,7 +4354,7 @@ export default function App() {
                         type="button"
                         disabled={!fbPastedContent.trim() || extractingFbPost}
                         onClick={() => handleExtractFbPost(false, false)}
-                        className="flex-1 min-w-[125px] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-[11px] rounded shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 min-w-[125px] py-1.5 px-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-[11px] rounded shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1"
                         title="Extracts caption into text content and photo into media upload"
                       >
                         {extractingFbPost ? (
@@ -4427,7 +4376,7 @@ export default function App() {
                             handleAiPostAction(false);
                           }
                         }}
-                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1"
                         title="Extracts post and rewrites Google post based specifically on this post's content"
                       >
                         {extractingFbPost ? (
@@ -4457,7 +4406,7 @@ export default function App() {
                         key={type}
                         type="button"
                         onClick={() => setNewPostType(type)}
-                        className={`p-2 rounded-lg border font-bold text-center cursor-pointer transition-all ${newPostType === type ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-600'}`}
+                        className={`p-2 rounded-lg border font-bold text-center cursor-pointer transition-all ${newPostType === type ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-600'}`}
                       >
                         {type === 'STANDARD' ? "What's New" : type === 'OFFER' ? 'Special Offer' : 'Event'}
                       </button>
@@ -4473,7 +4422,7 @@ export default function App() {
                         type="button"
                         onClick={() => handleAiPostAction(false)}
                         disabled={generatingAiPost}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[10px] sm:text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[10px] sm:text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
                         title={newPostSummary.trim() ? "AI Rewrite & Polish this post with CTA" : "Auto-generate a new post draft with Gemini AI"}
                       >
                         <Sparkles className={`w-3 h-3 ${generatingAiPost ? 'animate-spin' : ''}`} />
@@ -4484,8 +4433,8 @@ export default function App() {
                         onClick={() => setShowFbImporter(prev => !prev)}
                         className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold border transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                           showFbImporter 
-                            ? 'bg-blue-600 text-white border-blue-600' 
-                            : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'
+                            ? 'bg-indigo-600 text-white border-indigo-600' 
+                            : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
                         }`}
                         title="Import content from Facebook Page feed"
                       >
@@ -4501,7 +4450,7 @@ export default function App() {
                     value={newPostSummary}
                     onChange={(e) => setNewPostSummary(e.target.value)}
                     placeholder="Announce your update, offers, or events on Google..."
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-2xs"
                   />
                 </div>
 
@@ -4513,7 +4462,7 @@ export default function App() {
                       placeholder="SPECIAL20"
                       value={newPostCoupon}
                       onChange={(e) => setNewPostCoupon(e.target.value)}
-                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none font-mono"
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none"
                     />
                   </div>
                 )}
@@ -4547,20 +4496,20 @@ export default function App() {
                           value={newPostCtaUrl}
                           onChange={(e) => setNewPostCtaUrl(e.target.value)}
                           placeholder="+91 9610447938 (or blank for listing phone)"
-                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500 focus:bg-white font-mono"
+                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-600 focus:bg-white"
                         />
                         <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                           <button
                             type="button"
                             onClick={() => setNewPostCtaUrl('+91 9610447938')}
-                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer font-mono"
+                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
                           >
                             +91 9610447938
                           </button>
                           <button
                             type="button"
                             onClick={() => setNewPostCtaUrl('+91 9024031003')}
-                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer font-mono"
+                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
                           >
                             +91 9024031003
                           </button>
@@ -4586,7 +4535,7 @@ export default function App() {
                           value={newPostCtaUrl}
                           onChange={(e) => setNewPostCtaUrl(e.target.value)}
                           placeholder="https://... (Optional)"
-                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500 focus:bg-white font-mono"
+                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-600 focus:bg-white"
                         />
                       </div>
                     )}
@@ -4601,7 +4550,7 @@ export default function App() {
                       value={newPostMediaUrl}
                       onChange={(e) => setNewPostMediaUrl(e.target.value)}
                       placeholder="https://example.com/media.mp4 or upload below"
-                      className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500 focus:bg-white"
+                      className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-600 focus:bg-white"
                     />
                     <input 
                       ref={createFileInputRef}
@@ -4678,7 +4627,7 @@ export default function App() {
               <button 
                 onClick={handleCreatePost}
                 disabled={creatingPost || !newPostSummary.trim()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer"
               >
                 {creatingPost ? 'Publishing...' : 'Publish to Google'}
               </button>
@@ -4697,7 +4646,7 @@ export default function App() {
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Edit3 className="w-4 h-4 text-blue-600" />
+                <Edit3 className="w-4 h-4 text-indigo-600" />
                 <h3 className="font-bold text-slate-800 text-sm">Edit Google Business Post</h3>
               </div>
               <button 
@@ -4724,7 +4673,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setShowAddFbPage(prev => !prev)}
-                        className="text-[11px] bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold flex items-center gap-1 cursor-pointer transition-colors border border-blue-200"
+                        className="text-[11px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-bold flex items-center gap-1 cursor-pointer transition-colors border border-indigo-200"
                         title="Add and save a new Facebook page"
                       >
                         <Plus className="w-3 h-3" />
@@ -4745,8 +4694,8 @@ export default function App() {
 
                   {/* Inline Add New Facebook Page Form */}
                   {showAddFbPage && (
-                    <div className="p-2.5 bg-blue-50/80 border border-blue-200 rounded-lg space-y-2 text-xs">
-                      <div className="font-bold text-blue-800 text-[11px] flex items-center justify-between">
+                    <div className="p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-lg space-y-2 text-xs">
+                      <div className="font-bold text-indigo-900 text-[11px] flex items-center justify-between">
                         <span>Save New Facebook Page</span>
                         <button 
                           type="button" 
@@ -4762,14 +4711,14 @@ export default function App() {
                           value={newFbPageName}
                           onChange={(e) => setNewFbPageName(e.target.value)}
                           placeholder="Page Label (e.g. Coaching Sikar)"
-                          className="p-1.5 bg-white border border-blue-300 rounded text-[11px] outline-none"
+                          className="p-1.5 bg-white border border-indigo-300 rounded text-[11px] outline-none"
                         />
                         <input
                           type="text"
                           value={newFbPageUrl}
                           onChange={(e) => setNewFbPageUrl(e.target.value)}
                           placeholder="https://www.facebook.com/yourpage"
-                          className="p-1.5 bg-white border border-blue-300 rounded text-[11px] outline-none font-mono"
+                          className="p-1.5 bg-white border border-indigo-300 rounded text-[11px] outline-none"
                         />
                       </div>
                       <div className="flex justify-end gap-1.5">
@@ -4784,7 +4733,7 @@ export default function App() {
                           type="button"
                           onClick={handleAddFbPage}
                           disabled={!newFbPageUrl.trim()}
-                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded text-[11px] font-bold cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded text-[11px] font-bold cursor-pointer shadow-2xs"
                         >
                           Save & Load
                         </button>
@@ -4797,7 +4746,7 @@ export default function App() {
                     <select
                       value={fbPageUrl}
                       onChange={(e) => handleSelectFbPage(e.target.value)}
-                      className="w-24 sm:w-28 h-7 px-1.5 bg-slate-50 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 outline-none focus:border-blue-500 cursor-pointer truncate shrink-0"
+                      className="w-24 sm:w-28 h-7 px-1.5 bg-slate-50 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 outline-none focus:border-indigo-600 cursor-pointer truncate shrink-0"
                       title="Select saved Facebook page"
                     >
                       {savedFbPages.map(p => (
@@ -4812,7 +4761,7 @@ export default function App() {
                       value={tempFbPageInput}
                       onChange={(e) => setTempFbPageInput(e.target.value)}
                       placeholder="Paste FB page URL..."
-                      className="flex-1 min-w-0 h-7 px-2 bg-transparent text-[10px] text-slate-700 placeholder:text-slate-400 outline-none font-mono"
+                      className="flex-1 min-w-0 h-7 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-indigo-500"
                     />
 
                     {savedFbPages.length > 1 && (
@@ -4829,7 +4778,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => handleSelectFbPage(tempFbPageInput)}
-                      className="h-7 px-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold cursor-pointer whitespace-nowrap shadow-2xs shrink-0 flex items-center gap-1 transition-all"
+                      className="h-7 px-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold cursor-pointer whitespace-nowrap shadow-2xs shrink-0 flex items-center gap-1 transition-all"
                       title="Load Facebook Page Feed"
                     >
                       <RefreshCw className="w-2.5 h-2.5" />
@@ -4858,7 +4807,7 @@ export default function App() {
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200 space-y-2 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                         Post Content & Photo Extractor
                       </span>
                       <span className="text-[10px] text-slate-400">Copy text/image from feed above</span>
@@ -4868,7 +4817,7 @@ export default function App() {
                       value={fbPastedContent}
                       onChange={(e) => setFbPastedContent(e.target.value)}
                       placeholder="Paste post text, photo link, or embed code here..."
-                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-blue-500 resize-none font-sans"
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-indigo-600 resize-none font-sans"
                     />
 
                     {fbExtractionSuccess && (
@@ -4883,7 +4832,7 @@ export default function App() {
                         type="button"
                         disabled={!fbPastedContent.trim() || extractingFbPost}
                         onClick={() => handleExtractFbPost(true, false)}
-                        className="flex-1 min-w-[125px] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-[11px] rounded shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 min-w-[125px] py-1.5 px-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-[11px] rounded shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1"
                         title="Extracts caption into text content and photo into media upload"
                       >
                         {extractingFbPost ? (
@@ -4905,7 +4854,7 @@ export default function App() {
                             handleAiPostAction(true);
                           }
                         }}
-                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 min-w-[130px] py-1.5 px-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1"
                         title="Extracts post and rewrites Google post based specifically on this post's content"
                       >
                         {extractingFbPost ? (
@@ -4935,7 +4884,7 @@ export default function App() {
                         key={type}
                         type="button"
                         onClick={() => setEditPostType(type)}
-                        className={`p-2 rounded-md border font-bold text-center transition-all cursor-pointer ${editPostType === type ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-600'}`}
+                        className={`p-2 rounded-md border font-bold text-center transition-all cursor-pointer ${editPostType === type ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-600'}`}
                       >
                         {type === 'STANDARD' ? "What's New" : type === 'OFFER' ? 'Special Offer' : 'Event'}
                       </button>
@@ -4951,7 +4900,7 @@ export default function App() {
                         type="button"
                         onClick={() => handleAiPostAction(true)}
                         disabled={generatingAiPost}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[10px] sm:text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[10px] sm:text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
                         title={editPostSummary.trim() ? "AI Rewrite & Polish this post with CTA" : "Auto-generate a new post draft with Gemini AI"}
                       >
                         <Sparkles className={`w-3 h-3 ${generatingAiPost ? 'animate-spin' : ''}`} />
@@ -4962,8 +4911,8 @@ export default function App() {
                         onClick={() => setShowEditFbImporter(prev => !prev)}
                         className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold border transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                           showEditFbImporter 
-                            ? 'bg-blue-600 text-white border-blue-600' 
-                            : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'
+                            ? 'bg-indigo-600 text-white border-indigo-600' 
+                            : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
                         }`}
                         title="Import content from Facebook Page feed"
                       >
@@ -4979,7 +4928,7 @@ export default function App() {
                     value={editPostSummary}
                     onChange={(e) => setEditPostSummary(e.target.value)}
                     placeholder="Update your announcement or offer text..."
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-2xs"
                   />
                 </div>
 
@@ -4991,7 +4940,7 @@ export default function App() {
                       placeholder="SPECIAL20"
                       value={editPostCoupon}
                       onChange={(e) => setEditPostCoupon(e.target.value)}
-                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none font-mono"
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none"
                     />
                   </div>
                 )}
@@ -5001,7 +4950,7 @@ export default function App() {
                     <label className="font-bold text-slate-700 block mb-1">Call to Action (Button)</label>
                     <select 
                       value={editPostCtaType}
-                      onChange={(e: any) => setEditPostCtaType(e.target.value)}
+                      onChange={(e: any) => setNewPostCtaType(e.target.value)}
                       className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none cursor-pointer font-semibold"
                     >
                       <option value="NONE">None</option>
@@ -5025,20 +4974,20 @@ export default function App() {
                           value={editPostCtaUrl}
                           onChange={(e) => setEditPostCtaUrl(e.target.value)}
                           placeholder="+91 9610447938 (or blank for listing phone)"
-                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-blue-500 focus:bg-white font-mono"
+                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-indigo-600 focus:bg-white"
                         />
                         <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                           <button
                             type="button"
                             onClick={() => setEditPostCtaUrl('+91 9610447938')}
-                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer font-mono"
+                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
                           >
                             +91 9610447938
                           </button>
                           <button
                             type="button"
                             onClick={() => setEditPostCtaUrl('+91 9024031003')}
-                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer font-mono"
+                            className="text-[10px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
                           >
                             +91 9024031003
                           </button>
@@ -5064,7 +5013,7 @@ export default function App() {
                           value={editPostCtaUrl}
                           onChange={(e) => setEditPostCtaUrl(e.target.value)}
                           placeholder="https://... (Optional)"
-                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-blue-500 focus:bg-white font-mono"
+                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-indigo-600 focus:bg-white"
                         />
                       </div>
                     )}
@@ -5079,7 +5028,7 @@ export default function App() {
                       value={editPostMediaUrl}
                       onChange={(e) => setEditPostMediaUrl(e.target.value)}
                       placeholder="https://example.com/media.mp4 or upload below"
-                      className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-blue-500 focus:bg-white"
+                      className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-md text-xs outline-none focus:border-indigo-600 focus:bg-white"
                     />
                     <input 
                       ref={editFileInputRef}
@@ -5158,7 +5107,7 @@ export default function App() {
                 type="button"
                 onClick={handleUpdatePost}
                 disabled={updatingPost || !editPostSummary.trim()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 {updatingPost && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                 <span>{updatingPost ? 'Updating...' : 'Save Changes'}</span>
@@ -5229,7 +5178,7 @@ export default function App() {
                     value={newServicePrice}
                     onChange={(e) => setNewServicePrice(e.target.value)}
                     disabled={newServicePriceType === 'FREE'}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none disabled:opacity-50 font-mono"
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -5253,7 +5202,7 @@ export default function App() {
               <button 
                 onClick={handleAddService}
                 disabled={!newServiceName.trim()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm"
               >
                 Save Service
               </button>
@@ -5278,7 +5227,7 @@ export default function App() {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
+              <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs">
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
@@ -5290,7 +5239,7 @@ export default function App() {
             <div className="space-y-3.5 my-5 text-xs text-slate-700">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                 <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-extrabold text-[11px] flex items-center justify-center shrink-0">1</span>
+                  <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
                   Android (Chrome / Edge)
                 </div>
                 <p className="text-slate-600 pl-6.5 leading-relaxed">
@@ -5300,7 +5249,7 @@ export default function App() {
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                 <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-extrabold text-[11px] flex items-center justify-center shrink-0">2</span>
+                  <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
                   iPhone & iPad (Safari)
                 </div>
                 <p className="text-slate-600 pl-6.5 leading-relaxed">
@@ -5310,7 +5259,7 @@ export default function App() {
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                 <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 font-extrabold text-[11px] flex items-center justify-center shrink-0">3</span>
+                  <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
                   Windows & Mac (Desktop)
                 </div>
                 <p className="text-slate-600 pl-6.5 leading-relaxed">

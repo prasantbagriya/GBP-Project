@@ -102,9 +102,9 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
           {numPending > 0 && onViewUnreplied && (
             <button
               onClick={onViewUnreplied}
-              className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-blue-200/60 shadow-2xs whitespace-nowrap shrink-0"
+              className="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-indigo-200 whitespace-nowrap shrink-0"
             >
-              <span>Address {numPending} Pending Reviews</span>
+              <span>Address {numPending} pending reviews</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -112,10 +112,10 @@ export const ResponseHealthGauge: React.FC<ResponseHealthGaugeProps> = ({
           {onNavigateTab && (
             <button
               onClick={() => onNavigateTab('autoreply')}
-              className="w-full py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-purple-200/60 shadow-2xs whitespace-nowrap shrink-0"
+              className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-slate-300 whitespace-nowrap shrink-0 shadow-2xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <span>Configure AI Auto-Reply</span>
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Configure AI auto-reply</span>
             </button>
           )}
         </div>

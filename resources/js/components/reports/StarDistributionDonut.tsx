@@ -88,7 +88,7 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
 
   const starTiers = [
     { star: 5, label: '5 Stars', count: displayFive, pct: p5, color: 'bg-emerald-500', hoverColor: 'hover:bg-emerald-50' },
-    { star: 4, label: '4 Stars', count: displayFour, pct: p4, color: 'bg-blue-500', hoverColor: 'hover:bg-blue-50' },
+    { star: 4, label: '4 Stars', count: displayFour, pct: p4, color: 'bg-indigo-500', hoverColor: 'hover:bg-indigo-50' },
     { star: 3, label: '3 Stars', count: displayThree, pct: p3, color: 'bg-amber-500', hoverColor: 'hover:bg-amber-50' },
     { star: 2, label: '2 Stars', count: displayTwo, pct: p2, color: 'bg-orange-500', hoverColor: 'hover:bg-orange-50' },
     { star: 1, label: '1 Star', count: displayOne, pct: p1, color: 'bg-red-500', hoverColor: 'hover:bg-red-50' },
@@ -107,7 +107,7 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
           {selectedStarFilter && onSelectStarFilter && (
             <button
               onClick={() => onSelectStarFilter(null)}
-              className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-[11px] font-semibold flex items-center gap-1.5 border border-blue-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[11px] font-semibold flex items-center gap-1.5 border border-indigo-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <span>{selectedStarFilter}★ Filter Active</span>
               <span className="font-bold">&times;</span>
@@ -226,7 +226,7 @@ export const StarDistributionDonut: React.FC<StarDistributionDonutProps> = ({
                 key={tier.star}
                 onClick={() => handleStarClick(tier.star)}
                 className={`flex items-center gap-2 text-xs p-1.5 rounded-md transition-all cursor-pointer ${tier.hoverColor} ${
-                  isSelected ? 'bg-blue-50 ring-1 ring-blue-400 font-bold' : 'font-medium'
+                  isSelected ? 'bg-indigo-50 ring-1 ring-indigo-400 font-bold text-indigo-900' : 'font-medium'
                 }`}
                 title={`Click to filter reviews by ${tier.label}`}
               >

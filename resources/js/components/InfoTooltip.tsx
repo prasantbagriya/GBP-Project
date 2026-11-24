@@ -74,7 +74,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
         aria-label={title || 'Information'}
-        className="p-0.5 text-slate-400 hover:text-blue-600 focus:text-blue-600 focus:outline-none rounded transition-colors cursor-pointer inline-flex items-center justify-center shrink-0"
+        className="p-0.5 text-slate-400 hover:text-indigo-600 focus:text-indigo-600 focus:outline-none rounded transition-colors cursor-pointer inline-flex items-center justify-center shrink-0"
       >
         <HelpCircle className="w-3.5 h-3.5" />
       </button>
@@ -87,7 +87,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
         >
           <div className="flex items-center justify-between gap-1 mb-1 border-b border-slate-800 pb-1">
             <div className="font-bold text-slate-200 text-xs flex items-center gap-1.5 truncate">
-              <Info className="w-3 h-3 text-blue-400 shrink-0" />
+              <Info className="w-3 h-3 text-indigo-400 shrink-0" />
               <span className="truncate">{title || 'Details'}</span>
             </div>
             <button

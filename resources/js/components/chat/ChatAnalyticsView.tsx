@@ -53,7 +53,7 @@ export const ChatAnalyticsView: React.FC = () => {
           <span className="text-xs font-semibold text-slate-500">Total Conversations</span>
           <div className="flex items-baseline justify-between">
             <span className="text-2xl font-black text-slate-900">{data.total_conversations}</span>
-            <span className="text-xs text-indigo-600 bg-indigo-50 font-bold px-2 py-0.5 rounded-full">All-time</span>
+            <span className="text-xs text-slate-500 bg-slate-100 font-medium px-2 py-0.5 rounded-full">All-time</span>
           </div>
         </div>
 

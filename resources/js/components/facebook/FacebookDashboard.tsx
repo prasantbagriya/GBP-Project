@@ -169,19 +169,14 @@ export const FacebookDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Top Header Banner - Only shown when NO page is connected */}
       {pages.length === 0 && (
-        <div className="card p-5 sm:p-6 bg-slate-900 text-white border border-slate-800 shadow-xs relative overflow-hidden rounded-xl">
+        <div className="p-5 sm:p-6 bg-slate-900 text-white border border-slate-800 shadow-md relative overflow-hidden rounded-xl">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-medium flex items-center gap-1">
-                  <Share2 className="w-3 h-3" /> Meta Graph API v21
-                </span>
-                <span className="text-[11px] text-slate-400">Token Sync</span>
-              </div>
-              <h2 className="text-xl font-semibold tracking-tight text-white">
-                Facebook Page Management Suite
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <Share2 className="w-5 h-5 text-indigo-400 shrink-0" />
+                <span>Facebook Page Management Suite</span>
               </h2>
-              <p className="text-xs text-slate-300 max-w-xl">
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
                 Post updates, moderate comments with Gemini AI, reply to Messenger inquiries, and control page settings live.
               </p>
             </div>
@@ -200,12 +195,12 @@ export const FacebookDashboard: React.FC = () => {
                 type="button"
                 onClick={handleOAuthConnect}
                 disabled={connectingOauth}
-                className="px-3.5 py-1.5 bg-white text-blue-800 hover:bg-blue-50 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                className="px-3.5 py-1.5 bg-white text-slate-900 hover:bg-slate-100 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
               >
                 {connectingOauth ? (
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Share2 className="w-3.5 h-3.5 text-blue-600" />
+                  <Share2 className="w-3.5 h-3.5 text-indigo-600" />
                 )}
                 <span>Connect Facebook Page</span>
               </button>
@@ -229,12 +224,12 @@ export const FacebookDashboard: React.FC = () => {
       {/* If No Pages Connected: Onboarding Card */}
       {loading ? (
         <div className="card p-12 text-center text-slate-400 space-y-3">
-          <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+          <RefreshCw className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
           <p className="text-xs font-semibold text-slate-600">Checking connected Facebook accounts...</p>
         </div>
       ) : pages.length === 0 ? (
         <div className="card p-8 md:p-12 text-center max-w-2xl mx-auto space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
             <Share2 className="w-8 h-8" />
           </div>
 
@@ -252,7 +247,7 @@ export const FacebookDashboard: React.FC = () => {
               type="button"
               onClick={handleOAuthConnect}
               disabled={connectingOauth}
-              className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer"
             >
               <Share2 className="w-4 h-4" />
               <span>Connect via Facebook Login</span>
@@ -285,11 +280,11 @@ export const FacebookDashboard: React.FC = () => {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               {/* Page Selector */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md overflow-hidden bg-blue-50 border border-slate-200 shrink-0 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-md overflow-hidden bg-indigo-50 border border-slate-200 shrink-0 flex items-center justify-center">
                   {activePage.avatar_url ? (
                     <img src={activePage.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <Building2 className="w-5 h-5 text-blue-600" />
+                    <Building2 className="w-5 h-5 text-indigo-600" />
                   )}
                 </div>
 
@@ -312,13 +307,13 @@ export const FacebookDashboard: React.FC = () => {
                         {activePage.name}
                       </h3>
                     )}
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
                       {activePage.category || 'Page'}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1 text-blue-600 font-semibold">
+                    <span className="flex items-center gap-1 text-indigo-600 font-semibold">
                       <Users className="w-3.5 h-3.5" />
                       {activePage.followers_count.toLocaleString()} Followers
                     </span>
@@ -339,7 +334,7 @@ export const FacebookDashboard: React.FC = () => {
                   className="px-2.5 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-semibold flex items-center gap-1 cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
                   title="Connect another page with access token"
                 >
-                  <Plus className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <Plus className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                   <span className="whitespace-nowrap">Add Page</span>
                 </button>
 
@@ -370,46 +365,46 @@ export const FacebookDashboard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveSubTab('posts')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeSubTab === 'posts' ? 'bg-blue-600 text-white shadow-2xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${activeSubTab === 'posts' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'}`}
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>Posts Studio</span>
+                <span>Posts studio</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveSubTab('comments')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeSubTab === 'comments' ? 'bg-blue-600 text-white shadow-2xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${activeSubTab === 'comments' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'}`}
               >
                 <MessageSquare className="w-3.5 h-3.5" />
-                <span>Comments & Moderation</span>
+                <span>Comments & moderation</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveSubTab('inbox')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeSubTab === 'inbox' ? 'bg-blue-600 text-white shadow-2xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${activeSubTab === 'inbox' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'}`}
               >
                 <Inbox className="w-3.5 h-3.5" />
-                <span>Messenger Inbox</span>
+                <span>Messenger inbox</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveSubTab('settings')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeSubTab === 'settings' ? 'bg-blue-600 text-white shadow-2xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${activeSubTab === 'settings' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'}`}
               >
                 <Settings className="w-3.5 h-3.5" />
-                <span>Page Info & Settings</span>
+                <span>Page settings</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveSubTab('rules')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeSubTab === 'rules' ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${activeSubTab === 'rules' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'}`}
               >
                 <Bot className="w-3.5 h-3.5" />
-                <span>AI Auto-Reply Rules</span>
+                <span>AI reply rules</span>
               </button>
             </div>
           </div>
@@ -486,7 +481,7 @@ export const FacebookDashboard: React.FC = () => {
                   rows={3}
                   required
                   placeholder="EAA..."
-                  className="w-full text-xs font-mono rounded-lg border border-slate-300 p-2.5 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
                 />
               </div>
 

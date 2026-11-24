@@ -133,7 +133,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
       <form onSubmit={handleSave} className="space-y-6">
         <div className="card p-5 space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <FileText className="w-4 h-4 text-blue-600" />
+            <FileText className="w-4 h-4 text-indigo-600" />
             <h4 className="text-sm font-bold text-slate-800">Page Bio & Description</h4>
           </div>
 
@@ -146,7 +146,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
               onChange={(e) => setAbout(e.target.value)}
               rows={3}
               placeholder="Describe your business, coaching institute, or services..."
-              className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
             />
             <p className="text-[11px] text-slate-400 mt-1">
               This summary is displayed on your Facebook Page's main About card.
@@ -156,7 +156,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
 
         <div className="card p-5 space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Phone className="w-4 h-4 text-blue-600" />
+            <Phone className="w-4 h-4 text-indigo-600" />
             <h4 className="text-sm font-bold text-slate-800">Contact & Web Information</h4>
           </div>
 
@@ -171,7 +171,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 9610447938"
-                className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
               />
             </div>
 
@@ -185,7 +185,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 placeholder="https://example.com"
-                className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
               />
             </div>
           </div>
@@ -195,7 +195,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
         <div className="card p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600" />
+              <Clock className="w-4 h-4 text-indigo-600" />
               <h4 className="text-sm font-bold text-slate-800">Operating Hours</h4>
             </div>
             <span className="text-[11px] text-slate-400">Synced to Facebook Page Timing</span>
@@ -224,7 +224,7 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
                             handleHourChange(day.key, 'close', '20:00');
                           }
                         }}
-                        className="rounded text-blue-600"
+                        className="rounded text-indigo-600"
                       />
                       <span>Closed</span>
                     </label>
@@ -265,14 +265,14 @@ export const FacebookPageSettings: React.FC<FacebookPageSettingsProps> = ({
             disabled={refreshing}
             className="px-3.5 py-2 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-indigo-600 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Sync Live from Facebook</span>
           </button>
 
           <button
             type="submit"
             disabled={saving}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-2 shadow-2xs transition-all cursor-pointer"
+            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold flex items-center gap-2 shadow-2xs transition-all cursor-pointer"
           >
             {saving ? (
               <>

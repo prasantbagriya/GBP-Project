@@ -13,43 +13,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-        body { font-family: 'Plus Jakarta Sans', Inter, sans-serif; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
 
     <!-- Header Navigation -->
-    <header class="bg-white border-b border-slate-200 py-4 shadow-2xs sticky top-0 z-50">
+    <header class="bg-white border-b border-slate-200 py-3.5 sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-4 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2.5">
-                <img src="{{ asset('assets/branding/logo.svg') }}" alt="Coaching In Sikar Logo" class="w-9 h-9 rounded-lg" />
+                <img src="{{ asset('assets/branding/logo.svg') }}" alt="Prince Edu Hub Logo" class="w-8 h-8 rounded-lg" />
                 <div class="flex flex-col">
-                    <span class="text-base font-extrabold text-slate-900 leading-tight">Prince Edu Hub</span>
-                    <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">GBP Live Sync Portal</span>
+                    <span class="text-sm font-bold text-slate-900 leading-tight">Prince Edu Hub</span>
+                    <span class="text-xs text-slate-500 font-medium">GBP sync portal</span>
                 </div>
             </a>
-            <div class="flex items-center gap-4 text-xs font-semibold">
-                <a href="/" class="text-slate-600 hover:text-indigo-600">Home</a>
-                <a href="/privacy-policy" class="text-slate-600 hover:text-indigo-600">Privacy Policy</a>
-                <a href="/dashboard" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700">Staff Portal</a>
+            <div class="flex items-center gap-4 text-xs font-medium">
+                <a href="/" class="text-slate-600 hover:text-indigo-600 transition-colors">Home</a>
+                <a href="/privacy-policy" class="text-slate-600 hover:text-indigo-600 transition-colors">Privacy policy</a>
+                <a href="/dashboard" class="bg-indigo-600 text-white px-3.5 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-xs">Staff portal</a>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-10 flex-1 w-full">
-        <div class="bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-sm space-y-8">
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
+        <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm space-y-8">
             
             <!-- Document Header -->
-            <div class="border-b border-slate-100 pb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
-                    Legal Agreement & Privacy Disclosures
+            <div class="border-b border-slate-100 pb-5">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
+                    Legal agreement and privacy disclosures
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Terms of Service & Privacy Policy</h1>
-                <p class="text-xs text-slate-500 mt-2">
-                    Effective Date: October 2026 &bull; Last Updated: November 2, 2026
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Terms of Service & Privacy Policy</h1>
+                <p class="text-xs text-slate-500 mt-2 font-medium">
+                    Effective date: October 2026 &bull; Last updated: November 2, 2026
                 </p>
                 <p class="text-sm text-slate-600 leading-relaxed mt-4">
                     Please read these Terms of Service & Privacy Policy ("Agreement") carefully before accessing or using the <strong>Prince Eduhub</strong> &amp; <strong>Coaching In Sikar</strong> Google Business Profile Live Sync portal accessible at <a href="https://gmb.princeeduhub.com/" class="text-indigo-600 underline font-semibold">https://gmb.princeeduhub.com/</a> operated by <strong>Prince Eduhub</strong> and <strong>Coaching In Sikar</strong> ("we", "us", or "our").
@@ -57,15 +57,15 @@
             </div>
 
             <!-- Mandatory Google API User Data Policy Disclosure Banner -->
-            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5 text-indigo-950 text-xs sm:text-sm leading-relaxed space-y-3">
-                <div class="flex items-center gap-2 font-bold text-indigo-900">
-                    <svg class="w-5 h-5 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            <div class="bg-indigo-50/60 border border-indigo-200/80 rounded-lg p-4 text-neutral-800 text-xs sm:text-sm leading-relaxed space-y-3">
+                <div class="flex items-center gap-2 font-medium text-indigo-900">
+                    <svg class="w-4 h-4 text-indigo-700 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
                     </svg>
-                    <span>Google API Services User Data Policy Compliance Statement</span>
+                    <span>Google API Services user data policy compliance statement</span>
                 </div>
                 <p>
-                    <strong>Prince Eduhub & Coaching In Sikar's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" class="underline font-semibold text-indigo-800">Google API Services User Data Policy</a>, including the Limited Use requirements.</strong>
+                    <strong>Prince Eduhub & Coaching In Sikar's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" class="underline font-medium text-indigo-700">Google API Services User Data Policy</a>, including the Limited Use requirements.</strong>
                 </p>
                 <div class="bg-white p-3 rounded-lg border border-indigo-100 text-xs text-slate-700 space-y-1">
                     <p><strong>Direct Privacy Policy URL:</strong> <a href="https://gmb.princeeduhub.com/privacy-policy" class="text-indigo-600 underline font-semibold">https://gmb.princeeduhub.com/privacy-policy</a></p>
@@ -162,10 +162,10 @@
             </section>
 
             <!-- Cross-Link Banner -->
-            <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
                 <div class="flex items-center gap-4">
-                    <a href="/privacy-policy" class="text-indigo-600 underline font-semibold">Privacy Policy Page</a>
-                    <a href="/data-deletion" class="text-indigo-600 underline font-semibold">Data Deletion Instructions</a>
+                    <a href="/privacy-policy" class="text-indigo-600 underline font-semibold hover:text-indigo-800">Privacy policy</a>
+                    <a href="/data-deletion" class="text-indigo-600 underline font-semibold hover:text-indigo-800">Data deletion instructions</a>
                 </div>
                 <a href="/" class="text-indigo-600 hover:underline font-semibold">&larr; Return to Homepage</a>
             </div>
@@ -174,14 +174,14 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 font-medium">
         <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>&copy; {{ date('Y') }} Coaching In Sikar / Prince Eduhub. All rights reserved.</span>
-            <div class="flex gap-4 font-medium">
-                <a href="/" class="hover:underline">Home</a>
-                <a href="/privacy-policy" class="hover:underline text-indigo-600">Privacy Policy</a>
-                <a href="/terms-of-service" class="hover:underline text-indigo-600">Terms of Service</a>
-                <a href="/data-deletion" class="hover:underline">Data Deletion</a>
+            <div class="flex gap-4">
+                <a href="/" class="hover:text-indigo-600 transition-colors">Home</a>
+                <a href="/privacy-policy" class="hover:text-indigo-600 transition-colors">Privacy Policy</a>
+                <a href="/terms-of-service" class="text-indigo-600 font-bold">Terms of Service</a>
+                <a href="/data-deletion" class="hover:text-indigo-600 transition-colors">Data Deletion</a>
             </div>
         </div>
     </footer>

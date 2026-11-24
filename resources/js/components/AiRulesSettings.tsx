@@ -148,7 +148,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       id: 'Professional & Authoritative',
       title: 'Professional & Direct',
       desc: 'Formal, structured, authoritative, and institutional.',
-      icon: <ShieldCheck className="w-4 h-4 text-blue-500" />
+      icon: <ShieldCheck className="w-4 h-4 text-indigo-600" />
     },
     {
       id: 'Empathetic & Solution-Oriented',
@@ -177,7 +177,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       {/* Compact Unified Header */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-2.5 flex-wrap">
         <div className="flex items-center gap-2 min-w-0">
-          <Sliders className="w-4 h-4 text-blue-600 shrink-0" />
+          <Sliders className="w-4 h-4 text-indigo-600 shrink-0" />
           <h3 className="text-xs sm:text-sm font-bold text-slate-800 truncate">
             AI Automation Rules
           </h3>
@@ -213,7 +213,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer whitespace-nowrap"
+            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-bold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? '...' : 'Save Rules'}</span>
@@ -237,7 +237,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
           {/* 1. Rate Limiting / Pacing Section */}
           <div className="p-3 sm:p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2.5">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-xs sm:text-sm">
-              <Clock className="w-4 h-4 text-blue-600" />
+              <Clock className="w-4 h-4 text-indigo-600" />
               <span>1. Pacing & Rate Limits</span>
               <InfoTooltip
                 title="Pacing & Rate Limits"
@@ -263,9 +263,9 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                     step="1"
                     value={rules.maxRepliesPerMinute}
                     onChange={(e) => setRules({ ...rules, maxRepliesPerMinute: Number(e.target.value) })}
-                    className="w-full accent-blue-600 cursor-pointer"
+                    className="w-full accent-indigo-600 cursor-pointer"
                   />
-                  <span className="font-bold text-xs bg-white px-2 py-0.5 rounded-md border border-slate-200 text-blue-700 min-w-[48px] text-center">
+                  <span className="font-bold text-xs bg-white px-2 py-0.5 rounded-md border border-slate-200 text-indigo-700 min-w-[48px] text-center">
                     {rules.maxRepliesPerMinute}/min
                   </span>
                 </div>
@@ -332,7 +332,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                       onClick={() => setRules({ ...rules, minStarRating: opt.val })}
                       className={`py-1.5 px-1 rounded-md border text-xs font-semibold text-center transition-all whitespace-nowrap cursor-pointer ${
                         rules.minStarRating === opt.val
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                       }`}
                     >
@@ -357,7 +357,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   type="checkbox"
                   checked={rules.replyToEmptyReviews}
                   onChange={(e) => setRules({ ...rules, replyToEmptyReviews: e.target.checked })}
-                  className="rounded text-blue-600 w-4 h-4 cursor-pointer"
+                  className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
                 />
               </label>
 
@@ -391,13 +391,13 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   onClick={() => setRules({ ...rules, tone: t.id })}
                   className={`p-2 sm:p-2.5 rounded-md border text-left transition-all flex items-center justify-between gap-2 cursor-pointer ${
                     rules.tone === t.id
-                      ? 'bg-blue-50 border-blue-500 shadow-2xs'
+                      ? 'bg-indigo-50 border-indigo-500 shadow-2xs'
                       : 'bg-white border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="shrink-0">{t.icon}</div>
-                    <h5 className={`text-xs font-bold truncate ${rules.tone === t.id ? 'text-blue-900' : 'text-slate-800'}`}>
+                    <h5 className={`text-xs font-bold truncate ${rules.tone === t.id ? 'text-indigo-950' : 'text-slate-800'}`}>
                       {t.title}
                     </h5>
                   </div>
@@ -446,7 +446,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               {/* Reference Specific Experience */}
               <label className="flex items-center justify-between p-2 sm:p-2.5 bg-white rounded-md border border-slate-200 cursor-pointer">
                 <div className="pr-2 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                   <span className="text-xs font-bold text-slate-800">
                     Hyper-Personalized Context
                   </span>
@@ -459,7 +459,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   type="checkbox"
                   checked={rules.referenceSpecificExperience}
                   onChange={(e) => setRules({ ...rules, referenceSpecificExperience: e.target.checked })}
-                  className="rounded text-blue-600 w-4 h-4 cursor-pointer"
+                  className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
                 />
               </label>
 
@@ -479,14 +479,14 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   type="checkbox"
                   checked={rules.languageMatching}
                   onChange={(e) => setRules({ ...rules, languageMatching: e.target.checked })}
-                  className="rounded text-blue-600 w-4 h-4 cursor-pointer"
+                  className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
                 />
               </label>
 
               {/* Personal Name Greeting */}
               <label className="flex items-center justify-between p-2 sm:p-2.5 bg-white rounded-md border border-slate-200 cursor-pointer">
                 <div className="pr-2 flex items-center gap-1.5">
-                  <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <UserCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                   <span className="text-xs font-bold text-slate-800">
                     Name Greeting
                   </span>
@@ -499,7 +499,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                   type="checkbox"
                   checked={rules.includeReviewerName}
                   onChange={(e) => setRules({ ...rules, includeReviewerName: e.target.checked })}
-                  className="rounded text-blue-600 w-4 h-4 cursor-pointer"
+                  className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
                 />
               </label>
             </div>
@@ -532,7 +532,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                     value={rules.contactPhone}
                     onChange={(e) => setRules({ ...rules, contactPhone: e.target.value })}
                     placeholder="+91 98765 43210"
-                    className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-blue-500"
+                    className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
@@ -552,7 +552,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
                     value={rules.contactEmail}
                     onChange={(e) => setRules({ ...rules, contactEmail: e.target.value })}
                     placeholder="contact@princeacademy.com"
-                    className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-blue-500"
+                    className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
@@ -573,7 +573,7 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
               value={rules.customInstructions}
               onChange={(e) => setRules({ ...rules, customInstructions: e.target.value })}
               placeholder="e.g. Always emphasize our discipline and selection track record."
-              className="w-full p-2 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-blue-500"
+              className="w-full p-2 bg-white border border-slate-200 rounded-md text-xs text-slate-800 outline-none focus:border-indigo-500"
             />
           </div>
         </div>
@@ -583,14 +583,14 @@ export const AiRulesSettings: React.FC<AiRulesSettingsProps> = ({ onRulesUpdated
       <div className="p-3 sm:p-3.5 bg-slate-50 border border-slate-200 rounded-md space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 text-slate-900 font-semibold text-xs sm:text-sm">
-            <Cpu className="w-4 h-4 text-blue-600" />
+            <Cpu className="w-4 h-4 text-indigo-600" />
             <span>7. AI Engine, Speed & Reply Length Controls</span>
             <InfoTooltip
               title="AI Engine Controller"
               content="Directly controls Google Gemini parameters: active model, response speed (thinking budget), output verbosity, and creative temperature."
             />
           </div>
-          <span className="text-[10px] bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider">
+          <span className="text-[10px] bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-md">
             Active Controller
           </span>
         </div>

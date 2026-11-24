@@ -235,7 +235,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-blue-600" />
+              <MessageSquare className="w-5 h-5 text-indigo-600" />
               <span>Comments & Interactions Moderator</span>
             </h3>
             <p className="text-xs text-slate-500">
@@ -249,7 +249,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
             disabled={loadingComments}
             className="px-3 py-1.5 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${loadingComments ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-indigo-600 ${loadingComments ? 'animate-spin' : ''}`} />
             <span>Refresh Comments</span>
           </button>
         </div>
@@ -257,14 +257,14 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
         {/* Post Selection Dropdown */}
         <div className="pt-2 border-t border-slate-100 flex flex-col md:flex-row items-stretch md:items-center gap-3">
           <label className="text-xs font-bold text-slate-700 whitespace-nowrap flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-blue-600" />
+            <Filter className="w-3.5 h-3.5 text-indigo-600" />
             <span>Select Post to Moderate:</span>
           </label>
           <select
             value={selectedPostId}
             onChange={(e) => setSelectedPostId(e.target.value)}
             disabled={loadingPosts}
-            className="w-full text-xs rounded-xl border border-slate-300 p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800"
+            className="w-full text-xs rounded-xl border border-slate-300 p-2.5 bg-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800"
           >
             {posts.length === 0 ? (
               <option value="">No posts available</option>
@@ -310,7 +310,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
       {/* Comments List */}
       {loadingComments ? (
         <div className="card p-12 text-center text-slate-400 space-y-3">
-          <RefreshCw className="w-7 h-7 animate-spin text-blue-600 mx-auto" />
+          <RefreshCw className="w-7 h-7 animate-spin text-indigo-600 mx-auto" />
           <p className="text-xs font-semibold text-slate-600">Fetching comments from Facebook...</p>
         </div>
       ) : comments.length === 0 ? (
@@ -366,7 +366,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
                     <button
                       type="button"
                       onClick={() => handleLikeComment(comment.id)}
-                      className="p-1.5 text-slate-400 hover:text-blue-600 rounded cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-indigo-600 rounded cursor-pointer"
                       title="Like Comment as Page"
                     >
                       <ThumbsUp className="w-3.5 h-3.5" />
@@ -403,9 +403,9 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
                 {comment.comments?.data && comment.comments.data.length > 0 && (
                   <div className="pl-10 space-y-2 pt-1">
                     {comment.comments.data.map((reply) => (
-                      <div key={reply.id} className="p-2.5 bg-blue-50/50 rounded-xl border border-blue-100 text-xs space-y-1">
+                      <div key={reply.id} className="p-2.5 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-blue-900 text-[11px]">
+                          <span className="font-bold text-indigo-950 text-[11px]">
                             {reply.from?.name || page.name}
                           </span>
                           <span className="text-[10px] text-slate-400">
@@ -425,7 +425,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
                   <button
                     type="button"
                     onClick={() => setActiveReplyId(isReplying ? null : comment.id)}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 cursor-pointer"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>{isReplying ? 'Cancel Reply' : 'Write Reply'}</span>
@@ -459,7 +459,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
                       onChange={(e) => setReplyDrafts({ ...replyDrafts, [comment.id]: e.target.value })}
                       rows={2}
                       placeholder="Write your official response..."
-                      className="w-full text-xs p-2.5 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full text-xs p-2.5 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                     />
 
                     <div className="flex items-center justify-end gap-2">
@@ -474,7 +474,7 @@ export const FacebookCommentsModerator: React.FC<FacebookCommentsModeratorProps>
                         type="button"
                         onClick={() => handleSendReply(comment.id)}
                         disabled={isSubmitting}
-                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
                       >
                         {isSubmitting ? (
                           <>

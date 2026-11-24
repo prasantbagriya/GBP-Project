@@ -1290,9 +1290,9 @@ export const FlowBuilder: React.FC = () => {
 
             <button
               onClick={() => handleAddNode('message')}
-              className="w-full px-2.5 py-1.5 bg-slate-800/80 hover:bg-blue-600 text-slate-200 hover:text-white rounded-xl text-xs font-medium flex items-center gap-2 transition group"
+              className="w-full px-2.5 py-1.5 bg-slate-800/80 hover:bg-indigo-600 text-slate-200 hover:text-white rounded-xl text-xs font-medium flex items-center gap-2 transition group"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-blue-400 group-hover:text-white" />
+              <MessageSquare className="w-3.5 h-3.5 text-indigo-400 group-hover:text-white" />
               <span>Text Message</span>
             </button>
 
@@ -1617,9 +1617,9 @@ export const FlowBuilder: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleAddNode('message', { x: quickAddMenu.x, y: quickAddMenu.y }, { nodeId: quickAddMenu.fromNodeId, handleId: quickAddMenu.fromHandleId })}
-                  className="w-full text-left px-2 py-1.5 hover:bg-blue-600 rounded-xl text-xs font-medium flex items-center gap-2 transition"
+                  className="w-full text-left px-2 py-1.5 hover:bg-indigo-600 rounded-xl text-xs font-medium flex items-center gap-2 transition"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 text-blue-400" /> Message
+                  <MessageSquare className="w-3.5 h-3.5 text-indigo-400" /> Message
                 </button>
                 <button
                   onClick={() => handleAddNode('buttons', { x: quickAddMenu.x, y: quickAddMenu.y }, { nodeId: quickAddMenu.fromNodeId, handleId: quickAddMenu.fromHandleId })}
@@ -1665,7 +1665,7 @@ export const FlowBuilder: React.FC = () => {
               const isSelected = selectedNodeId === node.id;
               const theme = THEME_COLORS[node.data.themeColor || 'default'] || THEME_COLORS.default;
 
-              let icon = <MessageSquare className="w-4 h-4 text-blue-400" />;
+              let icon = <MessageSquare className="w-4 h-4 text-indigo-400" />;
               if (node.type === 'trigger') icon = <Play className="w-4 h-4 text-emerald-400 fill-current" />;
               else if (node.type === 'buttons') icon = <ListOrdered className="w-4 h-4 text-purple-400" />;
               else if (node.type === 'input') icon = <FormInput className="w-4 h-4 text-amber-400" />;
@@ -1857,7 +1857,7 @@ export const FlowBuilder: React.FC = () => {
                     {node.type === 'condition' && (
                       <div className="bg-teal-950/40 p-2 rounded-lg border border-teal-800/40 text-[11px] text-teal-200">
                         <p className="font-semibold text-teal-400">If text matches keywords:</p>
-                        <p className="text-slate-300 text-[10px] truncate mt-0.5 font-mono">
+                        <p className="text-slate-300 text-[10px] truncate mt-0.5">
                           {node.data.keyword || 'pricing, quote'}
                         </p>
                       </div>
@@ -1895,7 +1895,7 @@ export const FlowBuilder: React.FC = () => {
                 const normX = ((n.position.x - miniMapBounds.minX) / miniMapBounds.width) * 100;
                 const normY = ((n.position.y - miniMapBounds.minY) / miniMapBounds.height) * 100;
 
-                let dotColor = 'bg-blue-400';
+                let dotColor = 'bg-indigo-400';
                 if (n.type === 'trigger') dotColor = 'bg-emerald-400';
                 else if (n.type === 'buttons') dotColor = 'bg-purple-400';
                 else if (n.type === 'gemini_ai') dotColor = 'bg-indigo-400';
@@ -2307,7 +2307,7 @@ export const FlowBuilder: React.FC = () => {
                   value={flowKeywords}
                   onChange={e => setFlowKeywords(e.target.value)}
                   placeholder="hello, hi, help, support, price, admission"
-                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-indigo-500 font-mono text-[11px]"
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-indigo-500 font-normal text-[11px]"
                 />
               </div>
 
@@ -2366,7 +2366,7 @@ export const FlowBuilder: React.FC = () => {
                 { key: 'Esc', desc: 'Deselect / Close panels' }
               ].map((s, idx) => (
                 <div key={idx} className="flex items-center justify-between p-2 bg-slate-950 rounded-lg border border-slate-800">
-                  <span className="font-mono text-indigo-400 text-[11px] font-bold">{s.key}</span>
+                  <span className="text-indigo-400 text-[11px] font-bold">{s.key}</span>
                   <span className="text-slate-300 text-[11px]">{s.desc}</span>
                 </div>
               ))}

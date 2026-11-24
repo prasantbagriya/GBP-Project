@@ -117,7 +117,7 @@ export const CannedResponsesManager: React.FC = () => {
             Canned Responses & Quick Replies
           </h3>
           <p className="text-xs text-slate-500">
-            Agents can type shortcuts like <span className="font-mono text-indigo-600">/hello</span> or <span className="font-mono text-indigo-600">/pricing</span> in the live chat to instantly send pre-crafted responses.
+            Agents can type shortcuts like <span className="font-semibold text-indigo-600">/hello</span> or <span className="font-semibold text-indigo-600">/pricing</span> in the live chat to instantly send pre-crafted responses.
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export const CannedResponsesManager: React.FC = () => {
               className="p-4 bg-slate-50/70 hover:bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5 transition relative group"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="font-mono font-bold text-xs text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-lg">
+                <span className="font-semibold text-xs text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-lg">
                   {item.shortcut}
                 </span>
                 <span className="text-[10px] bg-slate-200/80 text-slate-600 px-2 py-0.5 rounded-full font-medium">
@@ -213,7 +213,7 @@ export const CannedResponsesManager: React.FC = () => {
                     value={shortcut}
                     onChange={(e) => setShortcut(e.target.value)}
                     placeholder="/hello"
-                    className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-mono"
+                    className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-medium"
                   />
                 </div>
                 <div>

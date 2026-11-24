@@ -1276,19 +1276,15 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <span>Daily Review Targets & Live Sync</span>
-                <span className="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
-                  All Profiles Live
-                </span>
+              <h2 className="text-xl font-bold text-slate-900">
+                Daily review targets
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Set weekly goals, auto-distribute random 1–10 daily targets, track morning assignments and evening EOD closures.
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                Set weekly goals, auto-distribute targets, track morning assignments and evening closures.
               </p>
             </div>
           </div>
@@ -1298,25 +1294,25 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
           <button
             onClick={() => fetchData(true)}
             disabled={loading}
-            className="px-2 sm:px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
+            className="px-2 sm:px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0 shadow-2xs"
             title="Refresh live reviews from Google API"
           >
-            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loading ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
-            <span className="truncate">Live Sync</span>
+            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${loading ? 'animate-spin text-indigo-600' : 'text-indigo-600'}`} />
+            <span className="truncate">Live sync</span>
           </button>
 
           <button
             onClick={handleExportWeeklyPdf}
-            className="px-2 sm:px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
+            className="px-2 sm:px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0 shadow-2xs"
             title="Print or export weekly PDF performance report"
           >
-            <FileText className="w-3.5 h-3.5 text-red-600 shrink-0" />
-            <span className="truncate">PDF Report</span>
+            <FileText className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+            <span className="truncate">PDF report</span>
           </button>
 
           <button
             onClick={() => setShowAddMemberModal(true)}
-            className="px-2 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow-2xs cursor-pointer transition-colors whitespace-nowrap shrink-0"
+            className="px-2 sm:px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0 shadow-2xs"
           >
             <Users className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">Team ({members.length})</span>
@@ -1358,13 +1354,13 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
         <div className="md:col-span-4 bg-white border border-slate-200 rounded-md p-3 space-y-2.5 shadow-2xs">
           <div className="flex items-center justify-between text-xs">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-blue-600" />
+              <Calendar className="w-3.5 h-3.5 text-indigo-600" />
               Week Period
             </span>
             {weekOffset !== 0 && (
               <button
                 onClick={() => setWeekOffset(0)}
-                className="text-[11px] text-blue-600 hover:text-blue-700 hover:underline font-semibold cursor-pointer"
+                className="text-[11px] text-indigo-600 hover:text-indigo-700 hover:underline font-semibold cursor-pointer"
               >
                 Reset This Week
               </button>
@@ -1395,7 +1391,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
           <div>
             <div className="text-[11px] font-semibold text-slate-600 mb-1 flex items-center justify-between">
               <span>Select Day:</span>
-              <span className="text-[10px] text-blue-700 font-bold">
+              <span className="text-[10px] text-indigo-700 font-bold">
                 {DAY_NAMES[activeViewDayIdx].en} ({getDayDate(activeViewDayIdx).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })})
                 {activeViewDayIdx === currentDayIndex && weekOffset === 0 ? ' — Today' : ''}
               </span>
@@ -1411,17 +1407,17 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                   <button
                     key={d.en}
                     onClick={() => setActiveViewDayIdx(i)}
-                    className={`py-1.5 rounded text-[11px] font-semibold text-center cursor-pointer transition-all border flex flex-col items-center justify-center gap-0.5 ${
+                    className={`py-1.5 rounded-lg text-xs font-semibold text-center cursor-pointer transition-colors border flex flex-col items-center justify-center gap-0.5 ${
                       isSelected
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-2xs font-bold'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
                         : isToday
-                          ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 font-bold'
-                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 font-bold'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                     }`}
                     title={`${d.en} (${dayDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })})${isToday ? ' — Today' : ''}${isLockedDay ? ' — Completed & Locked' : ''}`}
                   >
                     <span className="leading-tight">{d.en.slice(0, 3)}</span>
-                    <span className={`text-[9px] leading-none ${isSelected ? 'text-blue-100' : isToday ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>
+                    <span className={`text-[10px] tabular-nums leading-none ${isSelected ? 'text-indigo-100 font-bold' : isToday ? 'text-indigo-700 font-bold' : 'text-slate-500 font-semibold'}`}>
                       {dayDate.getDate()}
                     </span>
                     {isLockedDay && <Lock className={`w-2.5 h-2.5 mt-0.5 ${isSelected ? 'text-white' : 'text-slate-400'} shrink-0`} />}
@@ -1438,12 +1434,12 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
           <div className="bg-white border border-slate-200 rounded-md p-3 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-colors">
             <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               <span className="flex items-center gap-1.5 truncate">
-                <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <Building2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 Total Branches
               </span>
             </div>
             <div className="my-1">
-              <span className="text-xl font-bold text-slate-800 font-mono">{todayAggregateStats.totalProfiles}</span>
+              <span className="text-xl font-bold text-slate-800">{todayAggregateStats.totalProfiles}</span>
             </div>
             <div className="text-[11px] text-slate-400 truncate">
               Profiles synced
@@ -1459,7 +1455,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
               </span>
             </div>
             <div className="my-1">
-              <span className="text-xl font-bold text-indigo-600 font-mono">{todayAggregateStats.combinedTarget}</span>
+              <span className="text-xl font-bold text-indigo-600">{todayAggregateStats.combinedTarget}</span>
             </div>
             <div className="text-[11px] text-slate-400 truncate">
               Planned for {DAY_NAMES[activeViewDayIdx].en}
@@ -1475,7 +1471,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
               </span>
             </div>
             <div className="my-1">
-              <span className="text-xl font-bold text-emerald-600 font-mono">+{todayAggregateStats.combinedDelivered}</span>
+              <span className="text-xl font-bold text-emerald-600">+{todayAggregateStats.combinedDelivered}</span>
             </div>
             <div className="text-[11px] text-emerald-700 font-semibold truncate">
               {todayAggregateStats.successPct}% target hit
@@ -1491,7 +1487,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
               </span>
             </div>
             <div className="my-1">
-              <span className="text-xl font-bold text-amber-600 font-mono">
+              <span className="text-xl font-bold text-amber-600">
                 {todayAggregateStats.profilesMet} / {todayAggregateStats.totalProfiles}
               </span>
             </div>
@@ -1508,7 +1504,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
         <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
           <div>
             <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <Layers className="w-4 h-4 text-blue-600" />
+              <Layers className="w-4 h-4 text-indigo-600" />
               <span>All Profiles Review Targets & Delivery — {DAY_NAMES[activeViewDayIdx].en}</span>
             </h3>
             <p className="text-xs text-slate-400">
@@ -1536,7 +1532,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
 
         {loading ? (
           <div className="p-12 text-center text-slate-400">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-2" />
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-indigo-600 mb-2" />
             <p className="text-xs font-medium">Syncing live review data from Google Business Profile...</p>
           </div>
         ) : activeProfiles.length === 0 ? (
@@ -1631,8 +1627,8 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                             </select>
                           )}
                           {getStaffPhoneForProfile(p.id, p.title) && (
-                            <span className="text-[10px] text-blue-700 font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 flex items-center gap-1">
-                              <Phone className="w-2.5 h-2.5 text-blue-600" />
+                            <span className="text-[10px] text-indigo-700 font-semibold bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 flex items-center gap-1">
+                              <Phone className="w-2.5 h-2.5 text-indigo-600" />
                               {getStaffPhoneForProfile(p.id, p.title)}
                             </span>
                           )}
@@ -1658,7 +1654,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                             min="1"
                             value={conf.weeklyTarget}
                             onChange={(e) => handleUpdateWeeklyTarget(p.id, parseInt(e.target.value) || 0)}
-                            className="w-13 px-1.5 py-0.5 text-xs text-center bg-slate-50 border border-slate-200 rounded font-bold text-slate-700 outline-none focus:border-blue-500"
+                            className="w-13 px-1.5 py-0.5 text-xs text-center bg-slate-50 border border-slate-200 rounded font-bold text-slate-700 outline-none focus:border-indigo-600"
                             title="Weekly Review Goal"
                           />
                           <button
@@ -1673,7 +1669,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                       </td>
 
                       {/* Today's Target */}
-                      <td className="p-3 text-center font-bold text-blue-700 text-sm">
+                      <td className="p-3 text-center font-bold text-indigo-700 text-sm">
                         <span className="flex items-center justify-center gap-1">
                           {todayTarget}
                           {isDayLocked && (
@@ -1747,7 +1743,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                           <>
                             <span className="text-slate-500">{p.beforeTodayReviews}</span>
                             <span className="text-slate-300 mx-1">➔</span>
-                            <strong className="text-blue-700 font-bold">{p.totalReviews}</strong>
+                            <strong className="text-indigo-700 font-bold">{p.totalReviews}</strong>
                             {deliveredCount > 0 && (
                               <span className="text-[10px] text-emerald-600 font-bold ml-1">
                                 (+{deliveredCount} new)
@@ -1775,7 +1771,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                             href={p.reviewLink}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-blue-600 hover:underline font-semibold text-[11px] inline-flex items-center gap-1"
+                            className="text-indigo-600 hover:underline font-semibold text-[11px] inline-flex items-center gap-1"
                           >
                             <span>Link</span>
                             <ExternalLink className="w-3 h-3" />
@@ -1843,7 +1839,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                   <Moon className="w-3.5 h-3.5" />
                   <span>Shaam Sync</span>
                   {isEveningTimeNow && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="Auto-activated for evening post 6:30 PM" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-0.5" title="Evening sync active" />
                   )}
                 </button>
               </div>
@@ -1963,7 +1959,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
           <div className="bg-white border border-slate-200 rounded-lg w-full max-w-lg p-5 sm:p-6 shadow-xl relative text-slate-800 my-auto">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-blue-600" />
+                <Users className="w-5 h-5 text-indigo-600" />
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">Team Group Members</h3>
                   <p className="text-[11px] text-slate-400">Manage, add or delete members assigned to daily review targets</p>
@@ -2000,7 +1996,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                         <div className="font-bold text-slate-800 truncate">{m.name}</div>
                         <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5 flex-wrap">
                           {m.role && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{m.role}</span>}
-                          {m.phone && <span className="text-slate-500 flex items-center gap-1 font-mono"><Phone className="w-2.5 h-2.5 text-emerald-600" />{m.phone}</span>}
+                          {m.phone && <span className="text-slate-500 flex items-center gap-1"><Phone className="w-2.5 h-2.5 text-emerald-600" />{m.phone}</span>}
                         </div>
                       </div>
                       <button
@@ -2020,7 +2016,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
             {/* Section B: Add New Member Form */}
             <div className="pt-3 border-t border-slate-100">
               <h4 className="text-xs font-bold text-slate-700 mb-2.5 flex items-center gap-1.5">
-                <Plus className="w-3.5 h-3.5 text-blue-600" />
+                <Plus className="w-3.5 h-3.5 text-indigo-600" />
                 <span>Add New Member</span>
               </h4>
               <form onSubmit={handleAddMember} className="space-y-2.5 text-xs">
@@ -2032,7 +2028,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                     placeholder="e.g. Rahul Sharma"
                     value={newMemberName}
                     onChange={(e) => setNewMemberName(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-300 rounded-md outline-none focus:border-blue-500"
+                    className="w-full p-2 bg-slate-50 border border-slate-300 rounded-md outline-none focus:border-indigo-600 focus:bg-white"
                   />
                 </div>
 
@@ -2044,7 +2040,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                       placeholder="e.g. Front Desk / Sikar Branch"
                       value={newMemberRole}
                       onChange={(e) => setNewMemberRole(e.target.value)}
-                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-md outline-none focus:border-blue-500"
+                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-md outline-none focus:border-indigo-600 focus:bg-white"
                     />
                   </div>
 
@@ -2055,7 +2051,7 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                       placeholder="+91 9876543210"
                       value={newMemberPhone}
                       onChange={(e) => setNewMemberPhone(e.target.value)}
-                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-md outline-none focus:border-blue-500"
+                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-md outline-none focus:border-indigo-600 focus:bg-white"
                     />
                   </div>
                 </div>
@@ -2070,10 +2066,10 @@ export const DailyReviewTargetPage: React.FC<DailyReviewTargetPageProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold shadow-2xs cursor-pointer flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium cursor-pointer flex items-center gap-1.5 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Save Member</span>
+                    <span>Save member</span>
                   </button>
                 </div>
               </form>

@@ -75,32 +75,32 @@ export const ReviewTrajectoryChart: React.FC<ReviewTrajectoryChartProps> = ({ da
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-800">Review Acquisition Trajectory & Velocity</h3>
-            <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-200 font-medium whitespace-nowrap shrink-0">
+            <h3 className="text-sm font-bold text-slate-900">Review Acquisition Trajectory</h3>
+            <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full border border-slate-200 font-medium whitespace-nowrap shrink-0">
               {timeframeLabel}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Total <strong className="text-slate-700 font-medium">{totalReviewsInPeriod} reviews</strong> plotted across this window
+            Total <strong className="text-slate-800 font-bold tabular-nums">{totalReviewsInPeriod} reviews</strong> plotted across this window
           </p>
         </div>
 
         {/* Hover inspection pill or peak badge */}
         {hoveredIndex !== null && points[hoveredIndex] ? (
-          <div className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs shadow-lg flex items-center gap-3 animate-in fade-in duration-100 whitespace-nowrap shrink-0">
+          <div className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs shadow-sm flex items-center gap-3 whitespace-nowrap shrink-0">
             <div>
-              <span className="text-slate-400 text-[10px] block">{points[hoveredIndex].label} ({points[hoveredIndex].dateStr})</span>
-              <span className="font-semibold text-emerald-400">+{points[hoveredIndex].count} Reviews</span>
+              <span className="text-slate-300 text-[10px] block">{points[hoveredIndex].label} ({points[hoveredIndex].dateStr})</span>
+              <span className="font-bold text-emerald-400 tabular-nums">+{points[hoveredIndex].count} reviews</span>
             </div>
             <div className="border-l border-slate-700 pl-2 text-right">
-              <span className="text-amber-400 font-semibold block">{points[hoveredIndex].avgRating.toFixed(1)}★</span>
-              <span className="text-[10px] text-slate-400">{points[hoveredIndex].fiveStars} 5-Star</span>
+              <span className="text-amber-400 font-bold tabular-nums block">{points[hoveredIndex].avgRating.toFixed(1)} ★</span>
+              <span className="text-[10px] text-slate-300 tabular-nums">{points[hoveredIndex].fiveStars} 5-star</span>
             </div>
           </div>
         ) : peakPoint && peakPoint.count > 0 ? (
-          <div className="px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 flex items-center gap-1.5 shadow-2xs whitespace-nowrap shrink-0">
-            <Zap className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            <span>Peak Day: <strong className="font-semibold">{peakPoint.label} (+{peakPoint.count})</strong></span>
+          <div className="px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-lg text-xs text-indigo-900 font-semibold flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-2xs">
+            <Zap className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+            <span>Peak day: <strong className="font-bold tabular-nums">{peakPoint.label} (+{peakPoint.count})</strong></span>
           </div>
         ) : null}
       </div>
@@ -113,8 +113,8 @@ export const ReviewTrajectoryChart: React.FC<ReviewTrajectoryChartProps> = ({ da
         >
           <defs>
             <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.32" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.01" />
+              <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -130,8 +130,8 @@ export const ReviewTrajectoryChart: React.FC<ReviewTrajectoryChartProps> = ({ da
           <path 
             d={pathD} 
             fill="none" 
-            stroke="#2563eb" 
-            strokeWidth="2.5" 
+            stroke="#4f46e5" 
+            strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round" 
           />

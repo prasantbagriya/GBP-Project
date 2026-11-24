@@ -88,23 +88,23 @@ export const ActivityHeatmapGrid: React.FC<ActivityHeatmapGridProps> = ({ review
   const getColorClass = (count: number) => {
     if (count === 0) return 'bg-slate-50 text-slate-400';
     const ratio = count / maxCount;
-    if (ratio > 0.75) return 'bg-blue-600 text-white font-bold shadow-xs';
-    if (ratio > 0.5) return 'bg-blue-400 text-white font-semibold';
-    if (ratio > 0.25) return 'bg-blue-200 text-blue-900 font-medium';
-    return 'bg-blue-100 text-blue-800 font-medium';
+    if (ratio > 0.75) return 'bg-indigo-600 text-white font-medium';
+    if (ratio > 0.5) return 'bg-indigo-500 text-white font-medium';
+    if (ratio > 0.25) return 'bg-indigo-200 text-indigo-900 font-normal';
+    return 'bg-indigo-100 text-indigo-800 font-normal';
   };
 
   return (
     <div className="card p-5 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Peak Review Acquisition Heatmap</h3>
+          <h3 className="text-sm font-bold text-slate-900">Peak review acquisition heatmap</h3>
           <p className="text-xs text-slate-500 mt-0.5">Day of week vs. customer time window distribution</p>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-medium shadow-2xs whitespace-nowrap shrink-0">
-          <Zap className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-          <span>Prime Window: {peakDay} ({peakWindow})</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md text-xs font-bold whitespace-nowrap shrink-0 shadow-2xs">
+          <Zap className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+          <span>Prime window: {peakDay} ({peakWindow})</span>
         </div>
       </div>
 
